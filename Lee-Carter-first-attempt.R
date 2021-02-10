@@ -71,6 +71,12 @@ obs = cbind(obs, y = y)
 # add extra t to the observations for the sake of inlabru:
 obs = cbind(obs, t1 = obs$t)
 
+# add xt index for epsilon effect in inlabru:
+xt.func <- function(x,t){
+  return(x*100 + t)
+}
+obs = cbind(obs, xt = apply(obs, 1, function(row) xt.func(row['x'], row['t'])))
+
 # plot observations:
 ggplot(data = obs, aes(x=x, y=t, fill = y)) + geom_tile()
 
@@ -78,14 +84,45 @@ ggplot(data = obs, aes(x=x, y=t, fill = y)) + geom_tile()
 #   ----  Start defining the inlabru model components  ----   
 
 #  helper values for constraining of beta:
-A = matrix(1, nrow = 100, ncol = 1)  #  not sure if you did this correctly
-e = rep(1,1)
+A.mat = matrix(1, nrow = 1, ncol = 100)  #  not sure if you did this correctly
+e.vec = 1
 
 comp = ~ Intercept + 
   phi(t, model = "linear") + 
-  beta(x, model = "iid", extraconst = list(A = A, e = e)) + 
+  beta(x, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
   kappa(t1, model = "rw1", values = 1:100, constr = TRUE) + 
-  epsilon(tx, model = "iid")
-  
-  
+  epsilon(xt, model = "iid")
+
+form.1 = y ~ Intercept + beta*phi + beta*kappa
+likelihood.1 = like(formula = form.1, family = "poisson", data = obs)
+
+# the same control compute as in Sara's first example 
+c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
+
+res = bru(components = comp,
+          likelihood.1, 
+          options = list(verbose = F,
+                         num.threads = "1:1",
+                         control.compute = c.c,
+                         control.inla = list(int.strategy = "eb"))) 
+
+gg.beta.true = ggplot(data = obs, aes(x = x, y = beta)) + geom_point(color = "hotpink") + ggtitle("True beta")
+gg.kappa.true = ggplot(data = obs, aes(x = t, y = kappa)) + geom_line(fill = "hotpink") + ggtitle("True kappa")
+gg.phi.true = ggplot(data = obs, aes(x = t, y = phi)) + geom_line(fill = hotpink) + ggtitle("True phi")
+gg.epsilon.true = ggplot(data = obs, aes(x = x, y = t, fill = epsilon)) + geom_tile(fill = "hotpink") + ggtitle("True epsilon")
+
+gg.beta = ggplot(data = cbind(res$summary.random$beta, beta.true = beta[res$summary.random$beta$ID]), aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
+  geom_point(aes(y = mean), color = "lightskyblue") + 
+  geom_point(aes(y = beta.true), color = "dodgerblue1")
+gg.beta  
+
+data.kappa = cbind(res$summary.random$kappa, kappa.true = kappa[res$summary.random$kappa$ID])
+gg.kappa = ggplot(data = data.kappa, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
+  geom_line(aes(y = mean), color = "lightskyblue") + 
+  geom_line(aes(y = kappa.true), color = "dodgerblue1")
+gg.kappa
+
+
 
