@@ -7,7 +7,7 @@ library(inlabru)
 library(ggplot2)
 library(patchwork)
 
-N = 1000
+N = 10000
 
 nx = 10
 nt = 10
@@ -22,8 +22,6 @@ obs = data.frame(x,t)
 #   model parameters for underlying models:
 
 tau.iid = 1/0.1**2   #  Standard deviation of 0.1 for the iid effects (beta)
-# change from 1/0.2**2 to 1/0.3**2 to see if it has an effect on prediction of kappa
-tau.rw = 1/3**2    #  Standard deviation of 0.2 for the random walk
 # change tau.epsilon from 1/0.1**2 to 1/0.01**2 to see if it was causing too much noise 
 tau.epsilon = 1/0.01**2   #  Standard deviation of 0.01 for the noise 
 
@@ -31,6 +29,7 @@ kappa = cos(((1:nt - 3)* pi)/6)
 kappa = kappa - mean(kappa)
 
 alpha = -2.0   #  Intercept - perhaps make this iid in the future? 
+#alpha = 0 # try what happens if I change the intercept
 
 phi = 0.025  #  Drift of random walk
 
@@ -38,17 +37,8 @@ phi = 0.025  #  Drift of random walk
 beta = rnorm(nx, 0, sqrt(1/tau.iid))  # should it not depend on t??
 beta = 1/nx + beta - mean(beta)   # sum to 1
 
-#beta.x = beta[x]
-
-#phi.t = phi*t
-
-#kappa.t = kappa[t]
-
 m.epsilon = matrix(rnorm(nx*nt, 0, sqrt(1/tau.epsilon)), nx, nt)
 # how to structure samples from these?  
-
-#eta = alpha + beta.x*phi.t + beta.x*kappa.t + m.epsilon[x,t]  # is this the correct representation of eta?
-# no, you now have all combinations of the 1000 samples of x and t each. You want the grid representation. 
 
 # add everything to the dataframe instead of specifying beta.x and kappa.t etc separately. 
 # expand the obs dataframe:
@@ -162,8 +152,11 @@ cat("Precision for epsiloin: \n", "True value: ", tau.epsilon,"\n Simulated valu
     res$summary.hyperpar$mean[3])
 
 # density plot of true eta and predicted eta:
+eta.sim = res$summary.linear.predictor$mean
+eta.sim = eta.sim - log(at.risk)
 data.eta.density = rbind(data.frame(eta = obs$eta, sim = "F"),
-                         data.frame(eta = res$summary.linear.predictor$mean, sim = "T"))
+                         data.frame(eta = eta.sim, sim = "T"))
 gg.eta.density = ggplot(data = data.eta.density, aes(x = eta, color = sim)) + geom_density()
 gg.eta.density
 
+cat("Intercept: ", res$summary.fixed$mean[1] - log(at.risk))
