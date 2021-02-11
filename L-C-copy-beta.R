@@ -89,26 +89,50 @@ e.vec = 1
 
 pc.prior <- list(prec = list(prior = "pc.prec", param = c(0.2,0.8)))
 
+# the same control compute as in Sara's first example 
+c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
+
 # components with two beta, beta2 a copy of beta1
-comp = ~ Intercept + 
+comp.copy = ~ Intercept + 
   phi(t, model = "linear") + 
   beta1(x, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
   kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior) + 
   beta2(x1, model = "iid", copy="beta1") +
   epsilon(xt, model = "iid")
 
-form.1 = y ~ Intercept + beta1*phi + beta2*kappa + epsilon
-likelihood.1 = like(formula = form.1, family = "poisson", data = obs)
+form.copy = y ~ Intercept + beta1*phi + beta2*kappa + epsilon
+likelihood.copy = like(formula = form.copy, family = "poisson", data = obs)
 
-# the same control compute as in Sara's first example 
-c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
-
-res = bru(components = comp,
-          likelihood.1, 
+start.copy = Sys.time()
+res.copy = bru(components = comp.copy,
+          likelihood.copy, 
           options = list(verbose = F,
                          num.threads = "1:1",
                          control.compute = c.c,
                          control.inla = list(int.strategy = "eb"))) 
+end.copy = Sys.time()
+runtime.copy = end.copy - start.copy
+cat("Runtime for the copy method: ", runtime.copy)
+
+comp.single = ~ Intercept + 
+  phi(t, model = "linear") + 
+  beta(x, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
+  kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior) + 
+  epsilon(xt, model = "iid")
+
+form.single = y ~ Intercept + beta*phi + beta*kappa + epsilon
+likelihood.single = like(formula = form.single, family = "poisson", data = obs)
+
+start.s = Sys.time()
+res.single = bru(components = comp.single,
+               likelihood.single, 
+               options = list(verbose = F,
+                              num.threads = "1:1",
+                              control.compute = c.c,
+                              control.inla = list(int.strategy = "eb"))) 
+end.s = Sys.time()
+runtime.s = end.s - start.s
+cat("Runtime for the method with a single beta: ", runtime.s)
 
 gg.beta.true = ggplot(data = obs, aes(x = x, y = beta)) + geom_point(color = "hotpink") + ggtitle("True beta")
 gg.kappa.true = ggplot(data = obs, aes(x = t, y = kappa)) + geom_line(color = "hotpink") + ggtitle("True kappa")
@@ -116,31 +140,55 @@ gg.phi.true = ggplot(data = obs, aes(x = t, y = phi)) + geom_line(color = "hotpi
 gg.epsilon.true = ggplot(data = obs, aes(x = x, y = t, fill = epsilon)) + geom_tile() + ggtitle("True epsilon")
 ggplot(data = obs, aes(x = epsilon)) + geom_density()
 
-gg.beta1 = ggplot(data = cbind(res$summary.random$beta1, beta.true = beta[res$summary.random$beta1$ID]), aes(x = ID)) + 
+gg.beta1.c = ggplot(data = cbind(res.copy$summary.random$beta1, beta.true = beta[res.copy$summary.random$beta1$ID]), aes(x = ID)) + 
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
   geom_point(aes(y = mean), color = "lightskyblue") + 
-  geom_point(aes(y = beta.true), color = "dodgerblue1")
-gg.beta1 
+  geom_point(aes(y = beta.true), color = "dodgerblue1") + 
+  ggtitle("beta1 coopy")
 
-gg.beta2 = ggplot(data = cbind(res$summary.random$beta2, beta.true = beta[res$summary.random$beta2$ID]), aes(x = ID)) + 
+gg.beta2.c = ggplot(data = cbind(res.copy$summary.random$beta2, beta.true = beta[res.copy$summary.random$beta2$ID]), aes(x = ID)) + 
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
   geom_point(aes(y = mean), color = "lightskyblue") + 
-  geom_point(aes(y = beta.true), color = "dodgerblue1")
-gg.beta2 
+  geom_point(aes(y = beta.true), color = "dodgerblue1") + 
+  ggtitle("beta2 copy")
 
-data.kappa = cbind(res$summary.random$kappa, kappa.true = kappa[res$summary.random$kappa$ID])
-gg.kappa = ggplot(data = data.kappa, aes(x = ID)) + 
+gg.beta.s = ggplot(data = cbind(res.single$summary.random$beta, beta.true = beta[res.single$summary.random$beta$ID]), aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
+  geom_point(aes(y = mean), color = "lightskyblue") + 
+  geom_point(aes(y = beta.true), color = "dodgerblue1") + 
+  ggtitle("beta single")
+
+(gg.beta1.c | gg.beta2.c | gg.beta.s)
+
+data.kappa.c = cbind(res.copy$summary.random$kappa, kappa.true = kappa[res.copy$summary.random$kappa$ID])
+gg.kappa.c = ggplot(data = data.kappa.c, aes(x = ID)) + 
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
   geom_line(aes(y = mean), color = "lightskyblue") + 
-  geom_line(aes(y = kappa.true), color = "dodgerblue1")
-gg.kappa
+  geom_line(aes(y = kappa.true), color = "dodgerblue1") + 
+  ggtitle("Kappa copy")
+
+data.kappa.s = cbind(res.single$summary.random$kappa, kappa.true = kappa[res.single$summary.random$kappa$ID])
+gg.kappa.s = ggplot(data = data.kappa.s, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
+  geom_line(aes(y = mean), color = "lightskyblue") + 
+  geom_line(aes(y = kappa.true), color = "dodgerblue1") + 
+  ggtitle("Kappa single")
+
+(gg.kappa.c | gg.kappa.s)
+
 
 gg.epsilon.true
-data.epsilon = res$summary.random$epsilon
-data.epsilon = cbind(data.epsilon, x = apply(data.epsilon,1, function(row) row['ID']%/%100 ))
-data.epsilon = cbind(data.epsilon, t = apply(data.epsilon, 1, function(row) row['ID']%%100))
-gg.epsilon = ggplot(data = data.epsilon, aes(x = x, y = t, fill = mean)) + geom_tile() + ggtitle("Simulated epsilon")
-gg.epsilon
+data.epsilon.c = res.copy$summary.random$epsilon
+data.epsilon.c = cbind(data.epsilon.c, x = apply(data.epsilon.c,1, function(row) row['ID']%/%100 ))
+data.epsilon.c = cbind(data.epsilon.c, t = apply(data.epsilon.c, 1, function(row) row['ID']%%100))
+gg.epsilon.c = ggplot(data = data.epsilon.c, aes(x = x, y = t, fill = mean)) + geom_tile() + ggtitle("Simulated epsilon")
+
+data.epsilon.s = res.single$summary.random$epsilon
+data.epsilon.s = cbind(data.epsilon.s, x = apply(data.epsilon.s,1, function(row) row['ID']%/%100 ))
+data.epsilon.s = cbind(data.epsilon.s, t = apply(data.epsilon.s, 1, function(row) row['ID']%%100))
+gg.epsilon.s = ggplot(data = data.epsilon.s, aes(x = x, y = t, fill = mean)) + geom_tile() + ggtitle("Simulated epsilon")
+
+(gg.epsilon.true | gg.epsilon.c | gg.epsilon.s)
 
 # density plots of true and simulated epsilon:
 data.epsilon.density = rbind(data.frame(epsilon = data.epsilon$mean, sim = "T"), data.frame(epsilon = obs$epsilon, sim = "F"))
