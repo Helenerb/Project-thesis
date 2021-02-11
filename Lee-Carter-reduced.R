@@ -2,7 +2,6 @@
 
 #   ----  first attempt at inference of Lee-Carter models for mortality 
 #  predictions with inlabru  ----   
-
 library(INLA)
 library(inlabru)
 library(ggplot2)
@@ -23,10 +22,12 @@ obs = data.frame(x,t)
 #   model parameters for underlying models:
 
 tau.iid = 1/0.1**2   #  Standard deviation of 0.1 for the iid effects (beta)
-tau.rw = 1/0.2**2    #  Standard deviation of 0.2 for the random walk
-tau.epsilon = 1/0.1**2   #  Standard deviation of 0.05 for the noise 
+# change from 1/0.2**2 to 1/0.3**2 to see if it has an effect on prediction of kappa
+tau.rw = 1/3**2    #  Standard deviation of 0.2 for the random walk
+# change tau.epsilon from 1/0.1**2 to 1/0.01**2 to see if it was causing too much noise 
+tau.epsilon = 1/0.01**2   #  Standard deviation of 0.01 for the noise 
 
-kappa = -cos(((1:nt - 3)* pi)/6)
+kappa = cos(((1:nt - 3)* pi)/6)
 kappa = kappa - mean(kappa)
 
 alpha = -2.0   #  Intercept - perhaps make this iid in the future? 
@@ -97,10 +98,12 @@ ggplot(data = obs, aes(x=t, y=x, fill = y)) + geom_tile()
 A.mat = matrix(1, nrow = 1, ncol = nx)  #  not sure if you did this correctly
 e.vec = 1
 
+pc.prior <- list(prec = list(prior = "pc.prec", param = c(0.2,0.8)))
+
 comp = ~ Intercept + 
   phi(t, model = "linear") + 
   beta(x, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
-  kappa(t1, model = "rw1", values = 1:nt, constr = TRUE) + 
+  kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior) + 
   epsilon(xt, model = "iid")  # change from iid to rw1
 
 form.1 = y ~ Intercept + beta*phi + beta*kappa + epsilon
@@ -152,7 +155,7 @@ cat("Precision for beta: ")
 cat("True value: ", tau.iid)
 cat("Simulated value: ", res$summary.hyperpar$mean[1])
 
-cat("Precision for kappa: \n", "True value: ", tau.rw,"\n Simulated value: ",
+cat("Precision for kappa: \n", "\"True\" value: ", tau.rw,"\n Simulated value: ",
     res$summary.hyperpar$mean[2])
 
 cat("Precision for epsiloin: \n", "True value: ", tau.epsilon,"\n Simulated value: ",
