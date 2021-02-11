@@ -91,9 +91,9 @@ comp = ~ Intercept +
   phi(t, model = "linear") + 
   beta(x, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
   kappa(t1, model = "rw1", values = 1:100, constr = TRUE) + 
-  epsilon(xt, model = "iid")
+  epsilon(xt, model = "iid")  # change from iid to rw1
 
-form.1 = y ~ Intercept + beta*phi + beta*kappa
+form.1 = y ~ Intercept + beta*phi + beta*kappa + epsilon
 likelihood.1 = like(formula = form.1, family = "poisson", data = obs)
 
 # the same control compute as in Sara's first example 
@@ -107,9 +107,10 @@ res = bru(components = comp,
                          control.inla = list(int.strategy = "eb"))) 
 
 gg.beta.true = ggplot(data = obs, aes(x = x, y = beta)) + geom_point(color = "hotpink") + ggtitle("True beta")
-gg.kappa.true = ggplot(data = obs, aes(x = t, y = kappa)) + geom_line(fill = "hotpink") + ggtitle("True kappa")
-gg.phi.true = ggplot(data = obs, aes(x = t, y = phi)) + geom_line(fill = hotpink) + ggtitle("True phi")
-gg.epsilon.true = ggplot(data = obs, aes(x = x, y = t, fill = epsilon)) + geom_tile(fill = "hotpink") + ggtitle("True epsilon")
+gg.kappa.true = ggplot(data = obs, aes(x = t, y = kappa)) + geom_line(color = "hotpink") + ggtitle("True kappa")
+gg.phi.true = ggplot(data = obs, aes(x = t, y = phi)) + geom_line(color = "hotpink") + ggtitle("True phi")
+gg.epsilon.true = ggplot(data = obs, aes(x = x, y = t, fill = epsilon)) + geom_tile() + ggtitle("True epsilon")
+ggplot(data = obs, aes(x = epsilon)) + geom_density()
 
 gg.beta = ggplot(data = cbind(res$summary.random$beta, beta.true = beta[res$summary.random$beta$ID]), aes(x = ID)) + 
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
@@ -124,5 +125,31 @@ gg.kappa = ggplot(data = data.kappa, aes(x = ID)) +
   geom_line(aes(y = kappa.true), color = "dodgerblue1")
 gg.kappa
 
+gg.epsilon.true
+data.epsilon = res$summary.random$epsilon
+data.epsilon = cbind(data.epsilon, x = apply(data.epsilon,1, function(row) row['ID']%/%100 ))
+data.epsilon = cbind(data.epsilon, t = apply(data.epsilon, 1, function(row) row['ID']%%100))
+gg.epsilon = ggplot(data = data.epsilon, aes(x = x, y = t, fill = mean)) + geom_tile()
+gg.epsilon
 
+# density plots of true and simulated epsilon:
+data.epsilon.density = rbind(data.frame(epsilon = data.epsilon$mean, sim = "T"), data.frame(epsilon = obs$epsilon, sim = "F"))
+gg.epsilon.density = ggplot(data = data.epsilon.density, aes(x = epsilon, color = sim)) + geom_density()
+gg.epsilon.density
 
+#  results of hyperparameters:
+cat("Precision for beta: ")
+cat("True value: ", tau.iid)
+cat("Simulated value: ", res$summary.hyperpar$mean[1])
+
+cat("Precision for kappa: \n", "True value: ", tau.rw,"\n Simulated value: ",
+    res$summary.hyperpar$mean[2])
+
+cat("Precision for epsiloin: \n", "True value: ", tau.epsilon,"\n Simulated value: ",
+    res$summary.hyperpar$mean[3])
+
+# density plot of true eta and predicted eta:
+data.eta.density = rbind(data.frame(eta = obs$eta, sim = "F"),
+                         data.frame(eta = res$summary.linear.predictor$mean, sim = "T"))
+gg.eta.density = ggplot(data = data.eta.density, aes(x = eta, color = sim)) + geom_density()
+gg.eta.density
