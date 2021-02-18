@@ -15,18 +15,24 @@ library(patchwork)
 N = 10000
 
 nx = 20
-nt = 20
+nt = 20 
 
-t_min_x.min = 1-nx
-t_min_x.max = nt-1
-n.t_min_x = t_min_x.max + abs(t_min_x.min) + 1
+ts = 1900 + (1:nt)
+
+#t_min_x.min = 1-nx
+t_min_x.min = min(ts) - nx
+#t_min_x.max = nt-1
+t_min_x.max = max(ts) - 1
+n.t_min_x = t_min_x.max - (t_min_x.min - 1)
 
 at.risk = 1000
 
 x = sample(1:nx, N, replace = TRUE)   # 1000 samples of ages 1-100
 t = sample(1:nt, N, replace = TRUE)   # 1000 samples of years 1901-2000: represented as 1-100
 
-t_min_x = t-x + abs(t_min_x.min) + 1
+t = t + 1900
+
+t_min_x = t-x
 
 obs = data.frame(x,t, t_min_x)
 
@@ -34,13 +40,16 @@ obs = data.frame(x,t, t_min_x)
 tau.iid = 1/0.1**2   # = 100
 tau.epsilon = 1/0.01**2   # =10000
 
-kappa = 2*cos((1:nx)*pi/20)
+#kappa = 2*cos((1900 + 1:nt)*pi/20)
+kappa = 2*cos(t*pi/20)
 kappa = kappa - mean(kappa)
 
 alpha = cos(((1:nx - 3)* pi)/6)
 alpha = alpha - mean(alpha)
 
-phi = 0.025  #  Drift of random walk
+#phi = 0.025  #  Drift of random walk
+phi = 0.0025
+phi.t = phi*t
 
 beta = rnorm(nx, 0, sqrt(1/tau.iid))
 beta = 1/nx + beta - mean(beta)
@@ -48,20 +57,24 @@ beta = 1/nx + beta - mean(beta)
 m.epsilon = matrix(rnorm(nx*nt, 0, sqrt(1/tau.epsilon)), nx, nt)
 
 # introduce kohort effect:
-gamma = (t_min_x.min:t_min_x.max)**3/(3*10**3)
+gamma = (t_min_x - 1900)**3/(3*10**3)
 gamma = gamma - mean(gamma)
 
 obs = cbind(obs, beta = beta[as.vector(obs$x)])
-obs = cbind(obs, kappa = kappa[obs$t])
+#obs = cbind(obs, kappa = kappa[obs$t])
+obs = cbind(obs, kappa = kappa)
 obs = cbind(obs, alpha = alpha[obs$x])
-obs = cbind(obs, phi.t = phi*obs$t)
-obs = cbind(obs, gamma = gamma[obs$t_min_x])
+#obs = cbind(obs, phi.t = phi*obs$t)
+obs = cbind(obs, phi.t = phi.t)
+#obs = cbind(obs, gamma = gamma[obs$t_min_x])
+obs = cbind(obs, gamma = gamma)
 
 epsilon.map <- function(x,t){
   return(m.epsilon[x, t])
 }
 
-obs = cbind(obs, epsilon = apply(obs, 1, function(row) epsilon.map(row['x'], row['t'])))
+#obs = cbind(obs, epsilon = apply(obs, 1, function(row) epsilon.map(row['x'], row['t'])))
+obs = cbind(obs, epsilon = apply(obs, 1, function(row) epsilon.map(row['x'], row['t'] - 1900)))
 
 eta.func <- function(alpha, beta, phit, kappa, epsilon, gamma){
   return(alpha + beta*phit + beta*kappa + gamma + epsilon)
@@ -95,13 +108,14 @@ A.mat = matrix(1, nrow = 1, ncol = nx)  #  not sure if you did this correctly
 e.vec = 1
 
 pc.prior <- list(prec = list(prior = "pc.prec", param = c(0.2,0.8)))
+pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.1,0.6)))
 
 comp = ~ -1 + 
   alpha(x, model = "rw1", constr = TRUE, hyper = pc.prior) + 
-  phi(t, model = "linear") + 
+  phi(t, model = "linear", prec.linear = 1) + 
   beta(x1, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
   kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior) + 
-  gamma(t_min_x, model = "rw1", values = 1:n.t_min_x, constr = TRUE) + 
+  gamma(t_min_x, model = "rw1", values = 1:n.t_min_x, constr = TRUE, hyper = pc.prior.gamma) + 
   epsilon(xt, model = "iid")
 
 form.1 = y ~ -1 + alpha + beta*phi + beta*kappa + gamma + epsilon
@@ -135,6 +149,9 @@ gg.kappa <- gg.compare(data = data.kappa, title = "Kappa"); gg.kappa
 
 data.alpha = cbind(res$summary.random$alpha, true_val = alpha[res$summary.random$alpha$ID])
 gg.alpha <- gg.compare(data = data.alpha, title = "Alpha"); gg.alpha
+
+data.gamma = cbind(res$summary.random$gamma, true_val = gamma[res$summary.random$gamma$ID])
+gg.gamma <- gg.compare(data = data.gamma, title = "Gamma"); gg.gamma
 
 data.eta = cbind(res$summary.linear.predictor, true_val = obs$eta)
 
