@@ -1,7 +1,9 @@
-# reduced version of Lee-Carter model
+# Lee-Carter model with alpha modelled as effect of x
+# use same model as in previouys attempts, only add alpha as an effect 
+# of x, as this is more similar to the model used in other papers. 
 
-#   ----  first attempt at inference of Lee-Carter models for mortality 
-#  predictions with inlabru  ----   
+# try to reproduce bad result to be able to understand how you fixed it!
+
 library(INLA)
 library(inlabru)
 library(ggplot2)
@@ -25,11 +27,15 @@ tau.iid = 1/0.1**2   #  Standard deviation of 0.1 for the iid effects (beta)
 # change tau.epsilon from 1/0.1**2 to 1/0.01**2 to see if it was causing too much noise 
 tau.epsilon = 1/0.01**2   #  Standard deviation of 0.01 for the noise 
 
-kappa = cos(((1:nt - 3)* pi)/6)
+# change kappa to something better suited to model real-life 
+kappa = 2*cos((1:nx)*pi/20)
 kappa = kappa - mean(kappa)
 
-alpha = -2.0   #  Intercept - perhaps make this iid in the future? 
-#alpha = 0 # try what happens if I change the intercept
+# change this into an effect of x
+alpha = cos(((1:nx - 3)* pi)/6)
+alpha = alpha - mean(alpha)
+
+inter = -2  # add intercept of -2 to ensure mortality rate below 1
 
 phi = 0.025  #  Drift of random walk
 
@@ -43,26 +49,26 @@ m.epsilon = matrix(rnorm(nx*nt, 0, sqrt(1/tau.epsilon)), nx, nt)
 # add everything to the dataframe instead of specifying beta.x and kappa.t etc separately. 
 # expand the obs dataframe:
 
-#obs = cbind(obs, epsilon = rnorm(1000, 0, sqrt(1/tau.epsilon)))  # add epsilon
 obs = cbind(obs, beta = beta[as.vector(obs$x)])
 obs = cbind(obs, kappa = kappa[obs$t])
-obs = cbind(obs, alpha = rep(alpha, N))
+obs = cbind(obs, alpha = alpha[obs$x])
 obs = cbind(obs, phi.t = phi*obs$t)
+obs = cbind(obs, inter = rep(inter, N))
 
 epsilon.map <- function(x,t){
   return(m.epsilon[x, t])
 }
 
+
 obs = cbind(obs, epsilon = apply(obs, 1, function(row) epsilon.map(row['x'], row['t'])))
 
-eta.func <- function(alpha, beta, phit, kappa, epsilon){
-  return(alpha + beta*phit + beta*kappa + epsilon)
+eta.func <- function(inter, alpha, beta, phit, kappa, epsilon){
+  return(inter + alpha + beta*phit + beta*kappa + epsilon)
 }
 
 obs = cbind(obs, eta = apply(obs, 1,
-                             function(row) eta.func(row['alpha'], row['beta'],
-                                                    row['phi.t'], row['kappa'],
-                                                    row['epsilon'])))
+                             function(row) eta.func(row['inter'], row['alpha'], row['beta'],
+                                                    row['phi.t'], row['kappa'], row['epsilon'])))
 obs = cbind(obs, at.risk = rep(at.risk, N))  # add constant at risk
 
 # sample actual observations:
@@ -71,6 +77,7 @@ obs = cbind(obs, y = y)
 
 # add extra t to the observations for the sake of inlabru:
 obs = cbind(obs, t1 = obs$t)
+obs = cbind(obs, x1 = obs$x)
 
 # add xt index for epsilon effect in inlabru:
 xt.func <- function(x,t){
@@ -89,59 +96,69 @@ A.mat = matrix(1, nrow = 1, ncol = nx)  #  not sure if you did this correctly
 e.vec = 1
 
 pc.prior <- list(prec = list(prior = "pc.prec", param = c(0.2,0.8)))
+pc.prior.small <- list(prec = list(prior = "pc.prec", param = c(0.02, 0.1)))
 
 comp = ~ Intercept + 
+  alpha(x, model = "rw1", constr = TRUE, hyper = pc.prior) + 
   phi(t, model = "linear") + 
-  beta(x, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
-  kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior) + 
-  epsilon(xt, model = "iid")  # change from iid to rw1
+  beta(x1, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
+  kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior) +
+  epsilon(xt, model = "iid", hyper = pc.prior.small)  # change from iid to rw1
 
-form.1 = y ~ Intercept + beta*phi + beta*kappa + epsilon
+form.1 = y ~ Intercept + alpha + beta*phi + beta*kappa + epsilon
 likelihood.1 = like(formula = form.1, family = "poisson", data = obs)
 
 # the same control compute as in Sara's first example 
 c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
 
-res = bru(components = comp,
-          likelihood.1, 
-          options = list(verbose = F,
-                         bru_verbose = 1, 
-                         num.threads = "1:1",
-                         control.compute = c.c,
-                         control.inla = list(int.strategy = "eb"))) 
+res.no.eps = bru(components = comp,
+                 likelihood.1, 
+                 options = list(verbose = F,
+                                bru_verbose = 1, 
+                                num.threads = "1:1",
+                                control.compute = c.c,
+                                control.inla = list(int.strategy = "eb"))) 
 
-res.rerun = bru_rerun(res)
+res.no.eps = bru_rerun(res.no.eps)
 
+gg.alpha.true = ggplot(data = obs, aes(x = x, y = alpha)) + geom_line(color = "hotpink") + ggtitle("True alpha"); gg.alpha.true
 gg.beta.true = ggplot(data = obs, aes(x = x, y = beta)) + geom_point(color = "hotpink") + ggtitle("True beta")
 gg.kappa.true = ggplot(data = obs, aes(x = t, y = kappa)) + geom_line(color = "hotpink") + ggtitle("True kappa")
 gg.phi.true = ggplot(data = obs, aes(x = t, y = phi)) + geom_line(color = "hotpink") + ggtitle("True phi")
 gg.epsilon.true = ggplot(data = obs, aes(x = x, y = t, fill = epsilon)) + geom_tile() + ggtitle("True epsilon")
 ggplot(data = obs, aes(x = epsilon)) + geom_density()
 
-gg.beta = ggplot(data = cbind(res$summary.random$beta, beta.true = beta[res$summary.random$beta$ID]), aes(x = ID)) + 
+gg.beta = ggplot(data = cbind(res.no.eps$summary.random$beta, beta.true = beta[res.no.eps$summary.random$beta$ID]), aes(x = ID)) + 
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
   geom_point(aes(y = mean), color = "lightskyblue") + 
   geom_point(aes(y = beta.true), color = "dodgerblue1")
 gg.beta  
 
-data.kappa = cbind(res$summary.random$kappa, kappa.true = kappa[res$summary.random$kappa$ID])
+data.kappa = cbind(res.no.eps$summary.random$kappa, kappa.true = kappa[res.no.eps$summary.random$kappa$ID])
 gg.kappa = ggplot(data = data.kappa, aes(x = ID)) + 
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
   geom_line(aes(y = mean), color = "lightskyblue") + 
   geom_line(aes(y = kappa.true), color = "dodgerblue1")
 gg.kappa
 
-gg.epsilon.true
-data.epsilon = res$summary.random$epsilon
-data.epsilon = cbind(data.epsilon, x = apply(data.epsilon,1, function(row) row['ID']%/%100 ))
-data.epsilon = cbind(data.epsilon, t = apply(data.epsilon, 1, function(row) row['ID']%%100))
-gg.epsilon = ggplot(data = data.epsilon, aes(x = x, y = t, fill = mean)) + geom_tile() + ggtitle("Simulated epsilon")
-gg.epsilon
+data.alpha = cbind(res.no.eps$summary.random$alpha, alpha.true = alpha[res.no.eps$summary.random$alpha$ID])
+gg.alpha = ggplot(data = data.alpha, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
+  geom_line(aes(y = mean), color = "lightskyblue") + 
+  geom_line(aes(y = alpha.true), color = "dodgerblue1")
+gg.alpha
+
+#gg.epsilon.true
+#data.epsilon = res$summary.random$epsilon
+#data.epsilon = cbind(data.epsilon, x = apply(data.epsilon,1, function(row) row['ID']%/%100 ))
+#data.epsilon = cbind(data.epsilon, t = apply(data.epsilon, 1, function(row) row['ID']%%100))
+#gg.epsilon = ggplot(data = data.epsilon, aes(x = x, y = t, fill = mean)) + geom_tile() + ggtitle("Simulated epsilon")
+#gg.epsilon
 
 # density plots of true and simulated epsilon:
-data.epsilon.density = rbind(data.frame(epsilon = data.epsilon$mean, sim = "T"), data.frame(epsilon = obs$epsilon, sim = "F"))
-gg.epsilon.density = ggplot(data = data.epsilon.density, aes(x = epsilon, color = sim)) + geom_density()
-gg.epsilon.density
+#data.epsilon.density = rbind(data.frame(epsilon = data.epsilon$mean, sim = "T"), data.frame(epsilon = obs$epsilon, sim = "F"))
+#gg.epsilon.density = ggplot(data = data.epsilon.density, aes(x = epsilon, color = sim)) + geom_density()
+#gg.epsilon.density
 
 #  results of hyperparameters:
 cat("Precision for beta: ")
@@ -155,11 +172,11 @@ cat("Precision for epsiloin: \n", "True value: ", tau.epsilon,"\n Simulated valu
     res$summary.hyperpar$mean[3])
 
 # density plot of true eta and predicted eta:
-eta.sim = res$summary.linear.predictor$mean
+eta.sim = res.no.eps$summary.linear.predictor$mean
 eta.sim = eta.sim - log(at.risk)
 data.eta.density = rbind(data.frame(eta = obs$eta, sim = "F"),
                          data.frame(eta = eta.sim, sim = "T"))
 gg.eta.density = ggplot(data = data.eta.density, aes(x = eta, color = sim)) + geom_density()
 gg.eta.density
 
-cat("Intercept: ", res$summary.fixed$mean[1] - log(at.risk))
+cat("Intercept: ", res$summary.fixed$mean[2] - log(at.risk))

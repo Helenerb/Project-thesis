@@ -107,9 +107,12 @@ start.copy = Sys.time()
 res.copy = bru(components = comp.copy,
           likelihood.copy, 
           options = list(verbose = F,
+                         bru_verbose = 1,
                          num.threads = "1:1",
                          control.compute = c.c,
                          control.inla = list(int.strategy = "eb"))) 
+res.copy.rr = bru_rerun(res.copy)
+
 end.copy = Sys.time()
 runtime.copy = end.copy - start.copy
 cat("Runtime for the copy method: ", runtime.copy)
@@ -191,27 +194,43 @@ gg.epsilon.s = ggplot(data = data.epsilon.s, aes(x = x, y = t, fill = mean)) + g
 (gg.epsilon.true | gg.epsilon.c | gg.epsilon.s)
 
 # density plots of true and simulated epsilon:
-data.epsilon.density = rbind(data.frame(epsilon = data.epsilon$mean, sim = "T"), data.frame(epsilon = obs$epsilon, sim = "F"))
-gg.epsilon.density = ggplot(data = data.epsilon.density, aes(x = epsilon, color = sim)) + geom_density()
-gg.epsilon.density
+data.epsilon.density.c = rbind(data.frame(epsilon = data.epsilon.c$mean, sim = "Simulated"), data.frame(epsilon = obs$epsilon, sim = "True values"))
+gg.epsilon.density.c = ggplot(data = data.epsilon.density.c, aes(x = epsilon, color = sim)) + 
+  geom_density() + ggtitle("Model with copied beta")
+
+data.epsilon.density.s = rbind(data.frame(epsilon = data.epsilon.s$mean, sim = "Simulated"), data.frame(epsilon = obs$epsilon, sim = "True values"))
+gg.epsilon.density.s = ggplot(data = data.epsilon.density.s, aes(x = epsilon, color = sim)) + 
+  geom_density() + ggtitle("Model with single beta")
+
+(gg.epsilon.density.c | gg.epsilon.density.s)
 
 #  results of hyperparameters:
 cat("Precision for beta: ")
 cat("True value: ", tau.iid)
-cat("Simulated value: ", res$summary.hyperpar$mean[1])
+cat("Simulated value copy: ", res.copy$summary.hyperpar$mean[1])
+cat("Simulated value single: ", res.single$summary.hyperpar$mean[1])
 
-cat("Precision for kappa: \n", "\"True\" value: ", tau.rw,"\n Simulated value: ",
-    res$summary.hyperpar$mean[2])
+cat("Precision for kappa: \n", "\n Simulated value copy: ",
+    res.copy$summary.hyperpar$mean[2], "\n Simulated value single: ", res.single$summary.hyperpar$mean[2])
 
-cat("Precision for epsiloin: \n", "True value: ", tau.epsilon,"\n Simulated value: ",
-    res$summary.hyperpar$mean[3])
+cat("Precision for epsilon: \n", "True value: ", tau.epsilon,"\n Simulated value copy: ",
+    res.copy$summary.hyperpar$mean[3], "\n Simulated value single: ", res.single$summary.hyperpar$mean[3])
 
 # density plot of true eta and predicted eta:
-eta.sim = res$summary.linear.predictor$mean
-eta.sim = eta.sim - log(at.risk)
-data.eta.density = rbind(data.frame(eta = obs$eta, sim = "F"),
-                         data.frame(eta = eta.sim, sim = "T"))
-gg.eta.density = ggplot(data = data.eta.density, aes(x = eta, color = sim)) + geom_density()
-gg.eta.density
+eta.sim.c = res.copy$summary.linear.predictor$mean
+eta.sim.c = eta.sim.c - log(at.risk)
+data.eta.density.c = rbind(data.frame(eta = obs$eta, sim = "True values"),
+                         data.frame(eta = eta.sim.c, sim = "Simulated"))
+gg.eta.density.c = ggplot(data = data.eta.density.c, aes(x = eta, color = sim)) + 
+  geom_density() + ggtitle("Model with copied beta")
+
+eta.sim.s = res.single$summary.linear.predictor$mean
+eta.sim.s = eta.sim.s - log(at.risk)
+data.eta.density.s = rbind(data.frame(eta = obs$eta, sim = "True values"),
+                           data.frame(eta = eta.sim.s, sim = "Simulated"))
+gg.eta.density.s = ggplot(data = data.eta.density.s, aes(x = eta, color = sim)) + 
+  geom_density() + ggtitle("Model with single beta")
+
+(gg.eta.density.c | gg.eta.density.s)
 
 cat("Intercept: ", res$summary.fixed$mean[1] - log(at.risk))
