@@ -11,6 +11,7 @@ library(INLA)
 library(inlabru)
 library(ggplot2)
 library(patchwork)
+library(tidyverse)
 
 N = 10000
 
@@ -40,16 +41,17 @@ obs = data.frame(x,t, t_min_x)
 tau.iid = 1/0.1**2   # = 100
 tau.epsilon = 1/0.01**2   # =10000
 
-#kappa = 2*cos((1900 + 1:nt)*pi/20)
+kappa.1 = 2*cos((1900 + 1:nt)*pi/20)
+kappa.1 = kappa.1 - mean(kappa.1)
 kappa = 2*cos(t*pi/20)
 kappa = kappa - mean(kappa)
 
-alpha = cos(((1:nx - 3)* pi)/6)
+alpha = cos(((1:nx - 3)* 0.75*pi)/14)
 alpha = alpha - mean(alpha)
 
 #phi = 0.025  #  Drift of random walk
-phi = 0.0025
-phi.t = phi*t
+phi = 0.025  # used to be 0.0025 - update so not so close to zero. 
+phi.t = phi*(t - 1900)
 
 beta = rnorm(nx, 0, sqrt(1/tau.iid))
 beta = 1/nx + beta - mean(beta)
@@ -57,7 +59,15 @@ beta = 1/nx + beta - mean(beta)
 m.epsilon = matrix(rnorm(nx*nt, 0, sqrt(1/tau.epsilon)), nx, nt)
 
 # introduce kohort effect:
-gamma = (t_min_x - 1900)**3/(3*10**3)
+#gamma.1 = (t_min_x.min:t_min_x.max - 1850)**3/(2*10**3)
+#gamma.1 = gamma.1 - mean(gamma.1)
+#gamma = (t_min_x - 1900)**3/(3*10**3)
+#gamma = gamma - mean(gamma)
+
+# try with a perhaps smoother gamma:
+gamma.1 = -(t_min_x.min:t_min_x.max - 1850)**3/(100000)
+gamma.1 = gamma.1 - mean(gamma.1)
+gamma = -(t_min_x - 1850)**3/(100000)
 gamma = gamma - mean(gamma)
 
 obs = cbind(obs, beta = beta[as.vector(obs$x)])
@@ -92,7 +102,7 @@ y = rpois(N, obs$at.risk*exp(obs$eta))
 obs = cbind(obs, y = y)
 
 # add extra t to the observations for the sake of inlabru:
-obs = cbind(obs, t1 = obs$t)
+obs = cbind(obs, t1 = (obs$t-1900))
 obs = cbind(obs, x1 = obs$x)
 
 # add xt index for epsilon effect in inlabru:
@@ -112,14 +122,17 @@ pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.1,0.6)))
 
 comp = ~ -1 + 
   alpha(x, model = "rw1", constr = TRUE, hyper = pc.prior) + 
-  phi(t, model = "linear", prec.linear = 1) + 
+  phi(t1, model = "linear", prec.linear = 1) + 
   beta(x1, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
-  kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior) + 
+  kappa(t, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior) + 
   gamma(t_min_x, model = "rw1", values = 1:n.t_min_x, constr = TRUE, hyper = pc.prior.gamma) + 
   epsilon(xt, model = "iid")
 
 form.1 = y ~ -1 + alpha + beta*phi + beta*kappa + gamma + epsilon
 likelihood.1 = like(formula = form.1, family = "poisson", data = obs, E = at.risk)
+
+#initial.state = list(alpha = alpha, beta = beta, phi = phi*(1:nt + 1900), kappa = kappa.1, gamma = gamma.1)
+initial.state = list(alpha = alpha, beta = beta, kappa = kappa.1, phi.t = phi*(1:nt + 1900), gamma = gamma.1)
 
 c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
 res = bru(components = comp,
@@ -127,7 +140,9 @@ res = bru(components = comp,
           options = list(verbose = F,
                          bru_verbose = 1, 
                          num.threads = "1:1",
-                         control.compute = c.c))
+                         control.compute = c.c, 
+                         bru_initial = initial.state
+                         ))
 
 res = bru_rerun(res)
 
@@ -141,16 +156,24 @@ gg.compare <- function(data, title){
   return(gg)
 }
 
+data_beta <- mutate(res$summary.random$beta, true_val = beta[ID])
+data_beta %>%
+  ggplot() + 
+  geom_ribbon(aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
+  geom_line(aes(x = ID, y = mean), color = "lightskyblue") + 
+  geom_line(aes(x = ID, y = true_val), color = "dodgerblue1") + 
+  ggtitle("Beta")
+
 data.beta = cbind(res$summary.random$beta, true_val = beta[res$summary.random$beta$ID])
 gg.beta <- gg.compare(data=data.beta, title="Beta"); gg.beta
 
-data.kappa = cbind(res$summary.random$kappa, true_val = kappa[res$summary.random$kappa$ID])
+data.kappa = cbind(res$summary.random$kappa, true_val = kappa.1)
 gg.kappa <- gg.compare(data = data.kappa, title = "Kappa"); gg.kappa
 
 data.alpha = cbind(res$summary.random$alpha, true_val = alpha[res$summary.random$alpha$ID])
 gg.alpha <- gg.compare(data = data.alpha, title = "Alpha"); gg.alpha
 
-data.gamma = cbind(res$summary.random$gamma, true_val = gamma[res$summary.random$gamma$ID])
+data.gamma = cbind(res$summary.random$gamma, true_val = gamma.1)
 gg.gamma <- gg.compare(data = data.gamma, title = "Gamma"); gg.gamma
 
 data.eta = cbind(res$summary.linear.predictor, true_val = obs$eta)
@@ -160,6 +183,17 @@ data.eta.density = rbind(data.frame(eta = obs$eta, sim = "F"),
                          data.frame(eta = eta.sim, sim = "T"))
 gg.eta.density = ggplot(data = data.eta.density, aes(x = eta, color = sim)) + geom_density() + ggtitle("Eta density")
 gg.eta.density
+
+data.epsilon = res$summary.random$epsilon
+data.epsilon = cbind(data.epsilon, x = apply(data.epsilon,1, function(row) row['ID']%/%100 ))
+data.epsilon = cbind(data.epsilon, t = apply(data.epsilon, 1, function(row) row['ID']%%100))
+gg.epsilon = ggplot(data = data.epsilon, aes(x = x, y = t, fill = mean)) + geom_tile() + ggtitle("Simulated epsilon")
+gg.epsilon
+
+# density plots of true and simulated epsilon:
+data.epsilon.density = rbind(data.frame(epsilon = data.epsilon$mean, sim = "T"), data.frame(epsilon = obs$epsilon, sim = "F"))
+gg.epsilon.density = ggplot(data = data.epsilon.density, aes(x = epsilon, color = sim)) + geom_density()
+gg.epsilon.density
 
 
 
