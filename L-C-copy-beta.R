@@ -7,6 +7,7 @@ library(INLA)
 library(inlabru)
 library(ggplot2)
 library(patchwork)
+library(tidyverse)
 
 N = 10000
 
@@ -42,40 +43,53 @@ m.epsilon = matrix(rnorm(nx*nt, 0, sqrt(1/tau.epsilon)), nx, nt)
 # add everything to the dataframe instead of specifying beta.x and kappa.t etc separately. 
 # expand the obs dataframe:
 
-obs = cbind(obs, beta = beta[as.vector(obs$x)])
-obs = cbind(obs, kappa = kappa[obs$t])
-obs = cbind(obs, alpha = rep(alpha, N))
-obs = cbind(obs, phi.t = phi*obs$t)
+#obs = cbind(obs, beta = beta[as.vector(obs$x)])
+#obs = cbind(obs, kappa = kappa[obs$t])
+#obs = cbind(obs, alpha = rep(alpha, N))
+#obs = cbind(obs, phi.t = phi*obs$t)
 
-epsilon.map <- function(x,t){
-  return(m.epsilon[x, t])
-}
+obs = obs %>% 
+  mutate(beta = beta[as.vector(obs$x)],
+         kappa = kappa[obs$t],
+         alpha = rep(alpha, N),
+         phi.t = phi*obs$t,
+         phit = phi,
+         at.risk = at.risk,
+         epsilon = rnorm(n = N, 0, sqrt(1/tau.epsilon))) %>%
+  mutate(eta = alpha + beta*phi.t + beta*kappa + epsilon) %>% # linear predictor
+  mutate(y = rpois(N, at.risk*exp(eta))) %>%                 # simulate data
+  mutate(t1 = t, x1 = x)  %>%                                # add extra t and x to the observations for the sake of inlabru:
+  mutate(xt = seq_along(t))
 
-obs = cbind(obs, epsilon = apply(obs, 1, function(row) epsilon.map(row['x'], row['t'])))
+#epsilon.map <- function(x,t){
+#  return(m.epsilon[x, t])
+#}
 
-eta.func <- function(alpha, beta, phit, kappa, epsilon){
-  return(alpha + beta*phit + beta*kappa + epsilon)
-}
+#obs = cbind(obs, epsilon = apply(obs, 1, function(row) epsilon.map(row['x'], row['t'])))
 
-obs = cbind(obs, eta = apply(obs, 1,
-                             function(row) eta.func(row['alpha'], row['beta'],
-                                                    row['phi.t'], row['kappa'],
-                                                    row['epsilon'])))
-obs = cbind(obs, at.risk = rep(at.risk, N))  # add constant at risk
+#eta.func <- function(alpha, beta, phit, kappa, epsilon){
+#  return(alpha + beta*phit + beta*kappa + epsilon)
+#}
+
+#obs = cbind(obs, eta = apply(obs, 1,
+#                             function(row) eta.func(row['alpha'], row['beta'],
+#                                                    row['phi.t'], row['kappa'],
+#                                                    row['epsilon'])))
+#obs = cbind(obs, at.risk = rep(at.risk, N))  # add constant at risk
 
 # sample actual observations:
-y = rpois(N, obs$at.risk*exp(obs$eta))
-obs = cbind(obs, y = y)
+#y = rpois(N, obs$at.risk*exp(obs$eta))
+#obs = cbind(obs, y = y)
 
 # add extra t and x to the observations for the sake of inlabru:
-obs = cbind(obs, t1 = obs$t)
-obs = cbind(obs, x1 = obs$x)
+#obs = cbind(obs, t1 = obs$t)
+#obs = cbind(obs, x1 = obs$x)
 
 # add xt index for epsilon effect in inlabru:
-xt.func <- function(x,t){
-  return(x*100 + t)
-}
-obs = cbind(obs, xt = apply(obs, 1, function(row) xt.func(row['x'], row['t'])))
+#xt.func <- function(x,t){
+#  return(x*100 + t)
+#}
+#obs = cbind(obs, xt = apply(obs, 1, function(row) xt.func(row['x'], row['t'])))
 
 # plot observations:
 ggplot(data = obs, aes(x=t, y=x, fill = y)) + geom_tile()
@@ -101,21 +115,18 @@ comp.copy = ~ Intercept +
   epsilon(xt, model = "iid")
 
 form.copy = y ~ Intercept + beta1*phi + beta2*kappa + epsilon
-likelihood.copy = like(formula = form.copy, family = "poisson", data = obs)
+likelihood.copy = like(formula = form.copy, family = "poisson", data = obs, E = at.risk)
 
-start.copy = Sys.time()
-res.copy = bru(components = comp.copy,
+
+runtime.copy = system.time({res.copy = bru(components = comp.copy,
           likelihood.copy, 
           options = list(verbose = F,
                          bru_verbose = 1,
                          num.threads = "1:1",
-                         control.compute = c.c,
-                         control.inla = list(int.strategy = "eb"))) 
-res.copy.rr = bru_rerun(res.copy)
+                         control.compute = c.c)) })
 
-end.copy = Sys.time()
-runtime.copy = end.copy - start.copy
 cat("Runtime for the copy method: ", runtime.copy)
+res.copy = bru_rerun(res.copy)
 
 comp.single = ~ Intercept + 
   phi(t, model = "linear") + 
@@ -124,20 +135,44 @@ comp.single = ~ Intercept +
   epsilon(xt, model = "iid")
 
 form.single = y ~ Intercept + beta*phi + beta*kappa + epsilon
-likelihood.single = like(formula = form.single, family = "poisson", data = obs)
+likelihood.single = like(formula = form.single, family = "poisson", data = obs, E = at.risk)
 
-start.s = Sys.time()
-res.single = bru(components = comp.single,
+runtime.single = system.time({res.single = bru(components = comp.single,
                likelihood.single, 
                options = list(verbose = F,
+                              bru_verbose = 1, 
                               num.threads = "1:1",
-                              control.compute = c.c,
-                              control.inla = list(int.strategy = "eb"))) 
-end.s = Sys.time()
-runtime.s = end.s - start.s
-cat("Runtime for the method with a single beta: ", runtime.s)
+                              control.compute = c.c))}) 
 
-gg.beta.true = ggplot(data = obs, aes(x = x, y = beta)) + geom_point(color = "hotpink") + ggtitle("True beta")
+cat("Runtime for the method with a single beta: ", runtime.single)
+
+# summary of intercept and phi:
+res.copy$summary.fixed
+res.single$summary.fixed
+
+# summary of hyperparameters:
+res.copy$summary.hyperpar
+res.single$summary.hyperpar
+
+data.frame(rbind(res.copy$summary.random$beta1, res.copy$summary.random$beta2, res.single$summary.random$beta)) %>% 
+  mutate(type = rep(c("copy1","copy2","single"), each = 10)) %>%
+  mutate(beta.true = rep(beta, 3)) %>%
+  ggplot() + geom_errorbar(aes(ID, min = X0.025quant, ymax =X0.975quant, color =type), position=position_dodge(width=0.5)) +
+  geom_point(aes(x = ID, y = beta.true))
+  ggtitle("beta")
+  
+data.frame(rbind(res.copy$summary.random$kappa,  res.single$summary.random$kappa)) %>%
+  mutate(type = rep(c("copy1","single"), each = 10)) %>%
+  mutate(kappa.true = rep(kappa, 2)) %>%
+  ggplot() + geom_errorbar(aes(ID, min = X0.025quant, ymax =X0.975quant, color =type), position=position_dodge(width=0.5)) +
+  geom_point(aes(x = ID, y = kappa.true))
+  ggtitle("kappa")
+
+data.frame(cbind(copy = res.copy$summary.linear.predictor$mean, single = res.single$summary.linear.predictor$mean)) %>%
+  ggplot() + geom_point(aes(x = copy, y = single)) + ggtitle("Linear predictor")
+  
+
+gg.beta.true = ggplot(data = obs, aes(x = x, y = beta)) + geom_point(color = "hotpink") + ggtitle("True beta"); gg.beta.true
 gg.kappa.true = ggplot(data = obs, aes(x = t, y = kappa)) + geom_line(color = "hotpink") + ggtitle("True kappa")
 gg.phi.true = ggplot(data = obs, aes(x = t, y = phi)) + geom_line(color = "hotpink") + ggtitle("True phi")
 gg.epsilon.true = ggplot(data = obs, aes(x = x, y = t, fill = epsilon)) + geom_tile() + ggtitle("True epsilon")
@@ -160,6 +195,7 @@ gg.beta.s = ggplot(data = cbind(res.single$summary.random$beta, beta.true = beta
   geom_point(aes(y = mean), color = "lightskyblue") + 
   geom_point(aes(y = beta.true), color = "dodgerblue1") + 
   ggtitle("beta single")
+gg.beta.s
 
 (gg.beta1.c | gg.beta2.c | gg.beta.s)
 
@@ -176,6 +212,7 @@ gg.kappa.s = ggplot(data = data.kappa.s, aes(x = ID)) +
   geom_line(aes(y = mean), color = "lightskyblue") + 
   geom_line(aes(y = kappa.true), color = "dodgerblue1") + 
   ggtitle("Kappa single")
+gg.kappa.s
 
 (gg.kappa.c | gg.kappa.s)
 
@@ -190,6 +227,7 @@ data.epsilon.s = res.single$summary.random$epsilon
 data.epsilon.s = cbind(data.epsilon.s, x = apply(data.epsilon.s,1, function(row) row['ID']%/%100 ))
 data.epsilon.s = cbind(data.epsilon.s, t = apply(data.epsilon.s, 1, function(row) row['ID']%%100))
 gg.epsilon.s = ggplot(data = data.epsilon.s, aes(x = x, y = t, fill = mean)) + geom_tile() + ggtitle("Simulated epsilon")
+gg.epsilon.s
 
 (gg.epsilon.true | gg.epsilon.c | gg.epsilon.s)
 
@@ -218,18 +256,19 @@ cat("Precision for epsilon: \n", "True value: ", tau.epsilon,"\n Simulated value
 
 # density plot of true eta and predicted eta:
 eta.sim.c = res.copy$summary.linear.predictor$mean
-eta.sim.c = eta.sim.c - log(at.risk)
+eta.sim.c = eta.sim.c
 data.eta.density.c = rbind(data.frame(eta = obs$eta, sim = "True values"),
                          data.frame(eta = eta.sim.c, sim = "Simulated"))
 gg.eta.density.c = ggplot(data = data.eta.density.c, aes(x = eta, color = sim)) + 
   geom_density() + ggtitle("Model with copied beta")
+gg.eta.density.c
 
 eta.sim.s = res.single$summary.linear.predictor$mean
-eta.sim.s = eta.sim.s - log(at.risk)
 data.eta.density.s = rbind(data.frame(eta = obs$eta, sim = "True values"),
                            data.frame(eta = eta.sim.s, sim = "Simulated"))
 gg.eta.density.s = ggplot(data = data.eta.density.s, aes(x = eta, color = sim)) + 
   geom_density() + ggtitle("Model with single beta")
+gg.eta.density.s
 
 (gg.eta.density.c | gg.eta.density.s)
 
