@@ -6,10 +6,12 @@ library(INLA)
 library(inlabru)
 library(ggplot2)
 library(patchwork)
+library(tidyverse)
 
-set.seed(224)
+seedet = 324
+set.seed(324)
 
-N = 10000
+N = 1000
 
 nx = 10
 nt = 10
@@ -108,17 +110,18 @@ A.mat = matrix(1, nrow = 1, ncol = nx)  #  not sure if you did this correctly
 e.vec = 1
 
 #pc.prior <- list(prec = list(prior = "pc.prec", param = c(0.2,0.8)))
-#pc.prior <- list(prec = list(prior = "pc.prec", param = c(0.1,0.5)))
-pc.prior <- list(prec = list(prior = "pc.prec", param = c(0.1,0.1)))
+pc.prior <- list(prec = list(prior = "pc.prec", param = c(0.3,0.8)))
+#pc.prior <- list(prec = list(prior = "pc.prec", param = c(0.1,0.1)))
+pc.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1,0.1)))
 pc.prior.small <- list(prec = list(prior = "pc.prec", param = c(0.02, 0.1)))
 
 comp = ~ -1 + 
   Int(1) + 
   #alpha(x, model = "rw1", constr = TRUE) +
-  alpha(x, model = "rw1", constr = TRUE, hyper = pc.prior) + 
+  alpha(x, model = "rw1", constr = TRUE, hyper = pc.alpha) + 
   #phi(t, model = "linear", prec.linear = 1) + 
   #phi(t, model = "linear") + 
-  phi(t, model = "linear", prec.linear = 0.5) +
+  phi(t, model = "linear", prec.linear = 0.25) +
   beta(x1, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
   kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior) +
   #kappa(t1, model = "rw1", values = 1:nt, constr = TRUE) +
@@ -142,14 +145,14 @@ res = bru(components = comp,
           options = list(verbose = F,
                          bru_verbose = 1, 
                          num.threads = "1:1",
-                         control.compute = c.c,
-                         control.inla = list(int.strategy = "eb"),
-                         bru_initial = initial.values
+                         control.compute = c.c#,
+                         #control.inla = list(int.strategy = "eb"),
+                         #bru_initial = initial.values
                          )) 
 
 res = bru_rerun(res)
 
-cat("Seed = 223, initial vals")
+sprintf("Seed = %s, N = %s", seedet, N)
 res$summary.fixed
 res$summary.hyperpar
 
@@ -164,7 +167,7 @@ gg.beta = ggplot(data = cbind(res$summary.random$beta, beta.true = beta[res$summ
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
   geom_point(aes(y = mean), color = "lightskyblue") + 
   geom_point(aes(y = beta.true), color = "dodgerblue1") + 
-  ggtitle("Beta, seed = 223, initial vals")
+  ggtitle(paste("Beta, seed =", seedet, "N =", N))
 gg.beta  
 
 data.kappa = cbind(res$summary.random$kappa, kappa.true = kappa[res$summary.random$kappa$ID])
@@ -172,7 +175,7 @@ gg.kappa = ggplot(data = data.kappa, aes(x = ID)) +
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
   geom_line(aes(y = mean), color = "lightskyblue") + 
   geom_line(aes(y = kappa.true), color = "dodgerblue1") + 
-  ggtitle("Kappa, seed = 223, initial vals")
+  ggtitle(paste("Kappa, seed =", seedet, "N =", N))
 gg.kappa
 
 data.alpha = cbind(res$summary.random$alpha, alpha.true = alpha[res$summary.random$alpha$ID])
@@ -180,8 +183,20 @@ gg.alpha = ggplot(data = data.alpha, aes(x = ID)) +
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
   geom_line(aes(y = mean), color = "lightskyblue") + 
   geom_line(aes(y = alpha.true), color = "dodgerblue1") + 
-  ggtitle("Alpha, seed = 223, initial vals")
+  ggtitle(paste("Alpha, seed =", seedet, "N =", N))
 gg.alpha
+
+# density plot of true eta and predicted eta:
+data.frame({eta.sim = res$summary.linear.predictor$mean[1:N]}) %>%
+  mutate(true.eta = obs$eta) %>%
+  ggplot() + geom_point(aes(x = eta.sim, y = true.eta)) + 
+  ggtitle(paste("Eta, seed =", seedet, "N =", N))
+
+data.eta.density = rbind(data.frame(eta = obs$eta, sim = "F"),
+                         data.frame(eta = eta.sim, sim = "T"))
+gg.eta.density = ggplot(data = data.eta.density, aes(x = eta, color = sim)) + 
+  geom_density() + ggtitle(paste("Eta density, seed =", seedet, "N =", N))
+gg.eta.density
 
 gg.epsilon.true
 data.epsilon = res$summary.random$epsilon
@@ -195,25 +210,5 @@ data.epsilon.density = rbind(data.frame(epsilon = data.epsilon$mean, sim = "T"),
 gg.epsilon.density = ggplot(data = data.epsilon.density, aes(x = epsilon, color = sim)) + geom_density()
 gg.epsilon.density
 
-#  results of hyperparameters:
-cat("Precision for beta: ")
-cat("True value: ", tau.iid)
-cat("Simulated value: ", res$summary.hyperpar$mean[1])
 
-cat("Precision for kappa: \n", "\"True\" value: ", tau.rw,"\n Simulated value: ",
-    res$summary.hyperpar$mean[2])
-
-cat("Precision for epsiloin: \n", "True value: ", tau.epsilon,"\n Simulated value: ",
-    res$summary.hyperpar$mean[3])
-
-# density plot of true eta and predicted eta:
-eta.sim = res$summary.linear.predictor$mean
-plot(eta.sim)
-#eta.sim = eta.sim - log(at.risk)
-data.eta.density = rbind(data.frame(eta = obs$eta, sim = "F"),
-                         data.frame(eta = eta.sim, sim = "T"))
-gg.eta.density = ggplot(data = data.eta.density, aes(x = eta, color = sim)) + geom_density() + ggtitle("Eta density, seed = 223")
-gg.eta.density
-
-cat("Intercept: ", res$summary.fixed$mean[2])
 
