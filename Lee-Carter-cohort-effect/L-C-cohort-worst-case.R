@@ -1,6 +1,6 @@
 # Lee-Carter model with cohort effect
-# Based on the Lee-Carter model that has proven to give the best inference results - 
-# this should be considered when evaluating the fit of the model. 
+# The purpose of the configuration in this script is to "provoke" a bad fit from
+# inlabru by trying to find an underlying model that is unidentifyable. 
 
 # Note: as both the calendar years (t) and the ages (x) are numbered from 1 to N, 
 # some of the cohorts (t-x) will be negative. 

@@ -13,7 +13,7 @@ library(ggplot2)
 library(patchwork)
 library(tidyverse)
 
-N = 10000
+N = 1000
 
 nx = 20
 nt = 20 
@@ -43,8 +43,10 @@ tau.epsilon = 1/0.01**2   # =10000
 
 kappa.1 = 2*cos((1900 + 1:nt)*pi/20)
 kappa.1 = kappa.1 - mean(kappa.1)
+
+#dont do this!!!
 kappa = 2*cos(t*pi/20)
-kappa = kappa - mean(kappa)
+kappa = kappa - mean(kappa)  #only center function, not obs
 
 alpha = cos(((1:nx - 3)* 0.75*pi)/14)
 alpha = alpha - mean(alpha)
@@ -86,9 +88,14 @@ epsilon.map <- function(x,t){
 #obs = cbind(obs, epsilon = apply(obs, 1, function(row) epsilon.map(row['x'], row['t'])))
 obs = cbind(obs, epsilon = apply(obs, 1, function(row) epsilon.map(row['x'], row['t'] - 1900)))
 
+
 eta.func <- function(alpha, beta, phit, kappa, epsilon, gamma){
   return(alpha + beta*phit + beta*kappa + gamma + epsilon)
 }
+
+#eta.func <- function(alpha, beta, phit, kappa, epsilon, gamma){
+#    return(alpha + beta*phit + beta*kappa + epsilon)
+#  }
 
 obs = cbind(obs, eta = apply(obs, 1,
                              function(row) eta.func(row['alpha'], row['beta'],
@@ -121,6 +128,7 @@ pc.prior <- list(prec = list(prior = "pc.prec", param = c(0.2,0.8)))
 pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.1,0.6)))
 
 comp = ~ -1 + 
+  Int(1) + 
   alpha(x, model = "rw1", constr = TRUE, hyper = pc.prior) + 
   phi(t1, model = "linear", prec.linear = 1) + 
   beta(x1, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
@@ -128,11 +136,14 @@ comp = ~ -1 +
   gamma(t_min_x, model = "rw1", values = 1:n.t_min_x, constr = TRUE, hyper = pc.prior.gamma) + 
   epsilon(xt, model = "iid")
 
-form.1 = y ~ -1 + alpha + beta*phi + beta*kappa + gamma + epsilon
+form.1 = y ~ -1 + Int + alpha + beta*phi + beta*kappa + gamma + epsilon
+#form.1 = y ~ -1 + alpha + beta*phi + beta*kappa + epsilon
 likelihood.1 = like(formula = form.1, family = "poisson", data = obs, E = at.risk)
 
 #initial.state = list(alpha = alpha, beta = beta, phi = phi*(1:nt + 1900), kappa = kappa.1, gamma = gamma.1)
-initial.state = list(alpha = alpha, beta = beta, kappa = kappa.1, phi.t = phi*(1:nt + 1900), gamma = gamma.1)
+#initial.state = list(alpha = alpha, beta = beta, kappa = kappa.1, phi.t = phi*(1:nt), gamma = gamma.1)
+initial.state = list(alpha = alpha, beta = beta, kappa = kappa.1, phi.t = phi*(1:nt))
+
 
 c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
 res = bru(components = comp,
@@ -156,6 +167,9 @@ gg.compare <- function(data, title){
   return(gg)
 }
 
+res$summary.fixed
+res$summary.hyperpar
+
 data_beta <- mutate(res$summary.random$beta, true_val = beta[ID])
 data_beta %>%
   ggplot() + 
@@ -165,13 +179,13 @@ data_beta %>%
   ggtitle("Beta")
 
 data.beta = cbind(res$summary.random$beta, true_val = beta[res$summary.random$beta$ID])
-gg.beta <- gg.compare(data=data.beta, title="Beta"); gg.beta
+gg.beta <- gg.compare(data=data.beta, title="Beta - cohort model without cohort"); gg.beta
 
 data.kappa = cbind(res$summary.random$kappa, true_val = kappa.1)
-gg.kappa <- gg.compare(data = data.kappa, title = "Kappa"); gg.kappa
+gg.kappa <- gg.compare(data = data.kappa, title = "Kappa - cohort model without cohort"); gg.kappa
 
 data.alpha = cbind(res$summary.random$alpha, true_val = alpha[res$summary.random$alpha$ID])
-gg.alpha <- gg.compare(data = data.alpha, title = "Alpha"); gg.alpha
+gg.alpha <- gg.compare(data = data.alpha, title = "Alpha - cohort model without cohort"); gg.alpha
 
 data.gamma = cbind(res$summary.random$gamma, true_val = gamma.1)
 gg.gamma <- gg.compare(data = data.gamma, title = "Gamma"); gg.gamma
