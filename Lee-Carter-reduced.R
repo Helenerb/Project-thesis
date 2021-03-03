@@ -7,7 +7,7 @@ library(inlabru)
 library(ggplot2)
 library(patchwork)
 
-N = 10000
+N = 1000
 
 nx = 10
 nt = 10
@@ -156,7 +156,6 @@ cat("Precision for epsiloin: \n", "True value: ", tau.epsilon,"\n Simulated valu
 
 # density plot of true eta and predicted eta:
 eta.sim = res$summary.linear.predictor$mean
-eta.sim = eta.sim - log(at.risk)
 data.eta.density = rbind(data.frame(eta = obs$eta, sim = "F"),
                          data.frame(eta = eta.sim, sim = "T"))
 gg.eta.density = ggplot(data = data.eta.density, aes(x = eta, color = sim)) + geom_density()

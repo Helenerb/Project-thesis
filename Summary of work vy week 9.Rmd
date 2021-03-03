@@ -1,0 +1,25 @@
+---
+title: "Summary of work by week 9"
+author: "Helene Behrens"
+date: "3/3/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+So far, we have tried to see if it is possible to fit a Lee-Carter model for mortality predicions and the Lee-Carter model extended with a birth-year cohort effect using inlabru. The first results are good, but we have only tested the model for synthetic data, not necessarily very close to the real-life situation. 
+
+We have used the follwing version of the Lee-Carter model:
+$$
+Y_{x,t} \sim Poisson(E_{x,t}\cdot e^{\eta_{x,t}}), 
+$$
+where $Y_{x,t}$ is the expected number of deaths for people at age $x$ in year $t$ and 
+$$
+\eta_{x,t}=\alpha_x + \beta_x\cdot\kappa_t + \epsilon. 
+$$
+Here, 
+```{r cars}
+summary(cars)
+```
+

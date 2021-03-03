@@ -10,7 +10,7 @@ library(ggplot2)
 library(patchwork)
 library(tidyverse)
 
-seed = 226
+seed = 227
 set.seed(seed)
 
 N = 2000

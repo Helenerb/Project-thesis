@@ -8,99 +8,76 @@ library(ggplot2)
 library(patchwork)
 library(tidyverse)
 
-seedet = 324
-set.seed(324)
+seed = 324
+set.seed(seed)
 
 N = 1000
+
+general.title = paste("N = ", N, "seed = ", seed, " : L-C-alpha-x")
 
 nx = 10
 nt = 10
 
 at.risk = 1000
 
-x = sample(1:nx, N, replace = TRUE)   # 1000 samples of ages 1-100
-t = sample(1:nt, N, replace = TRUE)   # 1000 samples of years 1901-2000: represented as 1-100
+x = sample(1:nx, N, replace = TRUE)   
+t = sample(1:nt, N, replace = TRUE)   
 
 obs = data.frame(x,t)
 
 #   model parameters for underlying models:
 
 tau.iid = 1/0.1**2   #  Standard deviation of 0.1 for the iid effects (beta)
-# change tau.epsilon from 1/0.1**2 to 1/0.01**2 to see if it was causing too much noise 
 tau.epsilon = 1/0.01**2   #  Standard deviation of 0.01 for the noise 
 
 # change kappa to something better suited to model real-life 
-kappa = cos((1:nt)*pi/8)
-kappa = kappa - mean(kappa)
+#kappa = cos((1:nt)*pi/8)
+#kappa = kappa - mean(kappa)
+# Note: here, phi is less than sd(kappa) - might cause problems?
 
 # old kappa that caused problems:
-#kappa = 2*cos((1:nx)*pi/20)
-#kappa = kappa - mean(kappa)
+#kappa = 2*cos((1:nt)*pi/20)
+#kappa = cos((1:nt)*pi/20)
+#kappa = sin((1:nt)*pi/20)  # 26.02:1117
+kappa = 0.3*cos((1:nt)*pi/5)  # 
+#kappa = 0.5*cos((1:nt)*pi/3)  # roughly the same sd as the above
+kappa = kappa - mean(kappa)
 
 # change this into an effect of x
 alpha = cos(((1:nx - 3)* pi)/6)
 alpha = alpha - mean(alpha)
 
-#try without intercept first 
-#inter = -2  # add intercept of -2 to ensure mortality rate below 1
+# attempt to make alpha as similar to beta as possible and see if they mix 
+# alpha <- devs <- rnorm(nt, mean = 0, sd = sqrt(1/tau.iid))
+# for (i in 2:nt){
+#   alpha[i] = alpha[i-1] + devs[i]
+# }
+# alpha = alpha - mean(alpha)
 
-phi = -0.25  # gave good result
+#phi = -0.25  # gave good result
+phi = -0.5  # increse to be bigger than sd(kappa)
 #phi = 0.025  #  Drift of random walk
 
 #  sample synthetic data:
 beta = rnorm(nx, 0, sqrt(1/tau.iid))  # should it not depend on t??
 beta = 1/nx + beta - mean(beta)   # sum to 1
 
-m.epsilon = matrix(rnorm(nx*nt, 0, sqrt(1/tau.epsilon)), nx, nt)
-# how to structure samples from these?  
-
-# add everything to the dataframe instead of specifying beta.x and kappa.t etc separately. 
-# expand the obs dataframe:
-
-#obs = cbind(obs, epsilon = rnorm(1000, 0, sqrt(1/tau.epsilon)))  # add epsilon
-obs = cbind(obs, beta = beta[as.vector(obs$x)])
-obs = cbind(obs, kappa = kappa[obs$t])
-obs = cbind(obs, alpha = alpha[obs$x])
-obs = cbind(obs, phi.t = phi*obs$t)
-#obs = cbind(obs, inter = rep(inter, N))
-
-epsilon.map <- function(x,t){
-  return(m.epsilon[x, t])
-}
-
-#obs = cbind(obs, epsilon = apply(obs, 1, function(row) epsilon.map(row['x'], row['t'])))
-obs = cbind(obs, epsilon = rnorm(N, 0, sqrt(1/tau.epsilon)))
-
-#eta.func <- function(inter, alpha, beta, phit, kappa, epsilon){
-#  return(inter + alpha + beta*phit + beta*kappa + epsilon)
-#}
-
-eta.func <- function(alpha, beta, phit, kappa, epsilon){
-  return(alpha + beta*phit + beta*kappa + epsilon)
-}
-
-obs = cbind(obs, eta = apply(obs, 1,
-                             function(row) eta.func(row['alpha'], row['beta'],
-                                                    row['phi.t'], row['kappa'],
-                                                    row['epsilon'])))
-obs = cbind(obs, at.risk = rep(at.risk, N))  # add constant at risk
-
-# sample actual observations:
-y = rpois(N, obs$at.risk*exp(obs$eta))
-obs = cbind(obs, y = y)
-
-# add extra t to the observations for the sake of inlabru:
-obs = cbind(obs, t1 = obs$t)
-obs = cbind(obs, x1 = obs$x)
-
-# add xt index for epsilon effect in inlabru:
-xt.func <- function(x,t){
-  return(x*100 + t)
-}
-obs = cbind(obs, xt = apply(obs, 1, function(row) xt.func(row['x'], row['t'])))
+# note: name all 
+obs = obs %>% 
+  mutate(beta = beta[as.vector(obs$x)],
+         kappa = kappa[as.vector(obs$t)],
+         alpha = alpha[as.vector(obs$x)],
+         phi.t = phi*obs$t,
+         phi = phi,
+         at.risk = at.risk,
+         epsilon = rnorm(n = N, 0, sqrt(1/tau.epsilon))) %>%
+  mutate(eta = alpha + beta*phi.t + beta*kappa + epsilon) %>% # linear predictor
+  mutate(y.o = rpois(N, at.risk*exp(eta))) %>%                 # simulate data
+  mutate(t1 = t, x1 = x)  %>%                                # add extra t and x to the observations for the sake of inlabru:
+  mutate(xt = seq_along(t))
 
 # plot observations:
-ggplot(data = obs, aes(x=t, y=x, fill = y)) + geom_tile()
+ggplot(data = obs, aes(x=t, y=x, fill = y.o)) + geom_tile() + ggtitle(paste("Observations: ", general.title))
 
 
 #   ----  Start defining the inlabru model components  ----   
@@ -117,23 +94,15 @@ pc.prior.small <- list(prec = list(prior = "pc.prec", param = c(0.02, 0.1)))
 
 comp = ~ -1 + 
   Int(1) + 
-  #alpha(x, model = "rw1", constr = TRUE) +
   alpha(x, model = "rw1", constr = TRUE, hyper = pc.alpha) + 
-  #phi(t, model = "linear", prec.linear = 1) + 
-  #phi(t, model = "linear") + 
-  phi(t, model = "linear", prec.linear = 0.25) +
+  phi(t, model = "linear", prec.linear = 1) +
   beta(x1, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
   kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior) +
-  #kappa(t1, model = "rw1", values = 1:nt, constr = TRUE) +
-  epsilon(xt, model = "iid", hyper = pc.prior.small)  # change from iid to rw1
+  epsilon(xt, model = "iid", hyper = pc.prior.small)
 
-#form.1 = y ~ Intercept + alpha + beta*phi + beta*kappa + epsilon
-#form.1 = y ~ -1 + alpha + beta*phi + beta*kappa + epsilon
-form.1 = y ~ -1 + Int + alpha + beta*phi + beta*kappa + epsilon
+form.1 = y.o ~ -1 + Int + alpha + beta*phi + beta*kappa + epsilon
 
-## add offset: , offset = ... 
 likelihood.1 = like(formula = form.1, family = "poisson", data = obs, E = at.risk)
-#likelihood.1 = like(formula = form.1, family = "poisson", data = obs)
 
 # the same control compute as in Sara's first example 
 c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
@@ -145,70 +114,70 @@ res = bru(components = comp,
           options = list(verbose = F,
                          bru_verbose = 1, 
                          num.threads = "1:1",
-                         control.compute = c.c#,
-                         #control.inla = list(int.strategy = "eb"),
-                         #bru_initial = initial.values
+                         control.compute = c.c
                          )) 
 
 res = bru_rerun(res)
 
-sprintf("Seed = %s, N = %s", seedet, N)
+cat(general.title)
 res$summary.fixed
 res$summary.hyperpar
 
-gg.alpha.true = ggplot(data = obs, aes(x = x, y = alpha)) + geom_line(color = "dodgerblue1") + ggtitle("True alpha"); gg.alpha.true
-gg.beta.true = ggplot(data = obs, aes(x = x, y = beta)) + geom_point(color = "dodgerblue1") + ggtitle("True beta"); gg.beta.true
-gg.kappa.true = ggplot(data = obs, aes(x = t, y = kappa)) + geom_line(color = "dodgerblue1") + ggtitle("True kappa"); gg.kappa.true
-gg.phi.true = ggplot(data = obs, aes(x = t, y = phi.t)) + geom_line(color = "dodgerblue1") + ggtitle("True phi"); gg.phi.true
-gg.epsilon.true = ggplot(data = obs, aes(x = x, y = t, fill = epsilon)) + geom_tile() + ggtitle("True epsilon")
-ggplot(data = obs, aes(x = epsilon)) + geom_density()
-
-gg.beta = ggplot(data = cbind(res$summary.random$beta, beta.true = beta[res$summary.random$beta$ID]), aes(x = ID)) + 
+data.alpha = cbind(res$summary.random$alpha, alpha.true = alpha[res$summary.random$alpha$ID])
+ggplot(data = data.alpha, aes(x = ID)) + 
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-  geom_point(aes(y = mean), color = "lightskyblue") + 
-  geom_point(aes(y = beta.true), color = "dodgerblue1") + 
-  ggtitle(paste("Beta, seed =", seedet, "N =", N))
-gg.beta  
+  geom_point(aes(y = mean, color = "Estimated")) + 
+  geom_point(aes(y = alpha.true, color = "True value")) + 
+  scale_color_manual(name = "Method",
+                     breaks = c("Estimated", "True value"),
+                     values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) +
+  ggtitle(paste("Alpha: ", general.title))
+
+data.beta = cbind(res$summary.random$beta, beta.true = beta[res$summary.random$beta$ID])
+ggplot(data = data.beta) + 
+  geom_ribbon(aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
+  geom_point(aes(x = ID, y = mean, color = "Estimated")) + 
+  geom_point(aes(x = ID, y = beta.true, color = "True value")) +
+  scale_color_manual(name = "Method",
+                     breaks = c("Estimated", "True value"),
+                     values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) + 
+  ggtitle(paste("Beta: ", general.title))
 
 data.kappa = cbind(res$summary.random$kappa, kappa.true = kappa[res$summary.random$kappa$ID])
-gg.kappa = ggplot(data = data.kappa, aes(x = ID)) + 
+ggplot(data = data.kappa, aes(x = ID)) + 
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-  geom_line(aes(y = mean), color = "lightskyblue") + 
-  geom_line(aes(y = kappa.true), color = "dodgerblue1") + 
-  ggtitle(paste("Kappa, seed =", seedet, "N =", N))
-gg.kappa
+  geom_point(aes(y = mean, color = "Estimated")) + 
+  geom_point(aes(y = kappa.true, color = "True value")) + 
+  scale_color_manual(name = "Method",
+                     breaks = c("Estimated", "True value"),
+                     values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) + 
+  ggtitle(paste("Kappa: ", general.title))
 
-data.alpha = cbind(res$summary.random$alpha, alpha.true = alpha[res$summary.random$alpha$ID])
-gg.alpha = ggplot(data = data.alpha, aes(x = ID)) + 
-  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-  geom_line(aes(y = mean), color = "lightskyblue") + 
-  geom_line(aes(y = alpha.true), color = "dodgerblue1") + 
-  ggtitle(paste("Alpha, seed =", seedet, "N =", N))
-gg.alpha
+data.phi = data.frame(cbind(ID = 1:nt, 
+                 mean = res$summary.fixed$mean[2]*1:nt,
+                 X0.025quant = res$summary.fixed$`0.025quant`[2]*1:nt,
+                 X0.975quant = res$summary.fixed$`0.975quant`[2]*1:nt,
+                 phi.true = phi*1:nt))
+ggplot(data = data.phi, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = X0.025quant, ymax = X0.975quant), fill = "lightskyblue1") + 
+  geom_point(aes(y = mean, color = "Estimated")) + 
+  geom_point(aes(y = phi.true, color = "True value")) + 
+  scale_color_manual(name = "Method",
+                     breaks = c("Estimated", "True value"),
+                     values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) + 
+  ggtitle(paste("Phi: ", general.title))
 
 # density plot of true eta and predicted eta:
 data.frame({eta.sim = res$summary.linear.predictor$mean[1:N]}) %>%
   mutate(true.eta = obs$eta) %>%
   ggplot() + geom_point(aes(x = eta.sim, y = true.eta)) + 
-  ggtitle(paste("Eta, seed =", seedet, "N =", N))
+  ggtitle(paste("Eta: ", general.title))
 
-data.eta.density = rbind(data.frame(eta = obs$eta, sim = "F"),
-                         data.frame(eta = eta.sim, sim = "T"))
-gg.eta.density = ggplot(data = data.eta.density, aes(x = eta, color = sim)) + 
-  geom_density() + ggtitle(paste("Eta density, seed =", seedet, "N =", N))
-gg.eta.density
+data.eta.density = rbind(data.frame(eta = obs$eta, sim = "Simulated"), data.frame(eta = eta.sim, sim = "True value"))
+ggplot(data = data.eta.density, aes(x = eta, color = sim)) + 
+  geom_density() + 
+  ggtitle(paste("Eta density", general.title))
 
-gg.epsilon.true
-data.epsilon = res$summary.random$epsilon
-data.epsilon = cbind(data.epsilon, x = apply(data.epsilon,1, function(row) row['ID']%/%100 ))
-data.epsilon = cbind(data.epsilon, t = apply(data.epsilon, 1, function(row) row['ID']%%100))
-gg.epsilon = ggplot(data = data.epsilon, aes(x = x, y = t, fill = mean)) + geom_tile() + ggtitle("Simulated epsilon")
-gg.epsilon
-
-# density plots of true and simulated epsilon:
-data.epsilon.density = rbind(data.frame(epsilon = data.epsilon$mean, sim = "T"), data.frame(epsilon = obs$epsilon, sim = "F"))
-gg.epsilon.density = ggplot(data = data.epsilon.density, aes(x = epsilon, color = sim)) + geom_density()
-gg.epsilon.density
 
 
 
