@@ -10,16 +10,57 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 So far, we have tried to see if it is possible to fit a Lee-Carter model for mortality predicions and the Lee-Carter model extended with a birth-year cohort effect using inlabru. The first results are good, but we have only tested the model for synthetic data, not necessarily very close to the real-life situation. 
 
+## The Lee-Carter model
 We have used the follwing version of the Lee-Carter model:
 $$
 Y_{x,t} \sim Poisson(E_{x,t}\cdot e^{\eta_{x,t}}), 
 $$
 where $Y_{x,t}$ is the expected number of deaths for people at age $x$ in year $t$ and 
 $$
-\eta_{x,t}=\alpha_x + \beta_x\cdot\kappa_t + \epsilon. 
+\eta_{x,t}= C + \alpha_x + \beta_x\cdot\kappa_t + \epsilon.
 $$
-Here, 
+Here $\alpha_x$ can be interpreted as the overall mortality profile for the ages in $x$, $\kappa_t$ is the change in mortality for different times $t$, relative to a zero-level and $\beta_x$ can be interpreted as the sensitivity to time-related changes in mortality for different ages $x$. $\epsilon$ is the error term and $C$ is a constant. $\alpha_x$, $\beta_x$ and $\kappa_t$ are subject to the following constraints:
+$$
+\sum_x \alpha_x = 0, \quad \sum_x\beta_x = 1, \quad \sum_t\kappa_t = 0.
+$$
+We have modeled $\alpha_x$ as a random walk, $\beta_x$ as iid distributed with zero mean and $\kappa_t$ as a random walk with drift:
+$$
+\kappa_{t+1} = \phi + \kappa_{t} + \epsilon_{\kappa}, \quad \epsilon_{\kappa} \sim N(0,1/\tau_\kappa).
+$$
+As inla does not handle latent effects as random walks with drift, we rewrite to be able to run with inla:
+$$
+\kappa_t = \kappa^*_t + \phi\cdot t, \quad \kappa^*_t = \kappa^*_{t-1} + \epsilon_{\kappa}, \quad \sum_t\kappa^*_t = 0.
+$$
+Our model is then
+$$
+\eta_{x,t} = C + \alpha_x + \beta_x\cdot\phi\cdot t + \beta_x\kappa_t^* + \epsilon.
+$$
+We have also tried to include a cohort-effect of a persons birth-year, $t-x$, to our model:
+$$
+\eta_{x,t} = C + \alpha_x + \beta_x\cdot\phi\cdot t + \beta_x \cdot \kappa_t^* + \gamma_{t-x} + \epsilon,
+$$
+where $\gamma_{t-x}$ is the cohort effect subject to the constraint $\sum_{x,t}\gamma_{t-x} = 0$ and the remaining parameters are the same as before. We have modelled $\gamma_{t-x}$ as a random walk. 
+
+## Using inlabru
+The multiplikative term $\beta_x\cdot\kappa_t$ makes the predictor $\eta_{x,t}$ non-linear, which means that inla can not be used to do inference of data following this model. We have tried to use the inlabru package in R to get around this obstacle.
+
+Inlabru uses a Taylor approximation to linearize the predictor $\eta_{x,t}$ and then runs Inla with this linearization as the linear predictor. To find the ideal linearization point, inlabru runs a fix-point iteration with inla, setting the linearization point in one step as the point that maximize the posterior distribution over the latent effects that results when running inla with the linearization point from the last step. For further explanation, see https://inlabru-org.github.io/inlabru/articles/method.html or the last part of this document. 
+
 ```{r cars}
 summary(cars)
 ```
 
+## Inlabru - further explanation. 
+
+We have a non-linear predictor $\eta_{x,t}$ that is a function of some latent effects, $\textbf{u}$:
+$$
+\eta_{x,t} = C + \alpha_x, \phi\cdot t\cdot \beta_x + \beta_x\cdot\kappa_t + \epsilon, \quad \textbf{u} = [\alpha_1,...,\alpha_{N_x},\beta_1,...,\beta_{N_x},\phi,\kappa_1,...,\kappa_{N_t}].
+$$
+Using a Taylor approximation around some point $\textbf{u}_0$ one gets
+$$
+\bar{\boldsymbol{\eta}} = \boldsymbol{\eta}_{x,t}(\textbf{u}_0) + B(\textbf{u} - \textbf{u}_0),
+$$
+where $B$ is the derivative matrix of $\boldsymbol{\eta}$ evaluated at $\textbf{u}_0$. The probability model is then approximated by inserting for this linearized predictor:
+$$
+finn ut hvordan!!!
+$$
