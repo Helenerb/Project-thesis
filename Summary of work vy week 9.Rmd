@@ -2,7 +2,9 @@
 title: "Summary of work by week 9"
 author: "Helene Behrens"
 date: "3/3/2021"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -60,7 +62,15 @@ Using a Taylor approximation around some point $\textbf{u}_0$ one gets
 $$
 \bar{\boldsymbol{\eta}} = \boldsymbol{\eta}_{x,t}(\textbf{u}_0) + B(\textbf{u} - \textbf{u}_0),
 $$
-where $B$ is the derivative matrix of $\boldsymbol{\eta}$ evaluated at $\textbf{u}_0$. The probability model is then approximated by inserting for this linearized predictor:
+where $B$ is the derivative matrix of $\boldsymbol{\eta}$ evaluated at $\textbf{u}_0$. This linearized predictor is then used to run inla, and we obtain approximate marginal posterior distributions for the latent effects, hyperparameters and the predictor $\eta_{x,t}$. 
+Inlabru finds the optimal linearization point $\textbf{u}_0$ through a fixed-point iteration with inla. For each step $s$, the next linearization point $\textbf{u}_s$ is set to the point that maximizes the posterior distribution for the latent effects that resulted from the inla approximation using the linearization from the last step $\textbf{u}_{s-1}$:
 $$
-finn ut hvordan!!!
+\textbf{u}_{s} = \text{argmax}_{\textbf{u}}\,\,\bar{p}_{\textbf{u}_{s-1}}(\textbf{u}\mid \textbf{y}, \hat{\boldsymbol{\theta}}) =: f(\bar{p}_{\textbf{u}_{s-1}}), \quad \hat{\boldsymbol{\theta}} = \text{argmax}_{\boldsymbol{\theta}}\,\,\bar{p}_{\textbf{u}_{s-1}}(\boldsymbol{\theta}\mid \textbf{y}).
 $$
+Inlabru runs these iterations until approximate convergence:
+$$
+\textbf{u}_s \approx f(\bar{p}_{\textbf{u}_{s-1}}).
+$$
+
+
+
