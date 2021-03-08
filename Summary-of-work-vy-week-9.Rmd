@@ -3,9 +3,9 @@ title: "Summary of work by week 9"
 author: "Helene Behrens"
 date: "3/3/2021"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
