@@ -18,8 +18,10 @@ set.seed(seed)
 N = 1000
 general.title = paste("N = ", N, "seed = ", seed)
 
-nx = 10
-nt = 10
+#nx = 10
+#nt = 10
+nx = 20
+nt = 20
 
 n.cohort = (nt - 1) + abs(1-nx) + 1
 cohort.min = 1-nx
@@ -94,10 +96,16 @@ ggplot(data = obs, aes(x=t, y=x, fill = y.o)) + geom_tile()
 A.mat = matrix(1, nrow = 1, ncol = nx)  #  not sure if you did this correctly
 e.vec = 1
 
-pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.1)))
-pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.8)))
-pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.02, 0.1)))
-pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.8, 0.8)))
+# pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.1)))
+# pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.8)))
+# pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.02, 0.1)))
+# pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.8, 0.8)))
+
+# attempt with less informative priors:
+pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
+pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.5)))
+pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.05, 0.5)))
+pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.5)))
 
 # note: change names of components, to ensure no mix-up with global variables and 
 # variables in the observation.

@@ -17,7 +17,8 @@ nx = 10
 nt = 10
 
 #at.risk = 1000
-at.risk.vec = rep(1000, N)
+#at.risk.vec = rep(1000, N)
+at.risk.vec = sample(c(1000,1500),N, replace = TRUE)
 
 x = sample(1:nx, N, replace = TRUE)   
 t = sample(1:nt, N, replace = TRUE)   
