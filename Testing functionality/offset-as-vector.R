@@ -16,7 +16,8 @@ general.title = paste("N = ", N, "seed = ", seed, " : L-C-alpha-x")
 nx = 10
 nt = 10
 
-at.risk = 1000
+#at.risk = 1000
+at.risk.vec = rep(1000, N)
 
 x = sample(1:nx, N, replace = TRUE)   
 t = sample(1:nt, N, replace = TRUE)   
@@ -67,7 +68,7 @@ obs = obs %>%
          alpha = alpha[as.vector(obs$x)],
          phi.t = phi*obs$t,
          phi = phi,
-         at.risk = at.risk,
+         at.risk = at.risk.vec,
          epsilon = rnorm(n = N, 0, sqrt(1/tau.epsilon))) %>%
   mutate(eta = alpha + beta*phi.t + beta*kappa + epsilon) %>% # linear predictor
   mutate(y.o = rpois(N, at.risk*exp(eta))) %>%                 # simulate data
@@ -100,12 +101,12 @@ comp = ~ -1 +
 
 form.1 = y.o ~ -1 + Int + alpha + beta*phi + beta*kappa + epsilon
 
-likelihood.1 = like(formula = form.1, family = "poisson", data = obs, E = at.risk)
+likelihood.1 = like(formula = form.1, family = "poisson", data = obs, E = at.risk.vec)
 
 # the same control compute as in Sara's first example 
 c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
 
-initial.values = list(alpha = alpha, beta = beta, kappa = kappa, phi.t = phi*(1:nt))
+#initial.values = list(alpha = alpha, beta = beta, kappa = kappa, phi.t = phi*(1:nt))
 
 res = bru(components = comp,
           likelihood.1, 
