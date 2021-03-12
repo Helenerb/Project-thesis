@@ -17,8 +17,7 @@ years <- population %>% select(age) %>%
   filter(!is.na(as.Date(age, format="%d.%m.%Y", optional = TRUE))) 
 population <- population %>% slice(1:1848) %>% 
   mutate(year = rep(as.vector(years$age), each=88)) %>%
-  filter(year != age) %>%
-  filter(age != "Insgesamt") %>%
+  filter(year != age) %>% filter(age != "Insgesamt") %>%
   mutate(age.number =  parse_number(age)) %>%
   mutate(age.number = replace(age.number, age == "unter 1 Jahr", 0)) %>%
   mutate(age.int = 5*(age.number%/%5)) %>%
@@ -26,12 +25,12 @@ population <- population %>% slice(1:1848) %>%
   mutate(age.int = replace(age.int, age.int == "85 - 89", "85")) %>%
   group_by(age.int, year) %>%
   summarize(total = sum(total), male = sum(male), female = sum(female)) %>%
-  mutate(year = format(as.POSIXct(year, format="%d.%m.%Y"), format="%Y"))
+  mutate(year = format(as.POSIXct(year, format="%d.%m.%Y"), format="%Y")) %>%
+  filter(year < 2017)
 
 # read lung cancer data
 lung.cancer  <- read_excel("lungCancer-germany.xls") %>%
-  rename(sex = "...1") %>%
-  rename(age = "...2") %>%
+  rename(sex = "...1") %>% rename(age = "...2") %>%
   pivot_longer(!c(sex,age), names_to="year", values_to="deaths") %>%
   mutate(sex = replace(sex, sex == "männlich", "male")) %>%
   mutate(sex = replace(sex, sex == "weiblich", "female")) %>%
@@ -40,9 +39,9 @@ lung.cancer  <- read_excel("lungCancer-germany.xls") %>%
   #mutate(age.1 = age) %>%
   #mutate(year.1 = year) %>%
   #mutate(xt = paste(age,year))
-  mutate(t = as.integer(year)-1998) %>% mutate(t.1 = t) %>%
+  mutate(t = as.integer(year)-1999) %>% mutate(t.1 = t) %>%
   mutate(x = parse_number(age)) %>% mutate(x.1 = x) %>%
-  mutate(xt = )
+  mutate(xt = ((x%/%5)*(2016-1998) +t))
 
 
 #   ----  Start defining the inlabru model components  ----   
@@ -54,18 +53,17 @@ e.vec = 1
 
 # keeping the "less informative priors" that seemed to work well
 pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
-pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.5)))
+pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.6)))
 pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.05, 0.5)))
 pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.5)))
 
 # this is just how we define our model
 comp = ~ -1 + 
   Int(1) + 
-  alpha(age, model = "rw1", values = unique(lung.cancer$age), constr = TRUE, hyper = pc.prior.alpha) + 
-  phi(year, model = "linear", mean.linear = -0.5, prec.linear = 0.25) +
-  beta(age.1, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
-  kappa(year.1, model = "rw1", values = unique(lung.cancer$year), constr = TRUE, hyper = pc.prior.kappa) +
-  #gamma(cohort, model = "rw1", values = cohort.min:cohort.max, constr = TRUE, hyper = pc.prior.gamma) + 
+  alpha(x, model = "rw1", values = unique(lung.cancer$x), constr = TRUE, hyper = pc.prior.alpha) + 
+  phi(t, model = "linear", prec.linear = 1) +
+  beta(x.1, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
+  kappa(t.1, model = "rw1", values = unique(lung.cancer$t), constr = TRUE, hyper = pc.prior.kappa) +
   epsilon(xt, model = "iid", hyper = pc.prior.epsilon)
 
 # here total will refer to the total deaths for each age-year
@@ -89,3 +87,58 @@ res = bru(components = comp,
                          num.threads = "1:1",
                          control.compute = c.c
           )) 
+
+res = bru_rerun(res)
+
+res$summary.fixed
+res$summary.hyperpar
+
+data.alpha = res$summary.random$alpha %>%
+  mutate(id.order = factor(ID, levels=ID))
+ggplot(data.alpha, aes(x = id.order)) + 
+  #geom_ribbon(aes(ymin = X0.025quant, ymax = X0.975quant), fill = "lightskyblue1") + 
+  geom_errorbar(aes(id.order, min = `0.025quant`, ymax =`0.975quant`), position=position_dodge(width=0.5)) +
+  geom_point(aes(y = mean, color = "Estimated")) + 
+  ggtitle("Alpha - real data for lung cancer")
+
+data.beta = res$summary.random$beta 
+ggplot(data.beta, aes(x = ID)) + 
+  #geom_ribbon(aes(ymin = X0.025quant, ymax = X0.975quant), fill = "lightskyblue1") + 
+  geom_errorbar(aes(ID, min = `0.025quant`, ymax =`0.975quant`), position=position_dodge(width=0.5)) +
+  geom_point(aes(y = mean, color = "Estimated")) + 
+  ggtitle("Beta - real data for lung cancer")
+
+data.kappa = res$summary.random$kappa
+ggplot(data.kappa, aes(x = ID)) + 
+  #geom_ribbon(aes(ymin = X0.025quant, ymax = X0.975quant), fill = "lightskyblue1") + 
+  geom_errorbar(aes(ID, min = `0.025quant`, ymax =`0.975quant`), position=position_dodge(width=0.5)) +
+  geom_point(aes(y = mean, color = "Estimated")) + 
+  ggtitle("Kappa - real data for lung cancer")
+
+data.phi = data.frame(cbind(ID = unique(lung.cancer$t), 
+                            mean = res$summary.fixed$mean[2]*unique(lung.cancer$t),
+                            X0.025quant = res$summary.fixed$`0.025quant`[2]*unique(lung.cancer$t),
+                            X0.975quant = res$summary.fixed$`0.975quant`[2]*unique(lung.cancer$t)))
+ggplot(data = data.phi, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = X0.025quant, ymax = X0.975quant), fill = "lightskyblue1") + 
+  geom_point(aes(y = mean, color = "Estimated")) + 
+  ggtitle("Phi - real data for lung cancer")
+
+data.eta <- data.frame(eta = res$summary.linear.predictor$mean[1:324]) %>%
+  mutate(t = lung.cancer$t, x = lung.cancer$x)
+ggplot(data = data.eta, aes(x=t, y=x, fill = eta)) + geom_tile() + 
+  xlab("Time: 1999 - 2016") + 
+  ylab("Age: 0 - 85+") + 
+  ggtitle("")
+
+data.eta.t <- data.eta %>%
+  group_by(t) %>% summarize(eta.t = mean(eta))
+ggplot(data = data.eta.t, aes(x = t)) + 
+  geom_point(aes(y = eta.t, color = "Estimated")) + 
+  ggtitle("Eta - real data for lung cancer") + xlab("t") + ylab("Predictor")
+
+data.eta.x <- data.eta %>% 
+  group_by(x) %>% summarize(eta.x = mean(eta))
+ggplot(data = data.eta.x, aes(x = x)) + 
+  geom_point(aes(y = eta.x, color = "Estimated")) + 
+  ggtitle("Eta - real data for lung cancer") + xlab("t") + ylab("Predictor")
