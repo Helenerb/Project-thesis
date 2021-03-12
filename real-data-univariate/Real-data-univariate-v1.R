@@ -36,9 +36,6 @@ lung.cancer  <- read_excel("lungCancer-germany.xls") %>%
   mutate(sex = replace(sex, sex == "weiblich", "female")) %>%
   pivot_wider(names_from = sex, values_from = deaths) %>% 
   mutate(total = male + female) %>%
-  #mutate(age.1 = age) %>%
-  #mutate(year.1 = year) %>%
-  #mutate(xt = paste(age,year))
   mutate(t = as.integer(year)-1999) %>% mutate(t.1 = t) %>%
   mutate(x = parse_number(age)) %>% mutate(x.1 = x) %>%
   mutate(xt = ((x%/%5)*(2016-1998) +t))
