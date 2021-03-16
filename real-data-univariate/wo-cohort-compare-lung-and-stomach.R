@@ -161,8 +161,6 @@ rbind(data.phi.sto, data.phi.lun) %>%
   geom_point(aes(y = mean, color = type)) + 
   ggtitle("Phi")
 
-
-
 data.eta.sto <- data.frame(eta = res.sto$summary.linear.predictor$mean[1:324]) %>%
   mutate(t = stomach.cancer$t, x = stomach.cancer$x)
 data.eta.lun <- data.frame(eta = res.lun$summary.linear.predictor$mean[1:324]) %>%
@@ -183,12 +181,12 @@ data.eta.t <- rbind(data.eta.sto, data.eta.lun) %>%
   group_by(t, type) %>% summarize(eta.t = mean(eta))
 ggplot(data = data.eta.t, aes(x = t)) + 
   geom_point(aes(y = eta.t, color = type)) + 
-  ggtitle("Eta for t - real data for stomach cancer") + xlab("t") + ylab("Predictor")
+  ggtitle("Eta for t - real data") + xlab("t") + ylab("Predictor")
 
 data.eta.x <- rbind(data.eta.sto, data.eta.lun) %>%
   mutate(type = rep(c("Stomach cancer", "Lung cancer"), each=length(data.eta.lun$eta))) %>%
   group_by(x, type) %>% summarize(eta.x = mean(eta))
 ggplot(data = data.eta.x, aes(x = x)) + 
   geom_point(aes(y = eta.x, color = type)) + 
-  ggtitle("Eta for x - real data for stomach cancer") + xlab("x") + ylab("Predictor")
+  ggtitle("Eta for x - real data") + xlab("x") + ylab("Predictor")
 
