@@ -45,9 +45,9 @@ tau.epsilon = 1/0.01**2   # config 2.1
 #kappa = cos((1:nt)*pi/8)
 
 #kappa = 2*cos((1:nt)*pi/20)
-#kappa = cos((1:nt)*pi/20)
+kappa = cos((1:nt)*pi/20)  #  config 2.2
 #kappa = sin((1:nt)*pi/20)  # 26.02:1117
-kappa = 0.3*cos((1:nt)*pi/5)  # config 2.1
+#kappa = 0.3*cos((1:nt)*pi/5)  # config 2.1
 #kappa = 0.5*cos((1:nt)*pi/3)  # roughly the same sd as the above
 kappa = kappa - mean(kappa)
 
@@ -110,7 +110,7 @@ likelihood.1 = like(formula = form.1, family = "poisson", data = obs, E = at.ris
 # the same control compute as in Sara's first example 
 c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
 
-initial.values = list(alpha = alpha, beta = beta, kappa = kappa, phi.t = phi*(1:nt))
+#initial.values = list(alpha = alpha, beta = beta, kappa = kappa, phi.t = phi*(1:nt))
 
 res = bru(components = comp,
           likelihood.1, 

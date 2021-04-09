@@ -16,8 +16,11 @@ library(tidyverse)
 seed = 555
 set.seed(seed)
 
-N = 2000
+N = 1000
 general.title = paste("N = ", N, "seed = ", seed)
+
+palette.basis <- c('#70A4D4', '#ECC64B', '#A85150', '#607A4D', '#026AA1')
+palette.light <- c('#ABC9E6', '#F3DC90', '#C38281', '#86A46F', '#40BBFD')
 
 nx = 10
 nt = 10
@@ -36,31 +39,34 @@ obs = data.frame(x,t,cohort)
 
 #   model parameters for underlying models:
 
+# conf 3.2
 tau.iid = 1/0.1**2   #  Precision of iid beta: 100
 tau.epsilon = 1/0.01**2   #  Precision of error term: 10000
 tau.rw = 1/0.1**2
 tau.alpha.rw = 1/0.05**2
 
+# conf 3.2
 kappa <- devs <- rnorm(nt, mean = 0, sd = sqrt(1/tau.rw))
 for (i in 2:nt){
   kappa[i] = kappa[i-1] + devs[i]
 }
 kappa = kappa - mean(kappa)
 
+# conf 3.2
 alpha = cos(((1:nx - 3)* pi)/6)
 alpha.devs <- rnorm(nt, mean = 0, sd = sqrt(1/tau.alpha.rw))
 alpha = alpha + alpha.devs
 alpha = alpha - mean(alpha)
 
 #gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/2))
-gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max))
+gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max))  # conf 3.2
 #gamma = 0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/3)
 gamma = gamma - mean(gamma)  #center around zero
 
-phi = -0.5 
+phi = -0.5 # conf 3.2
 
 #  sample synthetic data:
-beta = rnorm(nx, 0, sqrt(1/tau.iid))  # should it not depend on t??
+beta = rnorm(nx, 0, sqrt(1/tau.iid))  # conf 3.2
 beta = 1/nx + beta - mean(beta)   # sum to 1
 
 # note: name all 
@@ -137,55 +143,119 @@ res$summary.fixed
 res$summary.hyperpar
 
 data.alpha = cbind(res$summary.random$alpha, alpha.true = alpha[res$summary.random$alpha$ID])
-ggplot(data = data.alpha, aes(x = ID)) + 
-  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-  geom_point(aes(y = mean, color = "Estimated")) + 
+gg.alpha <- ggplot(data = data.alpha, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = palette.light[1]) + 
   geom_point(aes(y = alpha.true, color = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated")) + 
   scale_color_manual(name = "Method",
                      breaks = c("Estimated", "True value"),
-                     values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) +
-  ggtitle(paste("Alpha: ", general.title))
+                     values = c("Estimated" = palette.basis[1], "True value" = palette.basis[2]) ) +
+  labs(title="Alpha", x = "x", y='')
 
 data.beta = cbind(res$summary.random$beta, beta.true = beta[res$summary.random$beta$ID])
-ggplot(data = data.beta) + 
-  geom_ribbon(aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-  geom_point(aes(x = ID, y = mean, color = "Estimated")) + 
+gg.beta <- ggplot(data = data.beta) + 
+  geom_ribbon(aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`), fill = palette.light[1]) + 
   geom_point(aes(x = ID, y = beta.true, color = "True value")) +
+  geom_point(aes(x = ID, y = mean, color = "Estimated")) + 
   scale_color_manual(name = "Method",
                      breaks = c("Estimated", "True value"),
-                     values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) + 
-  ggtitle(paste("Beta: ", general.title))
+                     values = c("Estimated" = palette.basis[1], "True value" = palette.basis[2]) ) +
+  labs(title="Beta", x = "x", y='')
 
 data.kappa = cbind(res$summary.random$kappa, kappa.true = kappa[res$summary.random$kappa$ID])
-ggplot(data = data.kappa, aes(x = ID)) + 
-  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-  geom_point(aes(y = mean, color = "Estimated")) + 
+gg.kappa <- ggplot(data = data.kappa, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = palette.light[1]) + 
   geom_point(aes(y = kappa.true, color = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated")) + 
   scale_color_manual(name = "Method",
                      breaks = c("Estimated", "True value"),
-                     values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) + 
-  ggtitle(paste("Kappa: ", general.title))
+                     values = c("Estimated" = palette.basis[1], "True value" = palette.basis[2]) ) +
+  labs(title="Kappa", x = "t", y='')
 
 data.gamma = cbind(res$summary.random$gamma, gamma.true = gamma[res$summary.random$gamma$ID - cohort.min + 1])
-ggplot(data = data.gamma, aes(x = ID)) + 
-  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-  geom_point(aes(y = mean, color = "Estimated")) + 
+gg.gamma <- ggplot(data = data.gamma, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = palette.light[1]) + 
   geom_point(aes(y = gamma.true, color = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated")) + 
   scale_color_manual(name = "Method",
                      breaks = c("Estimated", "True value"),
-                     values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) + 
-  ggtitle(paste("Gamma: ", general.title))
+                     values = c("Estimated" = palette.basis[1], "True value" = palette.basis[2]) ) +
+  labs(title="Gamma", x = "t-x", y='')
+
+data.phi = data.frame(cbind(ID = 1:nt, 
+                            mean = res$summary.fixed$mean[2]*1:nt,
+                            X0.025quant = res$summary.fixed$`0.025quant`[2]*1:nt,
+                            X0.975quant = res$summary.fixed$`0.975quant`[2]*1:nt,
+                            phi.true = phi*1:nt))
+gg.phi <- ggplot(data = data.phi, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = X0.025quant, ymax = X0.975quant), fill = palette.light[1]) + 
+  geom_point(aes(y = phi.true, color = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated")) + 
+  scale_color_manual(name = "Method",
+                     breaks = c("Estimated", "True value"),
+                     values = c("Estimated" = palette.basis[1], "True value" = palette.basis[2]) ) +
+  labs(title="Phi * t", x = "t", y='')
 
 
 # density plot of true eta and predicted eta:
-data.frame({eta.sim = res$summary.linear.predictor$mean[1:N]}) %>%
-  mutate(true.eta = obs$eta) %>%
-  ggplot() + geom_point(aes(x = eta.sim, y = true.eta)) + 
-  ggtitle(paste("Eta: ", general.title))
+data.eta <- data.frame({eta.sim = res$summary.linear.predictor$mean[1:N]}) %>%
+  mutate(true.eta = obs$eta)
+gg.eta <- ggplot(data.eta) + geom_point(aes(x = eta.sim, y = true.eta)) + 
+  labs(x="Simulated", y="True", title = "Eta")
 
-data.eta.density = rbind(data.frame(eta = obs$eta, sim = "Simulated"), data.frame(eta = eta.sim, sim = "True value"))
-ggplot(data = data.eta.density, aes(x = eta, color = sim)) + 
-  geom_density() + 
-  ggtitle(paste("Eta density", general.title))
+(gg.alpha | gg.beta | gg.kappa)/(gg.phi | gg.gamma | gg.eta) + 
+  plot_layout(guides = "collect") & theme(legend.position = 'bottom')
 
-
+# data.alpha = cbind(res$summary.random$alpha, alpha.true = alpha[res$summary.random$alpha$ID])
+# ggplot(data = data.alpha, aes(x = ID)) + 
+#   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
+#   geom_point(aes(y = mean, color = "Estimated")) + 
+#   geom_point(aes(y = alpha.true, color = "True value")) + 
+#   scale_color_manual(name = "Method",
+#                      breaks = c("Estimated", "True value"),
+#                      values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) +
+#   ggtitle(paste("Alpha: ", general.title))
+# 
+# data.beta = cbind(res$summary.random$beta, beta.true = beta[res$summary.random$beta$ID])
+# ggplot(data = data.beta) + 
+#   geom_ribbon(aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
+#   geom_point(aes(x = ID, y = mean, color = "Estimated")) + 
+#   geom_point(aes(x = ID, y = beta.true, color = "True value")) +
+#   scale_color_manual(name = "Method",
+#                      breaks = c("Estimated", "True value"),
+#                      values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) + 
+#   ggtitle(paste("Beta: ", general.title))
+# 
+# data.kappa = cbind(res$summary.random$kappa, kappa.true = kappa[res$summary.random$kappa$ID])
+# ggplot(data = data.kappa, aes(x = ID)) + 
+#   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
+#   geom_point(aes(y = mean, color = "Estimated")) + 
+#   geom_point(aes(y = kappa.true, color = "True value")) + 
+#   scale_color_manual(name = "Method",
+#                      breaks = c("Estimated", "True value"),
+#                      values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) + 
+#   ggtitle(paste("Kappa: ", general.title))
+# 
+# data.gamma = cbind(res$summary.random$gamma, gamma.true = gamma[res$summary.random$gamma$ID - cohort.min + 1])
+# ggplot(data = data.gamma, aes(x = ID)) + 
+#   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
+#   geom_point(aes(y = mean, color = "Estimated")) + 
+#   geom_point(aes(y = gamma.true, color = "True value")) + 
+#   scale_color_manual(name = "Method",
+#                      breaks = c("Estimated", "True value"),
+#                      values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) + 
+#   ggtitle(paste("Gamma: ", general.title))
+# 
+# 
+# # density plot of true eta and predicted eta:
+# data.frame({eta.sim = res$summary.linear.predictor$mean[1:N]}) %>%
+#   mutate(true.eta = obs$eta) %>%
+#   ggplot() + geom_point(aes(x = eta.sim, y = true.eta)) + 
+#   ggtitle(paste("Eta: ", general.title))
+# 
+# data.eta.density = rbind(data.frame(eta = obs$eta, sim = "Simulated"), data.frame(eta = eta.sim, sim = "True value"))
+# ggplot(data = data.eta.density, aes(x = eta, color = sim)) + 
+#   geom_density() + 
+#   ggtitle(paste("Eta density", general.title))
+# 
+# 
