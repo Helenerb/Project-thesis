@@ -12,7 +12,9 @@ library(ggplot2)
 library(patchwork)
 library(tidyverse)
 
-seed = 324
+#seed = 324  # 3.1, 3.3
+#seed = 325
+seed = 326
 set.seed(seed)
 
 palette.basis <- c('#70A4D4', '#ECC64B', '#A85150', '#607A4D', '#026AA1')
@@ -21,10 +23,10 @@ palette.light <- c('#ABC9E6', '#F3DC90', '#C38281', '#86A46F', '#40BBFD')
 N = 1000
 general.title = paste("N = ", N, "seed = ", seed)
 
-#nx = 10
-#nt = 10
-nx = 20
-nt = 20
+nx = 10
+nt = 10
+#nx = 20
+#nt = 20
 
 n.cohort = (nt - 1) + abs(1-nx) + 1
 cohort.min = 1-nx
@@ -40,12 +42,14 @@ obs = data.frame(x,t,cohort)
 
 #   model parameters for underlying models:
 
-tau.iid = 1/0.1**2   #  Precision of iid beta: 100
+#tau.iid = 1/0.1**2   #  Precision of iid beta: 100
+#tau.iid = 1/0.5**2  # attempt with lower precision - higher variance
+tau.iid = 1/0.05**2  # attempt with higher precision - lower variance
 tau.epsilon = 1/0.01**2   #  Precision of error term: 10000
 
 #kappa = 0.3*cos((1:nt)*pi/5)
 #kappa = sin((1:nt)*pi/20)  #26.02:1300
-kappa = 0.5*cos((1:nt)*pi/3)   # 25.02:14, conf 3.1
+kappa = 0.5*cos((1:nt)*pi/3)   # 25.02:14, conf 3.1, 3.3
 
 kappa = kappa - mean(kappa)
 
@@ -56,11 +60,11 @@ alpha = alpha - mean(alpha)
 #gamma = 0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/2)
 #gamma = 0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max)
 #gamma = 0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/3)
-#gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/3))
-gamma = -0.5*(0.1*(cohort.min:cohort.max) + cos((cohort.min:cohort.max - 2)/4))  # conf 3.1
+gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/3))  # conf 3.3
+#gamma = -0.5*(0.1*(cohort.min:cohort.max) + cos((cohort.min:cohort.max - 2)/4))  # conf 3.1
 gamma = gamma - mean(gamma)  #center around zero
 
-phi = -0.5   # conf 3.1
+phi = -0.5   # conf 3.1, 3.3
 
 #  sample synthetic data:
 beta = rnorm(nx, 0, sqrt(1/tau.iid))  # conf 3.1
@@ -104,7 +108,7 @@ e.vec = 1
 # pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.02, 0.1)))
 # pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.8, 0.8)))
 
-# attempt with less informative priors:
+# attempt with less informative priors: config 3.1 and config 3.3
 pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
 pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.5)))
 pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.05, 0.5)))

@@ -13,7 +13,12 @@ library(ggplot2)
 library(patchwork)
 library(tidyverse)
 
-seed = 555
+#seed = 555  # 3.2
+# test another seed to see if that is what produces bad resutls:
+#seed = 556
+#seed = 557
+#seed = 558
+seed = 559
 set.seed(seed)
 
 N = 1000
@@ -42,6 +47,10 @@ obs = data.frame(x,t,cohort)
 # conf 3.2
 tau.iid = 1/0.1**2   #  Precision of iid beta: 100
 tau.epsilon = 1/0.01**2   #  Precision of error term: 10000
+#attempt with higher variance for kappa rw
+#tau.rw = 1/0.5**2
+# attempt slightly lower variance for kappa rw:
+#tau.rw = 1/0.3**2
 tau.rw = 1/0.1**2
 tau.alpha.rw = 1/0.05**2
 
@@ -59,7 +68,8 @@ alpha = alpha + alpha.devs
 alpha = alpha - mean(alpha)
 
 #gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/2))
-gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max))  # conf 3.2
+#gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max))  # conf 3.2
+gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/3))
 #gamma = 0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/3)
 gamma = gamma - mean(gamma)  #center around zero
 
@@ -102,10 +112,17 @@ ggplot(data = obs, aes(x=t, y=x, fill = y.o)) + geom_tile()
 A.mat = matrix(1, nrow = 1, ncol = nx)  #  not sure if you did this correctly
 e.vec = 1
 
-pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.1)))
-pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.8)))
-pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.02, 0.1)))
-pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.8, 0.8)))
+# pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.1)))
+# pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.8)))
+# pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.02, 0.1)))
+# pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.8, 0.8)))
+
+# attempt with less informative priors: config 3.1 and config 3.3
+pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
+pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.5)))
+pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.05, 0.5)))
+pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.5)))
+
 
 # note: change names of components, to ensure no mix-up with global variables and 
 # variables in the observation.
