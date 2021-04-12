@@ -13,15 +13,15 @@ library(ggplot2)
 library(patchwork)
 library(tidyverse)
 
-#seed = 555  # 3.2
+seed = 555  # 3.2
 # test another seed to see if that is what produces bad resutls:
 #seed = 556
 #seed = 557
 #seed = 558
-seed = 559
+#seed = 559
 set.seed(seed)
 
-N = 1000
+N = 2000
 general.title = paste("N = ", N, "seed = ", seed)
 
 palette.basis <- c('#70A4D4', '#ECC64B', '#A85150', '#607A4D', '#026AA1')
@@ -68,8 +68,8 @@ alpha = alpha + alpha.devs
 alpha = alpha - mean(alpha)
 
 #gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/2))
-#gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max))  # conf 3.2
-gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/3))
+gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max))  # conf 3.2
+#gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/3))
 #gamma = 0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/3)
 gamma = gamma - mean(gamma)  #center around zero
 

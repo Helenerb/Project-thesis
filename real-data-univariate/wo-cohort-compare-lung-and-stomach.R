@@ -53,6 +53,20 @@ stomach.cancer  <- read_excel("stomachCancer-germany.xls") %>%
   mutate(x = parse_number(age)) %>% mutate(x.1 = x) %>%
   mutate(xt = ((x%/%5)*(2016-1998) +t))
 
+lung.cancer  <- read_excel("lungCancer-germany.xls") %>%
+  rename(sex = "...1") %>% rename(age = "...2") %>%
+  pivot_longer(!c(sex,age), names_to="year", values_to="deaths") %>%
+  mutate(sex = replace(sex, sex == "männlich", "male")) %>%
+  mutate(sex = replace(sex, sex == "weiblich", "female")) %>%
+  pivot_wider(names_from = sex, values_from = deaths) %>% 
+  mutate(total = male + female) %>%
+  mutate(t = as.integer(year)-1999) %>% mutate(t.1 = t) %>%
+  mutate(x = parse_number(age)) %>% mutate(x.1 = x) %>%
+  mutate(xt = ((x%/%5)*(2016-1998) +t)) %>%
+  mutate(cohort = t - x) %>%
+  mutate(birth.year = 1999 + cohort) %>%
+  left_join(population, by = c("year" = "year", "age" = "age.int"), suffix = c("", ".t"))
+
 
 #   ----  Start defining the inlabru model components  ----   
 #  this first attempt is based on the L-C-cohort-v2

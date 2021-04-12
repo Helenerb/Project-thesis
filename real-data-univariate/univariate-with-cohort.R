@@ -28,6 +28,7 @@ population <- population %>% slice(1:1848) %>%
   mutate(year = format(as.POSIXct(year, format="%d.%m.%Y"), format="%Y")) %>%
   filter(year < 2017)
 
+
 # read stomach cancer data
 stomach.cancer  <- read_excel("stomachCancer-germany.xls") %>%
   rename(sex = "...1") %>% rename(age = "...2") %>%
@@ -152,3 +153,4 @@ data.eta.x <- data.eta %>%
 ggplot(data = data.eta.x, aes(x = x)) + 
   geom_point(aes(y = eta.x, color = "Estimated")) + 
   ggtitle("Eta for x - real data for stomach cancer") + xlab("t") + ylab("Predictor")
+
