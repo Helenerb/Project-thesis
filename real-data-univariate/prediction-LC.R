@@ -127,7 +127,7 @@ gg.pred.age.facet
 gg.pred.2016 <- ggplot(data.pred %>% filter(year == "2016") %>%
                          mutate(id.order = factor(age, levels=age))) + 
   geom_point(aes(x = id.order, y = `mortality rate`, color = "Observed")) + 
-  geom_errorbar(aes(x = id.order, min = `0.025quant`, ymax = `0.975quant`),
+  geom_(aes(x = id.order, min = `0.025quant`, ymax = `0.975quant`),
                 color = palette.light[1], position=position_dodge(width=0.5)) +
   geom_point(aes(x = id.order, y = mean, color = "LC")) + 
   scale_color_manual(name = "Prediction method",
