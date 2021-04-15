@@ -1,5 +1,5 @@
 # Compare predictions for stomach and lung cancer data in year 2015 and 1016
-# using different versions of the LC-model. 
+# using different versions of the APC
 
 # First attempt at prediction with inlabru. 
 
@@ -86,154 +86,109 @@ stomach.cancer.wo1516 <- stomach.cancer %>%
   mutate(male = replace(male, year == "2016" | year == "2015", NA)) %>%
   mutate(female = replace(female, year == "2016" | year == "2015", NA))
 
+#   ----   define inlabru model components:
 
-# attempt first with basic LC-model:
-#  helper values for constraining of beta:
-A.mat = matrix(1, nrow = 1, ncol = length(unique(lung.cancer$x)))  #  not sure if you did this correctly
-e.vec = 1
-
-# The following priors are not adjusted to the data:
-pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
-pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.6)))
+pc.prior.rho <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
+pc.prior.phi <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.6)))
 pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.05, 0.5)))
-pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.5)))
+pc.prior.psi <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.5)))
 
-# this is just how we define our model
-comp = ~ -1 + 
+# note: this way of defining the x, t and k - values are only possible knowing that 
+# we do not have any missing data points in stomach.cancer (we can, however, have zero-data.)
+comp.apc.1 = ~ -1 + 
   Int(1) + 
-  alpha(x, model = "rw1", values = unique(lung.cancer$x), constr = TRUE, hyper = pc.prior.alpha) + 
-  phi(t, model = "linear", prec.linear = 1) +
-  beta(x.1, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
-  kappa(t.1, model = "rw1", values = unique(lung.cancer$t), constr = TRUE, hyper = pc.prior.kappa) +
-  gamma(cohort, model = "rw1", values =  unique(lung.cancer$cohort), constr = TRUE, hyper = pc.prior.gamma) +
+  rho(x, model = "rw2", values = unique(stomach.cancer$x), constr = TRUE, hyper = pc.prior.rho) + 
+  phi(t, model = "rw2", values = unique(stomach.cancer$t), constr = TRUE, hyper = pc.prior.phi) + 
+  psi(cohort, model = "rw2", values = unique(stomach.cancer$cohort), constr = TRUE, hyper = pc.prior.psi) + 
   epsilon(xt, model = "iid", hyper = pc.prior.epsilon)
 
+comp.apc.2 = ~ -1 + 
+  Int(1) + 
+  rho(x, model = "rw1", values = unique(stomach.cancer$x), constr = TRUE, hyper = pc.prior.rho) + 
+  phi(t, model = "rw1", values = unique(stomach.cancer$t), constr = TRUE, hyper = pc.prior.phi) + 
+  psi(cohort, model = "rw1", values = unique(stomach.cancer$cohort), constr = TRUE, hyper = pc.prior.psi) + 
+  epsilon(xt, model = "iid", hyper = pc.prior.epsilon)
 
-#   ----   Simplest LC model   ----
-form.1 = total ~ -1 + Int + alpha + beta*phi + beta*kappa + epsilon
+# define the formula for the predictor for the APC model:
+form.apc = total ~ -1 + Int + rho + phi + psi + epsilon
 
-# define likelihoods for lung cancer data and stomach cancer data
-# add data as lung.cancer.wo1516 and offset as population$total etc, which is the number of people at-risk
-likelihood.1.l = like(formula = form.1, family = "poisson", data = lung.cancer.wo1516, E = lung.cancer.wo1516$total.t)
-likelihood.1.s = like(formula = form.1, family = "poisson", data = stomach.cancer.wo1516, E = stomach.cancer.wo1516$total.t)
-
-
-#   ----   LCC-model - LC with cohort extension   ----
-form.2 = total ~ -1 +  Int + alpha + beta*phi + beta*kappa + gamma + epsilon
-likelihood.2.l = like(formula = form.2, family = "poisson", data = lung.cancer.wo1516, E = lung.cancer.wo1516$total.t)
-likelihood.2.s = like(formula = form.2, family = "poisson", data = stomach.cancer.wo1516, E = stomach.cancer.wo1516$total.t)
-
-
-#   ----   LC-model with only linear period-effect 
-form.3 = total ~ -1 + Int + alpha + beta*phi + gamma + epsilon
-likelihood.3.l = like(formula = form.3, family = "poisson", data = lung.cancer.wo1516, E = lung.cancer.wo1516$total.t)
-likelihood.3.s = like(formula = form.3, family = "poisson", data = stomach.cancer.wo1516, E = stomach.cancer.wo1516$total.t)
+# add data as lung.cancer and offset as population$total, which is the number of people at-risk
+likelihood.apc.l = like(formula = form.apc, family = "poisson", data = lung.cancer.wo1516, E = lung.cancer.wo1516$total.t)
+likelihood.apc.s = like(formula = form.apc, family = "poisson", data = stomach.cancer.wo1516, E = stomach.cancer.wo1516$total.t)
 
 # the same control compute as in Sara's first example 
 c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
 
-# Running the different models:
+#initial.values = list(alpha.c = alpha, beta.c = beta, kappa.c = kappa, phi.t = phi*(1:nt))
 
-# model 1:
-res.1.l = bru(components = comp,
-          likelihood.1.l, 
-          options = list(verbose = F,
-                         bru_verbose = 1, 
-                         num.threads = "1:1",
-                         control.compute = c.c,
-                         control.predictor = list(link = 1)
-          )) 
-res.1.l = bru_rerun(res.1.l)
-
-res.1.s = bru(components = comp,
-              likelihood.1.s, 
+res.apc.1.l = bru(components = comp.apc.1,
+              likelihood.apc.l, 
               options = list(verbose = F,
                              bru_verbose = 1, 
                              num.threads = "1:1",
                              control.compute = c.c,
                              control.predictor = list(link = 1)
               )) 
-res.1.s = bru_rerun(res.1.s)
+res.apc.1.l = bru_rerun(res.apc.1.l)
 
-# model 2:
-res.2.l = bru(components = comp,
-              likelihood.2.l, 
-              options = list(verbose = F,
-                             bru_verbose = 1, 
-                             num.threads = "1:1",
-                             control.compute = c.c,
-                             control.predictor = list(link = 1)
-              )) 
-res.2.l = bru_rerun(res.2.l)
-# note : this did not fully converge
+res.apc.1.s = bru(components = comp.apc.1,
+                  likelihood.apc.s, 
+                  options = list(verbose = F,
+                                 bru_verbose = 1, 
+                                 num.threads = "1:1",
+                                 control.compute = c.c,
+                                 control.predictor = list(link = 1)
+                  )) 
+res.apc.1.s = bru_rerun(res.apc.1.s)
 
-res.2.s = bru(components = comp,
-              likelihood.2.s, 
-              options = list(verbose = F,
-                             bru_verbose = 1, 
-                             num.threads = "1:1",
-                             control.compute = c.c,
-                             control.predictor = list(link = 1)
-              )) 
-res.2.s = bru_rerun(res.2.s)
+res.apc.2.l = bru(components = comp.apc.2,
+                  likelihood.apc.l, 
+                  options = list(verbose = F,
+                                 bru_verbose = 1, 
+                                 num.threads = "1:1",
+                                 control.compute = c.c,
+                                 control.predictor = list(link = 1)
+                  )) 
+res.apc.2.l = bru_rerun(res.apc.2.l)
 
-# model 3:
-res.3.l = bru(components = comp,
-              likelihood.3.l, 
-              options = list(verbose = F,
-                             bru_verbose = 1, 
-                             num.threads = "1:1",
-                             control.compute = c.c,
-                             control.predictor = list(link = 1)
-              )) 
-res.3.l = bru_rerun(res.3.l)
-
-res.3.s = bru(components = comp,
-              likelihood.3.s, 
-              options = list(verbose = F,
-                             bru_verbose = 1, 
-                             num.threads = "1:1",
-                             control.compute = c.c,
-                             control.predictor = list(link = 1)
-              )) 
-res.3.s = bru_rerun(res.3.s)
+res.apc.2.s = bru(components = comp.apc.2,
+                  likelihood.apc.s, 
+                  options = list(verbose = F,
+                                 bru_verbose = 1, 
+                                 num.threads = "1:1",
+                                 control.compute = c.c, 
+                                 control.predictor = list(link = 1)
+                  )) 
+res.apc.2.s = bru_rerun(res.apc.2.s)
 
 # color palette.
 palette.basis <- c('#70A4D4', '#ECC64B', '#607A4D', '#026AA1', '#A85150')
 palette.light <- c('#ABC9E6', '#F3DC90', '#86A46F', '#40BBFD', '#C38281')
 
 
-data.1.l <- res.1.l$summary.fitted.values %>%
+data.apc.1.l <- res.apc.1.l$summary.fitted.values %>%
   slice(1:324) %>%
   bind_cols(lung.cancer %>% select(- c("x.1", "t.1", "xt")))
 
-data.1.s <- res.1.s$summary.fitted.values %>%
+data.apc.1.s <- res.apc.1.s$summary.fitted.values %>%
   slice(1:324) %>%
   bind_cols(stomach.cancer %>% select(- c("x.1", "t.1", "xt")))
 
-data.2.l <- res.2.l$summary.fitted.values %>%
+data.apc.2.l <- res.apc.2.l$summary.fitted.values %>%
   slice(1:324) %>%
   bind_cols(lung.cancer %>% select(- c("x.1", "t.1", "xt")))
 
-data.2.s <- res.2.s$summary.fitted.values %>%
+data.apc.2.s <- res.apc.2.s$summary.fitted.values %>%
   slice(1:324) %>%
   bind_cols(stomach.cancer %>% select(- c("x.1", "t.1", "xt")))
 
-data.3.l <- res.3.l$summary.fitted.values %>%
-  slice(1:324) %>%
-  bind_cols(lung.cancer %>% select(- c("x.1", "t.1", "xt")))
+data.pred.apc.l <- rbind(data.apc.1.l, data.apc.2.l) %>%
+  mutate("method" = rep(c("rw2", "rw1"), each = 324))
 
-data.3.s <- res.3.s$summary.fitted.values %>%
-  slice(1:324) %>%
-  bind_cols(stomach.cancer %>% select(- c("x.1", "t.1", "xt")))
+data.pred.apc.s <- rbind(data.apc.1.s, data.apc.2.s) %>%
+  mutate("method" = rep(c("rw2", "rw1"), each = 324))
 
-data.pred.l <- rbind(data.1.l, data.2.l, data.3.l) %>%
-  mutate("method" = rep(c("LC basic", "LC cohort", "LC linear"), each = 324))
-
-data.pred.s <- rbind(data.1.s, data.2.s, data.3.s) %>%
-  mutate("method" = rep(c("LC basic", "LC cohort", "LC linear"), each = 324))
-
-gg.pred.age.facet.l <- ggplot(data = data.pred.l, aes(x = year)) + 
+gg.pred.apc.age.facet.l <- ggplot(data = data.pred.apc.l, aes(x = year)) + 
   geom_vline(xintercept = "2014", color = palette.light[5]) + 
   geom_errorbar(aes(min = `0.025quant`, ymax = `0.975quant`, color = `method`), position=position_dodge(width=0.5)) +
   #geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, color = `method`)) + 
@@ -247,9 +202,9 @@ gg.pred.age.facet.l <- ggplot(data = data.pred.l, aes(x = year)) +
   facet_wrap(~age) + 
   labs(title = "Mortality rate for lung cancer by calendar year", y = "Mortality rate", x = "Year")
 
-gg.pred.age.facet.l
+gg.pred.apc.age.facet.l
 
-gg.pred.age.facet.s <- ggplot(data = data.pred.s, aes(x = year)) + 
+gg.pred.apc.age.facet.s <- ggplot(data = data.pred.apc.s, aes(x = year)) + 
   geom_vline(xintercept = "2014", color = palette.light[5]) + 
   geom_errorbar(aes(min = `0.025quant`, ymax = `0.975quant`, color = `method`), position=position_dodge(width=0.5)) +
   #geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, color = `method`)) + 
@@ -263,9 +218,9 @@ gg.pred.age.facet.s <- ggplot(data = data.pred.s, aes(x = year)) +
   facet_wrap(~age) + 
   labs(title = "Mortality rate for stomach cancer by calendar year", y = "Mortality rate", x = "Year")
 
-gg.pred.age.facet.s
+gg.pred.apc.age.facet.s
 
-gg.pred.2016.l <- ggplot(data.pred.l %>% filter(year == "2016"), aes(x = fct_inorder(age))) + 
+gg.pred.2016.apc.l <- ggplot(data.pred.apc.l %>% filter(year == "2016"), aes(x = fct_inorder(age))) + 
   #geom_errorbar(aes(x = x, min = `0.025quant`, ymax = `0.975quant`, color = `method`)) +
   geom_errorbar(aes(ymin = `0.025quant`, ymax = `0.975quant`, color = `method`), alpha = 0.5) + 
   geom_point(aes(y = mean, color = `method`, group = 1)) + 
@@ -275,7 +230,7 @@ gg.pred.2016.l <- ggplot(data.pred.l %>% filter(year == "2016"), aes(x = fct_ino
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   labs(title = "2016", x = "Age groups", y = "Mortality rate")
 
-gg.pred.2015.l <- ggplot(data.pred.l %>% filter(year == "2015"), aes(x = fct_inorder(age))) + 
+gg.pred.2015.apc.l <- ggplot(data.pred.apc.l %>% filter(year == "2015"), aes(x = fct_inorder(age))) + 
   #geom_errorbar(aes(x = x, min = `0.025quant`, ymax = `0.975quant`, color = `method`)) +
   geom_errorbar(aes(ymin = `0.025quant`, ymax = `0.975quant`, color = `method`), alpha = 0.5) + 
   geom_point(aes(y = mean, color = `method`, group = 1)) + 
@@ -285,12 +240,12 @@ gg.pred.2015.l <- ggplot(data.pred.l %>% filter(year == "2015"), aes(x = fct_ino
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   labs(title = "2015", x = "Age groups", y = "Mortality rate")
 
-(gg.pred.2015.l |gg.pred.2016.l)  + 
+(gg.pred.2015.apc.l |gg.pred.2016.apc.l)  + 
   plot_annotation(title = "Predicted values for lung cancer by age groups") + 
   plot_layout(guides = "collect")
 
 # stomach cancer plots:
-gg.pred.2016.s <- ggplot(data.pred.s %>% filter(year == "2016"), aes(x = fct_inorder(age))) + 
+gg.pred.2016.apc.s <- ggplot(data.pred.apc.s %>% filter(year == "2016"), aes(x = fct_inorder(age))) + 
   #geom_errorbar(aes(x = x, min = `0.025quant`, ymax = `0.975quant`, color = `method`)) +
   geom_errorbar(aes(ymin = `0.025quant`, ymax = `0.975quant`, color = `method`), alpha = 0.5) + 
   geom_point(aes(y = mean, color = `method`, group = 1)) + 
@@ -300,7 +255,7 @@ gg.pred.2016.s <- ggplot(data.pred.s %>% filter(year == "2016"), aes(x = fct_ino
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   labs(title = "2016", x = "Age groups", y = "Mortality rate")
 
-gg.pred.2015.s <- ggplot(data.pred.s %>% filter(year == "2015"), aes(x = fct_inorder(age))) + 
+gg.pred.2015.apc.s <- ggplot(data.pred.apc.s %>% filter(year == "2015"), aes(x = fct_inorder(age))) + 
   #geom_errorbar(aes(x = x, min = `0.025quant`, ymax = `0.975quant`, color = `method`)) +
   geom_errorbar(aes(ymin = `0.025quant`, ymax = `0.975quant`, color = `method`), alpha = 0.5) + 
   geom_point(aes(y = mean, color = `method`, group = 1)) + 
@@ -310,25 +265,12 @@ gg.pred.2015.s <- ggplot(data.pred.s %>% filter(year == "2015"), aes(x = fct_ino
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   labs(title = "2015", x = "Age groups", y = "Mortality rate")
 
-(gg.pred.2015.s |gg.pred.2016.s)  + 
+(gg.pred.2015.apc.s |gg.pred.2016.apc.s)  + 
   plot_annotation(title = "Predicted values for stomach cancer by age groups") + 
   plot_layout(guides = "collect")
 
 # plots using just x on the x-axis 
-gg.pred.2016.s <- ggplot(data.pred.s %>% filter(year == "2016"), aes(x = x)) + 
-  #geom_errorbar(aes(x = x, min = `0.025quant`, ymax = `0.975quant`, color = `method`)) +
-  #geom_errorbar(aes(ymin = `0.025quant`, ymax = `0.975quant`, color = `method`), alpha = 0.5) + 
-  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`), alpha = 0.5) +
-  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
-  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
-  scale_color_manual(name = "Prediction method",
-                     values = palette.basis) +
-  scale_fill_manual(name = "Prediction method",
-                     values = palette.basis) +
-  #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
-  labs(title = "2016", x = "Age groups", y = "Mortality rate")
-
-gg.pred.2015.s <- ggplot(data.pred.s %>% filter(year == "2015"), aes(x = x)) + 
+gg.pred.2016.apc.s <- ggplot(data.pred.apc.s %>% filter(year == "2016"), aes(x = x)) + 
   #geom_errorbar(aes(x = x, min = `0.025quant`, ymax = `0.975quant`, color = `method`)) +
   #geom_errorbar(aes(ymin = `0.025quant`, ymax = `0.975quant`, color = `method`), alpha = 0.5) + 
   geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`), alpha = 0.5) +
@@ -341,11 +283,24 @@ gg.pred.2015.s <- ggplot(data.pred.s %>% filter(year == "2015"), aes(x = x)) +
   #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   labs(title = "2016", x = "Age groups", y = "Mortality rate")
 
-(gg.pred.2015.s |gg.pred.2016.s)  + 
+gg.pred.2015.apc.s <- ggplot(data.pred.apc.s %>% filter(year == "2015"), aes(x = x)) + 
+  #geom_errorbar(aes(x = x, min = `0.025quant`, ymax = `0.975quant`, color = `method`)) +
+  #geom_errorbar(aes(ymin = `0.025quant`, ymax = `0.975quant`, color = `method`), alpha = 0.5) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  labs(title = "2016", x = "Age groups", y = "Mortality rate")
+
+(gg.pred.2015.apc.s |gg.pred.2016.apc.s)  + 
   plot_annotation(title = "Predicted values for stomach cancer by age groups") + 
   plot_layout(guides = "collect")
 
-gg.pred.2016.l <- ggplot(data.pred.l %>% filter(year == "2016"), aes(x = x)) + 
+gg.pred.2016.apc.l <- ggplot(data.pred.apc.l %>% filter(year == "2016"), aes(x = x)) + 
   #geom_errorbar(aes(x = x, min = `0.025quant`, ymax = `0.975quant`, color = `method`)) +
   #geom_errorbar(aes(ymin = `0.025quant`, ymax = `0.975quant`, color = `method`), alpha = 0.5) + 
   geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`), alpha = 0.5) +
@@ -358,7 +313,7 @@ gg.pred.2016.l <- ggplot(data.pred.l %>% filter(year == "2016"), aes(x = x)) +
   #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   labs(title = "2016", x = "Age groups", y = "Mortality rate")
 
-gg.pred.2015.l <- ggplot(data.pred.l %>% filter(year == "2015"), aes(x = x)) + 
+gg.pred.2015.apc.l <- ggplot(data.pred.apc.l %>% filter(year == "2015"), aes(x = x)) + 
   #geom_errorbar(aes(x = x, min = `0.025quant`, ymax = `0.975quant`, color = `method`)) +
   #geom_errorbar(aes(ymin = `0.025quant`, ymax = `0.975quant`, color = `method`), alpha = 0.5) + 
   geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`), alpha = 0.5) +
@@ -371,7 +326,7 @@ gg.pred.2015.l <- ggplot(data.pred.l %>% filter(year == "2015"), aes(x = x)) +
   #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   labs(title = "2016", x = "Age groups", y = "Mortality rate")
 
-(gg.pred.2015.l |gg.pred.2016.l)  + 
+(gg.pred.2015.apc.l |gg.pred.2016.apc.l)  + 
   plot_annotation(title = "Predicted values for lung cancer by age groups") + 
   plot_layout(guides = "collect")
 
