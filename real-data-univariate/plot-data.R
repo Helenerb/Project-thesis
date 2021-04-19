@@ -28,7 +28,7 @@ population <- population %>% slice(1:1848) %>%
   mutate(age.number = replace(age.number, age == "unter 1 Jahr", 0)) %>%
   mutate(age.int = 5*(age.number%/%5)) %>%
   mutate(age.int = paste(age.int, "-", age.int + 4)) %>%
-  mutate(age.int = replace(age.int, age.int == "85 - 89", "85")) %>%
+  mutate(age.int = replace(age.int, age.int == "85 - 89", "85 +")) %>%
   group_by(age.int, year) %>%
   summarize(total = sum(total), male = sum(male), female = sum(female)) %>%
   mutate(year = format(as.POSIXct(year, format="%d.%m.%Y"), format="%Y")) %>%
@@ -37,37 +37,40 @@ population <- population %>% slice(1:1848) %>%
 # read and format stomach cancer data
 stomach.cancer  <- read_excel("stomachCancer-germany.xls") %>%
   rename(sex = "...1") %>% rename(age = "...2") %>%
+  mutate(age = replace(age, age == "85", "85 +")) %>%
   pivot_longer(!c(sex,age), names_to="year", values_to="deaths") %>%
   mutate(sex = replace(sex, sex == "männlich", "male")) %>%
   mutate(sex = replace(sex, sex == "weiblich", "female")) %>%
   pivot_wider(names_from = sex, values_from = deaths) %>% 
   mutate(total = male + female) %>%
-  mutate(t = as.integer(year)-1999) %>% mutate(t.1 = t) %>%
-  mutate(x = parse_number(age)) %>% mutate(x.1 = x) %>%
-  mutate(xt = ((x%/%5)*(2016-1998) +t)) %>%
-  mutate(cohort = t - x) %>%
-  mutate(birth.year = 1999 + cohort) %>%
-  left_join(population, by = c("year" = "year", "age" = "age.int"), suffix = c("", ".t"))
+  mutate(t = as.integer(year)-1999) %>% 
+  mutate(age.int = parse_number(age)) %>%
+  mutate(x = parse_number(age)%/%5) %>% mutate(x.1 = x) %>%
+  mutate(xt = (x*(2016-1998) +t)) %>% mutate(t.1 = t) %>%
+  mutate(cohort = 5 * (max(x) - x) + t) %>%
+  mutate(birth.year = as.integer(year) - as.integer(age.int)) %>%
+  mutate(birth.year = str_c(birth.year - 5, birth.year, sep = " - ")) %>%
+  left_join(population, by = c("year" = "year", "age" = "age.int"), suffix = c("", ".t")) %>%
+  mutate("mortality rate" = total/total.t)
 
-# read and format lung cancer data:
+# read and format lung cancer data 
 lung.cancer  <- read_excel("lungCancer-germany.xls") %>%
   rename(sex = "...1") %>% rename(age = "...2") %>%
+  mutate(age = replace(age, age == "85", "85 +")) %>%
   pivot_longer(!c(sex,age), names_to="year", values_to="deaths") %>%
   mutate(sex = replace(sex, sex == "männlich", "male")) %>%
   mutate(sex = replace(sex, sex == "weiblich", "female")) %>%
   pivot_wider(names_from = sex, values_from = deaths) %>% 
   mutate(total = male + female) %>%
-  mutate(t = as.integer(year)-1999) %>% mutate(t.1 = t) %>%
-  mutate(x = parse_number(age)) %>% mutate(x.1 = x) %>%
-  mutate(xt = ((x%/%5)*(2016-1998) +t)) %>%
-  mutate(cohort = t - x) %>%
-  mutate(birth.year = 1999 + cohort) %>%
-  left_join(population, by = c("year" = "year", "age" = "age.int"), suffix = c("", ".t"))
-
-
-#  plot percentwise occurrance:
-
-
+  mutate(t = as.integer(year)-1999) %>% 
+  mutate(age.int = parse_number(age)) %>%
+  mutate(x = parse_number(age)%/%5) %>% mutate(x.1 = x) %>%
+  mutate(xt = (x*(2016-1998) +t)) %>% mutate(t.1 = t) %>%
+  mutate(cohort = 5 * (max(x) - x) + t) %>%
+  mutate(birth.year = as.integer(year) - as.integer(age.int)) %>%
+  mutate(birth.year = str_c(birth.year - 5, birth.year, sep = " - ")) %>%
+  left_join(population, by = c("year" = "year", "age" = "age.int"), suffix = c("", ".t")) %>%
+  mutate("mortality rate" = total/total.t)
 
 #  aggregated by age:
 stomach.cancer.age = stomach.cancer %>%
@@ -163,26 +166,28 @@ p.lung.year.p <- ggplot(lung.cancer.year %>% filter(sex == "male.p" | sex == "fe
 # aggregated by cohort:
 stomach.cancer.cohort = stomach.cancer %>%
   group_by(birth.year) %>% 
-  summarize(male = sum(male), female = sum(female), male.t = sum(male.t), female.t = sum(female.t)) %>%
+  summarize(male = sum(male), female = sum(female), male.t = sum(male.t), female.t = sum(female.t), cohort = cohort) %>%
   mutate(male.p = male/male.t, female.p = female/female.t) %>%
-  pivot_longer(!birth.year, names_to = "sex", values_to = "occurrances")
+  pivot_longer(!c(birth.year, cohort), names_to = "sex", values_to = "occurrances")
   
 lung.cancer.cohort = lung.cancer %>%
   group_by(birth.year) %>% 
-  summarize(male = sum(male), female = sum(female), male.t = sum(male.t), female.t = sum(female.t)) %>%
+  summarize(male = sum(male), female = sum(female), male.t = sum(male.t), female.t = sum(female.t), cohort = cohort) %>%
   mutate(male.p = male/male.t, female.p = female/female.t) %>%
-  pivot_longer(!birth.year, names_to = "sex", values_to = "occurrances")
+  pivot_longer(!c(birth.year, cohort), names_to = "sex", values_to = "occurrances")
 
 # plot total cases:
 
 p.stomach.cohort <- ggplot(stomach.cancer.cohort %>% filter(sex == "male" | sex == "female")) + 
-  geom_point(aes(x = birth.year, y = occurrances, color = sex)) + 
+  geom_point(aes(x = cohort, y = occurrances, color = sex)) + 
   scale_color_manual(name = "Sex", values = palette.basis) +
+  #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) +
   labs(title="Stomach cancer", x = "Birth year", y = "Total occurrances")
 
 p.lung.cohort <- ggplot(lung.cancer.cohort %>% filter(sex == "male" | sex == "female")) + 
-  geom_point(aes(x = birth.year, y = occurrances, color = sex)) + 
+  geom_point(aes(x = cohort, y = occurrances, color = sex)) + 
   scale_color_manual(name = "Sex", values = palette.basis) +
+  #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) +
   labs(title="Lung cancer", x = "Birth year", y = "Total occurrances")
 
 (p.stomach.cohort | p.lung.cohort) + 
@@ -192,12 +197,12 @@ p.lung.cohort <- ggplot(lung.cancer.cohort %>% filter(sex == "male" | sex == "fe
 # plot percent-wise cases:
 
 p.stomach.cohort.p <- ggplot(stomach.cancer.cohort %>% filter(sex == "male.p" | sex == "female.p")) + 
-  geom_point(aes(x = birth.year, y = occurrances, color = sex)) + 
+  geom_point(aes(x = cohort, y = occurrances, color = sex)) + 
   scale_color_manual(name = "Sex", values = palette.basis) +
   labs(title="Stomach cancer", x = "Birth year", y = "Total occurrances")
 
 p.lung.cohort.p <- ggplot(lung.cancer.cohort %>% filter(sex == "male.p" | sex == "female.p")) + 
-  geom_point(aes(x = birth.year, y = occurrances, color = sex)) + 
+  geom_point(aes(x = cohort, y = occurrances, color = sex)) + 
   scale_color_manual(name = "Sex", values = palette.basis) +
   labs(title="Lung cancer", x = "Birth year", y = "Total occurrances")
 

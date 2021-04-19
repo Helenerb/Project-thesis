@@ -129,7 +129,7 @@ res.apc.1.l = bru(components = comp.apc.1,
                              control.compute = c.c,
                              control.predictor = list(link = 1)
               )) 
-res.apc.1.l = bru_rerun(res.apc.1.l)
+#res.apc.1.l = bru_rerun(res.apc.1.l)
 
 res.apc.1.s = bru(components = comp.apc.1,
                   likelihood.apc.s, 
@@ -139,7 +139,7 @@ res.apc.1.s = bru(components = comp.apc.1,
                                  control.compute = c.c,
                                  control.predictor = list(link = 1)
                   )) 
-res.apc.1.s = bru_rerun(res.apc.1.s)
+#res.apc.1.s = bru_rerun(res.apc.1.s)
 
 res.apc.2.l = bru(components = comp.apc.2,
                   likelihood.apc.l, 
@@ -149,7 +149,7 @@ res.apc.2.l = bru(components = comp.apc.2,
                                  control.compute = c.c,
                                  control.predictor = list(link = 1)
                   )) 
-res.apc.2.l = bru_rerun(res.apc.2.l)
+#res.apc.2.l = bru_rerun(res.apc.2.l)
 
 res.apc.2.s = bru(components = comp.apc.2,
                   likelihood.apc.s, 
@@ -159,7 +159,7 @@ res.apc.2.s = bru(components = comp.apc.2,
                                  control.compute = c.c, 
                                  control.predictor = list(link = 1)
                   )) 
-res.apc.2.s = bru_rerun(res.apc.2.s)
+#res.apc.2.s = bru_rerun(res.apc.2.s)
 
 # color palette.
 palette.basis <- c('#70A4D4', '#ECC64B', '#607A4D', '#026AA1', '#A85150')
@@ -183,10 +183,30 @@ data.apc.2.s <- res.apc.2.s$summary.fitted.values %>%
   bind_cols(stomach.cancer %>% select(- c("x.1", "t.1", "xt")))
 
 data.pred.apc.l <- rbind(data.apc.1.l, data.apc.2.l) %>%
-  mutate("method" = rep(c("rw2", "rw1"), each = 324))
+  mutate("method" = rep(c("rw2", "rw1"), each = 324)) %>%
+  mutate(SE = (mean - `mortality rate`)^2) %>%
+  mutate(DSS = ((`mortality rate` - mean)/sd)^2 + 2*log(sd)) %>%
+  mutate(contained = as.integer((`mortality rate` >= `0.025quant` & `mortality rate` <= `0.975quant`)))
 
 data.pred.apc.s <- rbind(data.apc.1.s, data.apc.2.s) %>%
-  mutate("method" = rep(c("rw2", "rw1"), each = 324))
+  mutate("method" = rep(c("rw2", "rw1"), each = 324)) %>%
+  mutate(SE = (mean - `mortality rate`)^2) %>%
+  mutate(DSS = ((`mortality rate` - mean)/sd)^2 + 2*log(sd)) %>%
+  mutate(contained = as.integer((`mortality rate` >= `0.025quant` & `mortality rate` <= `0.975quant`)))
+
+#   ----   Objective measures of prediction performance   ----
+pred.statistics.apc.l <- data.pred.apc.l %>% 
+  filter(year == "2015" | year == "2016") %>% 
+  group_by(method) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+
+pred.statistics.apc.s <- data.pred.apc.s %>% 
+  filter(year == "2015" | year == "2016") %>% 
+  group_by(method) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+
+cat("\n APC models");cat("\n Lung cancer data: ");pred.statistics.apc.l;cat("\n Stomach cancer data: ");pred.statistics.apc.s
+
 
 gg.pred.apc.age.facet.l <- ggplot(data = data.pred.apc.l, aes(x = year)) + 
   geom_vline(xintercept = "2014", color = palette.light[5]) + 

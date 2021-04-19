@@ -124,10 +124,16 @@ likelihood.2.l = like(formula = form.2, family = "poisson", data = lung.cancer.w
 likelihood.2.s = like(formula = form.2, family = "poisson", data = stomach.cancer.wo1516, E = stomach.cancer.wo1516$total.t)
 
 
-#   ----   LC-model with only linear period-effect 
+#   ----   LC-model with only linear period-effect   ----
 form.3 = total ~ -1 + Int + alpha + beta*phi + gamma + epsilon
 likelihood.3.l = like(formula = form.3, family = "poisson", data = lung.cancer.wo1516, E = lung.cancer.wo1516$total.t)
 likelihood.3.s = like(formula = form.3, family = "poisson", data = stomach.cancer.wo1516, E = stomach.cancer.wo1516$total.t)
+
+
+#   ----   Attempt with removing the period effect completely to see what happens   ----
+form.4 = total ~ -1 + Int + alpha + gamma + epsilon
+likelihood.4.l = like(formula = form.4, family = "poisson", data = lung.cancer.wo1516, E = lung.cancer.wo1516$total.t)
+likelihood.4.s= like(formula = form.4, family = "poisson", data = stomach.cancer.wo1516, E= stomach.cancer.wo1516$total.t)
 
 # the same control compute as in Sara's first example 
 c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
@@ -198,6 +204,27 @@ res.3.s = bru(components = comp,
               )) 
 res.3.s = bru_rerun(res.3.s)
 
+# model 3:
+res.4.l = bru(components = comp,
+              likelihood.4.l, 
+              options = list(verbose = F,
+                             bru_verbose = 1, 
+                             num.threads = "1:1",
+                             control.compute = c.c,
+                             control.predictor = list(link = 1)
+              )) 
+res.4.l = bru_rerun(res.4.l)
+
+res.4.s = bru(components = comp,
+              likelihood.4.s, 
+              options = list(verbose = F,
+                             bru_verbose = 1, 
+                             num.threads = "1:1",
+                             control.compute = c.c,
+                             control.predictor = list(link = 1)
+              )) 
+res.4.s = bru_rerun(res.4.s)
+
 # color palette.
 palette.basis <- c('#70A4D4', '#ECC64B', '#607A4D', '#026AA1', '#A85150')
 palette.light <- c('#ABC9E6', '#F3DC90', '#86A46F', '#40BBFD', '#C38281')
@@ -227,11 +254,42 @@ data.3.s <- res.3.s$summary.fitted.values %>%
   slice(1:324) %>%
   bind_cols(stomach.cancer %>% select(- c("x.1", "t.1", "xt")))
 
-data.pred.l <- rbind(data.1.l, data.2.l, data.3.l) %>%
-  mutate("method" = rep(c("LC basic", "LC cohort", "LC linear"), each = 324))
+data.4.l <- res.4.l$summary.fitted.values %>%
+  slice(1:324) %>%
+  bind_cols(lung.cancer %>% select(- c("x.1", "t.1", "xt")))
 
-data.pred.s <- rbind(data.1.s, data.2.s, data.3.s) %>%
-  mutate("method" = rep(c("LC basic", "LC cohort", "LC linear"), each = 324))
+data.4.s <- res.4.s$summary.fitted.values %>%
+  slice(1:324) %>%
+  bind_cols(stomach.cancer %>% select(- c("x.1", "t.1", "xt")))
+
+data.pred.l <- rbind(data.1.l, data.2.l, data.3.l, data.4.l) %>%
+    mutate("method" = rep(c("LC basic", "LC cohort", "LC linear", "LC no period"), each = 324)) %>%
+  mutate(SE = (mean - `mortality rate`)^2) %>%
+  mutate(DSS = ((`mortality rate` - mean)/sd)^2 + 2*log(sd)) %>%
+  mutate(contained = as.integer((`mortality rate` >= `0.025quant` & `mortality rate` <= `0.975quant`)))
+
+
+data.pred.s <- rbind(data.1.s, data.2.s, data.3.s, data.4.s) %>%
+  mutate("method" = rep(c("LC basic", "LC cohort", "LC linear", "LC no period"), each = 324)) %>%
+  mutate(SE = (mean - `mortality rate`)^2) %>%
+  mutate(DSS = ((`mortality rate` - mean)/sd)^2 + 2*log(sd)) %>%
+  mutate(contained = as.integer((`mortality rate` >= `0.025quant` & `mortality rate` <= `0.975quant`)))
+
+#   ----   Objective measures of prediction performance   ----
+pred.statistics.l <- data.pred.l %>% 
+  filter(year == "2015" | year == "2016") %>% 
+  group_by(method) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+
+pred.statistics.s <- data.pred.s %>% 
+  filter(year == "2015" | year == "2016") %>% 
+  group_by(method) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+cat("\n Lung cancer data: ");pred.statistics.l;cat("\n Stomach cancer data: ");pred.statistics.s
+
+
+#   ----   Plot predictions and observations for comparison   ----
+
 
 gg.pred.age.facet.l <- ggplot(data = data.pred.l, aes(x = year)) + 
   geom_vline(xintercept = "2014", color = palette.light[5]) + 
