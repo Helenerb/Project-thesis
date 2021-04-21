@@ -57,7 +57,7 @@ lung.cancer <- lung.cancer %>%
   mutate(t.c = t) %>% mutate(t.c2 = t) %>% mutate(t.c3 = t) %>%
   #mutate(t0 = replace(t, s == 1, NA)) %>% mutate(t0.c = t0) %>%
   #mutate(t1 = replace(t, s == 0, NA)) %>% mutate(t1.c = t1) %>%
-  mutate(k.c = k) %>% mutate(k.c2 = k) %>%
+  mutate(k.c = k) %>% mutate(k.c2 = k) #%>%
   #mutate(k0 = replace(k, s == 1, NA)) %>%
   #mutate(k1 = replace(k, s == 0, NA))
 
@@ -106,10 +106,10 @@ e.vec = 1
 
 comp.fix.alpha = ~ -1 +
   Int(1) + 
-  #mu(s, model = "iid", hyper = list(prec = list(fixed = TRUE, initial = log(0.001)))) +
-  alpha(x, model = "rw1", values = unique(lung.cancer$x), constr = TRUE, hyper = pc.prior.alpha) +
-  #alpha1(x.c, model = "rw1", values = unique(lung.cancer$x), constr = TRUE, hyper = pc.prior.alpha) +
-  beta(x.c2, model = "rw1", values = unique(lung.cancer$x), extraconstr = list(A = A.mat, e = e.vec), hyper = pc.prior.beta) +
+  mu(s, model = "iid", hyper = list(prec = list(fixed = TRUE, initial = log(0.001)))) +
+  alpha0(x, model = "rw1", values = unique(lung.cancer$x), constr = TRUE, hyper = pc.prior.alpha) +
+  alpha1(x.c, model = "rw1", values = unique(lung.cancer$x), constr = TRUE, hyper = pc.prior.alpha) +
+  beta(x.c2, model = "iid", extraconstr = list(A = A.mat, e = e.vec), hyper = pc.prior.beta) +
   #beta1(x.c2, model = "rw1", values = unique(lung.cancer$x), extraconstr = list(A = A.mat.1, e = e.vec), hyper = pc.prior.beta) +
   phi(t, model = "linear", prec.linear = 1) +
   #phi1(t.c1, model = "linear", prec.linear = 1) +
@@ -120,33 +120,69 @@ comp.fix.alpha = ~ -1 +
   epsilon(xts, model = "iid", hyper = pc.prior.epsilon)
 
 # define two different likelihoods and formulas, one for male and one for female:
-# form.0 = cases ~ -1 + mu + alpha0 + beta*phi + beta*kappa + gamma + epsilon
-# likelihood.0 = like(formula = form.0, family = "poisson", data = lung.cancer.until2007.0, E = lung.cancer.until2007.0$population)
-# 
-# form.1 = cases ~ -1 + mu + alpha1 + beta*phi + beta*kappa + gamma + epsilon
-# likelihood.1 = like(formula = form.1, family = "poisson", data = lung.cancer.until2007.1, E = lung.cancer.until2007.1$population)
+form.0 = cases ~ -1 + mu + alpha0 + beta*phi + beta*kappa + gamma + epsilon
+likelihood.0 = like(formula = form.0, family = "poisson", data = lung.cancer.until2007.0, E = lung.cancer.until2007.0$population)
+
+form.1 = cases ~ -1 + mu + alpha1 + beta*phi + beta*kappa + gamma + epsilon
+likelihood.1 = like(formula = form.1, family = "poisson", data = lung.cancer.until2007.1, E = lung.cancer.until2007.1$population)
 
 # test with "normal" version - single likelihood, both male and female observations:
-form.common <- cases ~ -1 + Int + alpha + beta*phi + beta*kappa + gamma + epsilon
-likelihood.common = like(formula = form.common, family = "poisson", data = lung.cancer.until2007, E = lung.cancer.until2007$population)
+#form.common <- cases ~ -1 + Int + alpha + beta*phi + beta*kappa + gamma + epsilon
+#likelihood.common = like(formula = form.common, family = "poisson", data = lung.cancer.until2007, E = lung.cancer.until2007$population)
 
-# form.fix.alpha = cases ~ -1 + mu + alpha + (1-s)*beta0*phi0 + (1-s)*beta0*kappa0 + 
-#   s*beta1*phi1 + s*beta1*kappa1 + (1-s)*gamma0 + s*gamma1 + epsilon
-
-# form.fix.alpha = cases ~ -1 + mu + alpha + beta0*phi0 + beta0*kappa0 +
-#   beta1*phi1 + beta1*kappa1 + gamma0 + gamma1 + epsilon
-
-# likelihood.fix.alpha = like(formula = form.fix.alpha, family = "poisson",
-#                             data = lung.cancer.until2007, E = lung.cancer.until2007$population)
 
 c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
 
 res.fix.alpha = bru(components = comp.fix.alpha,
-                  likelihood.common,
+                  likelihood.0,
+                  likelihood.1,
                   options = list(verbose = F,
                                  bru_verbose = 1, 
                                  num.threads = "1:1",
                                  control.compute = c.c,
                                  control.predictor = list(link = 1)
                   )) 
+res.fix.alpha = bru_rerun(res.fix.alpha)
+
+summary(res.fix.alpha)
+
+# constructed to ensure that observation data is in the same order as prediction data
+lung.cancer.0 <- lung.cancer %>% filter(s == 0)
+lung.cancer.1 <- lung.cancer %>% filter(s == 1)
+
+# combine predictions and observations into one dataframe. 
+data.pred <- res.fix.alpha$summary.fitted.values %>%
+  slice(1:648) %>%
+  bind_cols(rbind(lung.cancer.0, lung.cancer.1)) %>%
+  mutate(SE = (mean - `mortality rate`)^2) %>%
+  mutate(DSS = ((`mortality rate` - mean)/sd)^2 + 2*log(sd)) %>%
+  mutate(contained = as.integer((`mortality rate` >= `0.025quant` & `mortality rate` <= `0.975quant`)))
+
+pred.statistics.cutoff <- data.pred %>% 
+  filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
+  filter(x > 5) %>%
+  group_by(sex) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+
+cat("\n Age <= 5 omitted");cat("\n Lung cancer data: ");pred.statistics.cutoff
+
+# plot:
+
+# color palette.
+palette.basis <- c('#70A4D4', '#ECC64B', '#607A4D', '#026AA1', '#A85150')
+
+gg.pred <- ggplot(data.pred %>%
+                      filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")),
+                    aes(x = x)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `sex`), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `sex`, group = 1), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = `sex`, fill = `sex`), shape = 4, size = 3) + 
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  labs(title = "Sex-specific alpha", x = "Age groups", y = "Mortality rate") + 
+  facet_wrap(~year)
+gg.pred
 
