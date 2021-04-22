@@ -155,7 +155,7 @@ form.lc.lin = total ~ -1 + Int + alpha + beta*phi + gamma + epsilon
 likelihood.lc.lin.l = like(formula = form.lc.lin, family = "poisson", data = lung.cancer.until2007, E = lung.cancer.until2007$total.t )
 likelihood.lc.lin.s = like(formula = form.lc.lin, family = "poisson", data = stomach.cancer.until2007, E = stomach.cancer.until2007$total.t )
 
-form.lc.basic = total ~ -1 + Int + alpha + beta*phi + epsilon
+form.lc.basic = total ~ -1 + Int + alpha + beta*phi + beta*kappa + epsilon
 likelihood.lc.basic.l = like(formula = form.lc.basic, family = "poisson", data = lung.cancer.until2007, E = lung.cancer.until2007$total.t )
 likelihood.lc.basic.s = like(formula = form.lc.basic, family = "poisson", data = stomach.cancer.until2007, E = stomach.cancer.until2007$total.t )
 
