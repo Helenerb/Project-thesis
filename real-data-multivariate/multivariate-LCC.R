@@ -366,7 +366,7 @@ res.lc.c = bru(components = comp.lc.c,
                )) 
 res.lc.c = bru_rerun(res.lc.c)
 
-# comparable process with APC model - shared period effect:
+# comparable process with APC model - shared cohort effect:
 
 # common period effect:
 comp.apc.c = ~ -1 + 
@@ -464,3 +464,139 @@ ggplot(data.pred.p %>%
   #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   labs(title = "Shared age effect", x = "Cohort", y = "Mortality rate") + 
   facet_wrap(~year)
+
+#   ----   No common effects   ----:
+# no common effects:
+comp.lc.n = ~ -1 +
+  mu(s, model = "iid", hyper = list(prec = list(fixed = TRUE, initial = log(0.001)))) +
+  alpha0(x, model = "rw1", values = unique(lung.cancer$x), constr = TRUE, hyper = pc.prior.alpha) +
+  alpha1(x, model = "rw1", values = unique(lung.cancer$x), constr = TRUE, hyper = pc.prior.alpha) +
+  beta0(x.c2, model = "iid", extraconstr = list(A = A.mat, e = e.vec), hyper = pc.prior.beta) +
+  beta1(x.c2, model = "iid", extraconstr = list(A = A.mat, e = e.vec), hyper = pc.prior.beta) +
+  phi0(t, model = "linear", prec.linear = 1) +
+  phi1(t, model = "linear", prec.linear = 1) +
+  kappa0(t.c2, model = "rw1", values = unique(lung.cancer$t), constr = TRUE, hyper = pc.prior.kappa) +
+  kappa1(t.c2, model = "rw1", values = unique(lung.cancer$t), constr = TRUE, hyper = pc.prior.kappa) +
+  gamma0(k, model = "rw1", values = unique(lung.cancer$k), constr = TRUE, hyper = pc.prior.gamma) +
+  gamma1(k, model = "rw1", values = unique(lung.cancer$k), constr = TRUE, hyper = pc.prior.gamma) +
+  epsilon0(xts, model = "iid", hyper = pc.prior.epsilon) + 
+  epsilon1(xts, model = "iid", hyper = pc.prior.epsilon)
+
+# define two different likelihoods and formulas, one for male and one for female:
+form.lc.n.0 = cases ~ -1 + mu + alpha0 + beta0*phi0 + beta0*kappa0 + gamma0 + epsilon0
+likelihood.lc.n.0 = like(formula = form.lc.n.0, family = "poisson", data = lung.cancer.until2007.0, E = lung.cancer.until2007.0$population)
+
+form.lc.n.1 = cases ~ -1 + mu + alpha1 + beta1*phi1 + beta1*kappa1 + gamma1 + epsilon1
+likelihood.lc.n.1 = like(formula = form.lc.n.1, family = "poisson", data = lung.cancer.until2007.1, E = lung.cancer.until2007.1$population)
+
+res.lc.n = bru(components = comp.lc.n,
+               likelihood.lc.n.0,
+               likelihood.lc.n.1,
+               options = list(verbose = F,
+                              bru_verbose = 1, 
+                              num.threads = "1:1",
+                              control.compute = c.c,
+                              control.predictor = list(link = 1)
+               )) 
+res.lc.n = bru_rerun(res.lc.n)
+
+# comparable process with APC model - no shared effects:
+
+# no shared effects:
+comp.apc.n = ~ -1 + 
+  mu(s, model = "iid", hyper = list(prec = list(fixed = TRUE, initial = log(0.001)))) +
+  rho0(x, model = "rw2", values = unique(lung.cancer$x), constr = TRUE, hyper = pc.prior.rho) + 
+  rho1(x, model = "rw2", values = unique(lung.cancer$x), constr = TRUE, hyper = pc.prior.rho) + 
+  phi0(t, model = "rw2", values = unique(lung.cancer$t), constr = TRUE, hyper = pc.prior.phi) + 
+  phi1(t, model = "rw2", values = unique(lung.cancer$t), constr = TRUE, hyper = pc.prior.phi) + 
+  psi0(k, model = "rw2", values = unique(lung.cancer$k), constr = TRUE, hyper = pc.prior.psi) + 
+  psi1(k, model = "rw2", values = unique(lung.cancer$k), constr = TRUE, hyper = pc.prior.psi) + #scale.model = TRUE
+  epsilon0(xts, model = "iid", hyper = pc.prior.epsilon.apc) + 
+  epsilon1(xts, model = "iid", hyper = pc.prior.epsilon.apc)
+
+# define two different likelihoods and formulas, one for male and one for female:
+form.apc.n.0 = cases ~ -1 + mu + rho0 + phi0 + psi0 + epsilon0
+likelihood.apc.n.0 = like(formula = form.apc.n.0, family = "poisson", data = lung.cancer.until2007.0, E = lung.cancer.until2007.0$population)
+
+form.apc.n.1 = cases ~ -1 + mu + rho1 + phi1 + psi1 + epsilon1
+likelihood.apc.n.1 = like(formula = form.apc.n.1, family = "poisson", data = lung.cancer.until2007.1, E = lung.cancer.until2007.1$population)
+
+res.apc.n = bru(components = comp.apc.n,
+                likelihood.apc.n.0,
+                likelihood.apc.n.1,
+                options = list(verbose = F,
+                               bru_verbose = 1, 
+                               num.threads = "1:1",
+                               control.compute = c.c,
+                               control.predictor = list(link = 1)
+                )) 
+res.apc.n = bru_rerun(res.apc.n)
+
+# combine predictions and observations into one dataframe. 
+data.pred.lc.n <- res.lc.n$summary.fitted.values %>%
+  slice(1:648) %>%
+  bind_cols(rbind(lung.cancer.0, lung.cancer.1)) %>%
+  mutate(SE = (mean - `mortality rate`)^2) %>%
+  mutate(DSS = ((`mortality rate` - mean)/sd)^2 + 2*log(sd)) %>%
+  mutate(contained = as.integer((`mortality rate` >= `0.025quant` & `mortality rate` <= `0.975quant`)))
+
+data.pred.apc.n <- res.apc.n$summary.fitted.values %>%
+  slice(1:648) %>%
+  bind_cols(rbind(lung.cancer.0, lung.cancer.1)) %>%
+  mutate(SE = (mean - `mortality rate`)^2) %>%
+  mutate(DSS = ((`mortality rate` - mean)/sd)^2 + 2*log(sd)) %>%
+  mutate(contained = as.integer((`mortality rate` >= `0.025quant` & `mortality rate` <= `0.975quant`)))
+
+data.pred.n <- rbind(data.pred.lc.n, data.pred.apc.n) %>%
+  mutate("method" = rep(c("LCC", "APC rw2"), each = 648))
+
+pred.statistics.cutoff.n <- data.pred.n %>% 
+  filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
+  filter(x > 5) %>%
+  group_by(method) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+
+# calculate and print cpo for the two:
+cat("CPO, LCC model: "); -1*mean(log(res.lc.n$cpo$cpo[!is.na(res.lc.n$cpo$cpo)]))
+cat("CPO, APC model: "); -1*mean(log(res.apc.n$cpo$cpo[!is.na(res.apc.n$cpo$cpo)]))
+
+cat("\n Age <= 5 omitted");cat("\n Lung cancer data: ");pred.statistics.cutoff.n
+
+# plot:
+
+# color palette.
+palette.basis <- c('#70A4D4', '#ECC64B', '#607A4D', '#026AA1', '#A85150')
+
+gg.pred.n <- ggplot(data.pred.n %>%
+                      filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")),
+                    aes(x = x)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = interaction(method, sex)), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1, group = interaction(method, sex)), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed", shape = `sex`), size = 2) + 
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  scale_shape_manual(values = c(3,2)) + 
+  #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  labs(title = "No shared effects", x = "Age groups", y = "Mortality rate") + 
+  facet_wrap(~year)
+gg.pred.n
+
+# plot cohortwise
+
+ggplot(data.pred.n %>%
+         filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")),
+       aes(x = k)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = interaction(method, sex)), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1, group = interaction(method, sex)), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed", shape = `sex`), size = 2) + 
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  scale_shape_manual(values = c(3,2)) + 
+  #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  labs(title = "No shared effects", x = "Cohort", y = "Mortality rate") + 
+  facet_wrap(~year)
+
