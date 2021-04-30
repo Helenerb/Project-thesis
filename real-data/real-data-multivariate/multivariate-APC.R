@@ -388,7 +388,7 @@ gg.pred
 ggsave('multivariate-APC-by-age.png',
        plot = gg.pred,
        device = "png",
-       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data-multivariate'
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Figures'
 )
 
 # plot cohortwise
