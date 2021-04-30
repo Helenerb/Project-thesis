@@ -161,13 +161,38 @@ data.pred.aPc.3 <- res.aPc.3$summary.fitted.values %>%
   mutate(contained = as.integer((`mortality rate` >= `0.025quant` & `mortality rate` <= `0.975quant`)))
 
 data.pred <- rbind(data.pred.aPc.1, data.pred.aPc.2, data.pred.aPc.3) %>%
-  mutate("method" = rep(c("P(sd > 1) = 0.05", "P(sd > 3) = 0.05", "P(sd > 1) = 0.95"), each = 648))
+  mutate("prior" = rep(c("P(sd > 1) = 0.05", "P(sd > 3) = 0.05", "P(sd > 1) = 0.95"), each = 648))
 
 pred.statistics.cutoff <- data.pred %>% 
   filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
   filter(x > 5) %>%
-  group_by(method) %>%
+  group_by(prior) %>%
   summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
 
 cat("\n Age <= 5 omitted");cat("\n Lung cancer data: ");pred.statistics.cutoff
 
+# color palette.
+palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#1C84BB', '#A85150', '#DA871F',
+                   '#4C7246', '#D7B36A', '#FB5E4E', '#696B8D', '#76A7A6', '#826133')
+
+gg.pred <- ggplot(data.pred %>%
+                    filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")),
+                  aes(x = x)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `prior`, group = interaction(prior, sex)), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `prior`, group = 1, group = interaction(prior, sex)), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed", shape = `sex`), size = 2) + 
+  scale_color_manual(name = "Prior",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prior",
+                    values = palette.basis) +
+  scale_shape_manual(values = c(3,2)) + 
+  #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  labs(title = "Sensitivity analysis - different precision priors", x = "Age groups", y = "Mortality rate") + 
+  facet_wrap(~year)
+gg.pred
+
+ggsave('sensitivity-analysis-aPc.png',
+       plot = gg.pred,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data-multivariate'
+)
