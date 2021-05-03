@@ -94,7 +94,7 @@ comp.aPc.3 = ~ -1 +
   phi(t, model = "rw2", values = unique(lung.cancer$t), constr = TRUE, hyper = pc.prior.3, scale.model = TRUE) + 
   psi0(k, model = "rw2", values = unique(lung.cancer$k), constr = TRUE, hyper = pc.prior.3, scale.model = TRUE) + 
   psi1(k, model = "rw2", values = unique(lung.cancer$k), constr = TRUE, hyper = pc.prior.3, scale.model = TRUE) + 
-  epsilon(xts, model = "iid", hyper = pc.prior.1)
+  epsilon(xts, model = "iid", hyper = pc.prior.3)
 
 # define two different likelihoods and formulas, one for male and one for female:
 form.aPc.0 = cases ~ -1 + mu + rho0 + phi + psi0 + epsilon
