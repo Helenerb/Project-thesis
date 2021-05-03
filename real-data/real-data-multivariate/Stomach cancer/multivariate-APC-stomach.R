@@ -1,5 +1,8 @@
 # compoarison of predictions for multivariate APC models, for stomach cancer
-# compare different versions of multivariate APC-models.
+
+# load work space:
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Stomach cancer/Workspaces/ws_multivariate-APC-stomach.RData")
+
 
 library(INLA)
 library(inlabru)
@@ -355,13 +358,23 @@ data.pred.aPC <- res.aPC$summary.fitted.values %>%
 data.pred <- rbind(data.pred.APC, data.pred.APc, data.pred.ApC, data.pred.Apc, data.pred.aPC, data.pred.aPc, data.pred.apC, data.pred.apc) %>%
   mutate("method" = rep(c("APC", "APc", "ApC", "Apc", "aPC", "aPc", "apC", "apc"), each = 648))
 
+# display four significant digits 
+options(pillar.sigfig = 4)
+
+pred.statistics.include <- data.pred %>% 
+  filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
+  group_by(method) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+
+cat("\n Age <= 5 included");cat("\n Stomach cancer data - APC models: ");pred.statistics.include
+
 pred.statistics.cutoff <- data.pred %>% 
   filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
   filter(x > 5) %>%
   group_by(method) %>%
   summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
 
-cat("\n Age <= 5 omitted");cat("\n Stomach cancer data: ");pred.statistics.cutoff
+cat("\n Age <= 5 omitted");cat("\n Stomach cancer data - APC models: ");pred.statistics.cutoff
 
 # plot:
 
@@ -449,6 +462,10 @@ ggsave('multivariate-APC-by-period-stomach.png',
        height = 5, width = 8, 
        dpi = "retina"
 )
+
+# save workspace image:
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Stomach cancer/Workspaces/ws_multivariate-APC-stomach.RData")
+
 
 
 

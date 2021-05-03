@@ -1,5 +1,9 @@
 # sensitivity analysis for aPc model on the stomach cancer data.
 
+# load work space:
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Stomach cancer/Workspaces/ws_sensitivity-analysis-aPc-stomach.RData")
+
+
 library(INLA)
 library(inlabru)
 library(ggplot2)
@@ -163,13 +167,23 @@ data.pred.aPc.3 <- res.aPc.3$summary.fitted.values %>%
 data.pred <- rbind(data.pred.aPc.1, data.pred.aPc.2, data.pred.aPc.3) %>%
   mutate("prior" = rep(c("P(sd > 1) = 0.05", "P(sd > 3) = 0.05", "P(sd > 1) = 0.95"), each = 648))
 
+# display four significant digits 
+options(pillar.sigfig = 4)
+
+pred.statistics.include <- data.pred %>% 
+  filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
+  group_by(prior) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+
+cat("\n Age <= 5 included");cat("\n Stomach cancer data - sensitivity analysis: ");pred.statistics.include
+
 pred.statistics.cutoff <- data.pred %>% 
   filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
   filter(x > 5) %>%
   group_by(prior) %>%
   summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
 
-cat("\n Age <= 5 omitted");cat("\n stomach cancer data: ");pred.statistics.cutoff
+cat("\n Age <= 5 omitted");cat("\n Stomach cancer data - sensitivity analysis: ");pred.statistics.cutoff
 
 # color palette.
 palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#1C84BB', '#A85150', '#DA871F',
@@ -252,5 +266,9 @@ ggsave('sensitivity-analysis-aPc-by-period-stomach.png',
        height = 5, width = 8, 
        dpi = "retina"
 )
+
+# save workspace image:
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Stomach cancer/Workspaces/ws_sensitivity-analysis-aPc-stomach.RData")
+
 
 

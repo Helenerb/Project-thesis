@@ -163,13 +163,23 @@ data.pred.aPc.3 <- res.aPc.3$summary.fitted.values %>%
 data.pred <- rbind(data.pred.aPc.1, data.pred.aPc.2, data.pred.aPc.3) %>%
   mutate("prior" = rep(c("P(sd > 1) = 0.05", "P(sd > 3) = 0.05", "P(sd > 1) = 0.95"), each = 648))
 
+# display four significant digits 
+options(pillar.sigfig = 4)
+
 pred.statistics.cutoff <- data.pred %>% 
   filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
   filter(x > 5) %>%
   group_by(prior) %>%
   summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
 
-cat("\n Age <= 5 omitted");cat("\n Lung cancer data: ");pred.statistics.cutoff
+cat("\n Age <= 5 omitted");cat("\n Lung cancer data - senstivity analysis: ");pred.statistics.cutoff
+
+pred.statistics.included <- data.pred %>% 
+  filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
+  group_by(prior) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+
+cat("\n Age <= 5 included");cat("\n Lung cancer data - sensitivity analysis: ");pred.statistics.included
 
 # color palette.
 palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#1C84BB', '#A85150', '#DA871F',

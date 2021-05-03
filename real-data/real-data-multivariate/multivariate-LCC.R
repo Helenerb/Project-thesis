@@ -1,5 +1,9 @@
 # compare different configurations of multivariate LCC models
 
+# load workspace
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Workspaces/multivariate-LCC.RData")
+
+
 library(INLA)
 library(inlabru)
 library(ggplot2)
@@ -409,13 +413,23 @@ cat("CPO, LCC model: "); -1*mean(log(res.lc.n$cpo$cpo[!is.na(res.lc.n$cpo$cpo)])
 data.pred <- rbind(data.pred.abkg, data.pred.abKg, data.pred.abkG, data.pred.ABkg, data.pred.ABKg, data.pred.ABkG, data.pred.ABKG) %>%
   mutate("method" = rep(c("No common", "Common period", "Common cohort", "Common age", "Common age & period", "Common age & cohort", "All common"), each = 648))
 
+# display four significant digits 
+options(pillar.sigfig = 4)
+
+pred.statistics.included <- data.pred %>% 
+  filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
+  group_by(method) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+
+cat("\n Age <= 5 included");cat("\n Lung cancer data - LCC: ");pred.statistics.included
+
 pred.statistics.cutoff <- data.pred %>% 
   filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
   filter(x > 5) %>%
   group_by(method) %>%
   summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
 
-cat("\n Age <= 5 omitted");cat("\n Lung cancer data: ");pred.statistics.cutoff
+cat("\n Age <= 5 omitted");cat("\n Lung cancer data - LCC: ");pred.statistics.cutoff
 
 # plot:
 
@@ -504,3 +518,6 @@ ggsave('multivariate-LCC-by-period-lung.png',
        height = 5, width = 8, 
        dpi = "retina"
 )
+
+# save workspace
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Workspaces/multivariate-LCC.RData")
