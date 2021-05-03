@@ -187,12 +187,70 @@ gg.pred <- ggplot(data.pred %>%
                     values = palette.basis) +
   scale_shape_manual(values = c(3,2)) + 
   #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
-  labs(title = "Sensitivity analysis - different precision priors", x = "Age groups", y = "Mortality rate") + 
+  labs(title = "Sensitivity analysis on precision priors - aPc model, lung cancer", x = "Age groups", y = "Mortality rate") + 
   facet_wrap(~year)
 gg.pred
 
-ggsave('sensitivity-analysis-aPc.png',
+ggsave('sensitivity-analysis-aPcby-age-lung.png',
        plot = gg.pred,
        device = "png",
-       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data-multivariate'
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
 )
+
+# plot cohortwise
+
+gg.pred.cohort <- ggplot(data.pred %>%
+                           filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")),
+                         aes(x = k)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `prior`, group = interaction(prior, sex)), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `prior`, group = 1, group = interaction(prior, sex)), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed", shape = `sex`), size = 2) + 
+  scale_color_manual(name = "Prior",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prior",
+                    values = palette.basis) +
+  scale_shape_manual(values = c(3,2)) + 
+  labs(title = "Sensitivity analysis on precision priors - aPc model, lung cancer", x = "Cohort", y = "Mortality rate") + 
+  facet_wrap(~year)
+
+gg.pred.cohort
+
+ggsave('sensitivity-analysis-aPc-by-cohort-lung.png',
+       plot = gg.pred.cohort,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# plot along years - for different age groups:
+gg.pred.period <- ggplot(data.pred %>%
+                           filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
+                           filter(x > 5),
+                         aes(x = year)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `prior`, group = interaction(prior, sex)), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `prior`, group = 1, group = interaction(prior, sex)), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed", shape = `sex`), size = 2) + 
+  scale_color_manual(name = "Prior",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prior",
+                    values = palette.basis) +
+  scale_shape_manual(values = c(3,2)) + 
+  labs(title = "Sensitivity analysis on precision priors - aPc model, lung cancer", x = "Year", y = "Mortality rate") + 
+  theme(axis.text.x = element_text(angle = -30, hjust=0)) +
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  facet_wrap(~age)
+
+gg.pred.period
+
+ggsave('sensitivity-analysis-aPc-by-period-lung.png',
+       plot = gg.pred.period,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+
