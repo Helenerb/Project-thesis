@@ -407,7 +407,7 @@ cat("CPO, LCC model: "); -1*mean(log(res.lc.n$cpo$cpo[!is.na(res.lc.n$cpo$cpo)])
 #   ----   TODO: Compare all methods   ----
 
 data.pred <- rbind(data.pred.abkg, data.pred.abKg, data.pred.abkG, data.pred.ABkg, data.pred.ABKg, data.pred.ABkG, data.pred.ABKG) %>%
-  mutate("method" = rep(c("abkg", "abKg", "abkG", "ABkg", "ABKg", "ABkG", "ABKG"), each = 648))
+  mutate("method" = rep(c("No common", "Common period", "Common cohort", "Common age", "Common age & period", "Common age & cohort", "All common"), each = 648))
 
 pred.statistics.cutoff <- data.pred %>% 
   filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
@@ -424,9 +424,9 @@ palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#1C84BB', '#A85150', '#DA87
                    '#4C7246', '#D7B36A', '#FB5E4E', '#696B8D', '#76A7A6', '#826133')
 
 gg.pred <- ggplot(data.pred %>%
-                      filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
-                    filter(method %in% c("abkg", "abKg", "abkG")),
-                    aes(x = x)) + 
+                    filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
+                    filter(method %in% c("No common", "Common period")),
+                  aes(x = x)) + 
   geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = interaction(method, sex)), alpha = 0.5) +
   geom_point(aes(y = mean, color = `method`, group = 1, group = interaction(method, sex)), shape = 19) + 
   geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed", shape = `sex`), size = 2) + 
@@ -436,23 +436,25 @@ gg.pred <- ggplot(data.pred %>%
                     values = palette.basis) +
   scale_shape_manual(values = c(3,2)) + 
   #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
-  labs(title = "Maultivariate LCC models", x = "Age groups", y = "Mortality rate") + 
+  labs(title = "Multivariate LCC models - lung cancer", x = "Age groups", y = "Mortality rate") + 
   facet_wrap(~year)
 gg.pred
 
-ggsave('multivariate-LCC-by-age.png',
+ggsave('multivariate-LCC-by-age-lung.png',
        plot = gg.pred,
        device = "png",
-       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data-multivariate'
-       )
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
 
 
 # plot cohortwise
 
-ggplot(data.pred %>%
-         filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
-         filter(method %in% c("abkg", "abKg", "abkG")),
-       aes(x = k)) + 
+gg.pred.cohort <- ggplot(data.pred %>%
+                           filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
+                           filter(method %in% c("No common", "Common period")),
+                         aes(x = k)) + 
   geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = interaction(method, sex)), alpha = 0.5) +
   geom_point(aes(y = mean, color = `method`, group = 1, group = interaction(method, sex)), shape = 19) + 
   geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed", shape = `sex`), size = 2) + 
@@ -461,7 +463,44 @@ ggplot(data.pred %>%
   scale_fill_manual(name = "Prediction method",
                     values = palette.basis) +
   scale_shape_manual(values = c(3,2)) + 
-  #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
-  labs(title = "Multivariate LCC models", x = "Cohort", y = "Mortality rate") + 
+  labs(title = "Multivariate LCC models - lung cancer", x = "Cohort", y = "Mortality rate") + 
   facet_wrap(~year)
 
+gg.pred.cohort
+
+ggsave('multivariate-LCC-by-cohort-lung.png',
+       plot = gg.pred.cohort,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# plot along years - for different age groups:
+gg.pred.period <- ggplot(data.pred %>%
+                           filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
+                           filter(x > 5) %>%
+                           filter(method %in% c("No common", "Common period")),
+                         aes(x = year)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = interaction(method, sex)), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1, group = interaction(method, sex)), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed", shape = `sex`), size = 2) + 
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  scale_shape_manual(values = c(3,2)) + 
+  labs(title = "Multivariate LCC models - lung cancer", x = "Year", y = "Mortality rate") + 
+  theme(axis.text.x = element_text(angle = -30, hjust=0)) +
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  facet_wrap(~age)
+
+gg.pred.period
+
+ggsave('multivariate-LCC-by-period-lung.png',
+       plot = gg.pred.period,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
