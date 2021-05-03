@@ -175,13 +175,75 @@ gg.pred <- ggplot(data.pred %>%
                     values = palette.basis) +
   scale_shape_manual(values = c(3,2)) + 
   #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
-  labs(title = "Shared period effect", x = "Age groups", y = "Mortality rate") + 
+  labs(title = "Shared period effect : APC and LCC - lung cancer", x = "Age groups", y = "Mortality rate") + 
   facet_wrap(~year)
 gg.pred
 
-ggsave('multivariate-APC-by-age.png',
+ggsave('multivariate-comparison-by-age-lung.png',
        plot = gg.pred,
        device = "png",
-       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data-multivariate'
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
 )
+
+# plot cohortwise
+
+gg.pred.cohort <- ggplot(data.pred %>%
+                           filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")),
+                         aes(x = k)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = interaction(method, sex)), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1, group = interaction(method, sex)), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed", shape = `sex`), size = 2) + 
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  scale_shape_manual(values = c(3,2)) + 
+  labs(title = "Shared period effect: APC and LCC - lung cancer", x = "Cohort", y = "Mortality rate") + 
+  facet_wrap(~year)
+
+gg.pred.cohort
+
+ggsave('multivariate-comparison-by-cohort-lung.png',
+       plot = gg.pred.cohort,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# plot along years - for different age groups:
+gg.pred.period <- ggplot(data.pred %>%
+                           filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
+                           filter(x > 5),
+                         aes(x = year)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = interaction(method, sex)), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1, group = interaction(method, sex)), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed", shape = `sex`), size = 2) + 
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  scale_shape_manual(values = c(3,2)) + 
+  labs(title = "Shared period effect : APC and LCC - lung cancer", x = "Year", y = "Mortality rate") + 
+  theme(axis.text.x = element_text(angle = -30, hjust=0)) +
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  facet_wrap(~age)
+
+gg.pred.period
+
+ggsave('multivariate-comparison-by-period-lung.png',
+       plot = gg.pred.period,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+
+
+
+
+
 
