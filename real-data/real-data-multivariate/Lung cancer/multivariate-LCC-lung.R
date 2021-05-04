@@ -692,3 +692,5 @@ ggsave('effects-LCC-common-period-lung.png',
 
 # save workspace
 save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Lung cancer/Workspaces/ws_multivariate-LCC-lung.RData")
+
+# comment to trigger change for commit
