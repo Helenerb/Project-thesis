@@ -1,14 +1,61 @@
-\documentclass{article}
+\documentclass[11pt,a4paper,twoside]{article}
 \usepackage[utf8]{inputenc}
+\usepackage{stylesheet}
 
-\title{Test GitHub connection}
-\author{Helene Randi Behrens}
-\date{May 2021}
+\usepackage{import}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{bm}
+
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+%\usepackage[round]{natbib}  % formatting references as Name (Year) and (Name, Year)
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{appendix}
+%\usepackage[table,xcdraw]{xcolor}
+\usepackage{blindtext}
+
+\captionsetup[table]{justification=justified,singlelinecheck=false} % table caption is left-aligned
+%\bibliographystyle{plainnat} % reference list style
+
+%\setlength\parindent{0pt} % remove indentation
+%\setlength{\parskip}{1em} % add space between columns
+
+%\import{}{Acronyms.tex}
+
 
 \begin{document}
 
-\maketitle
+\maketitle\thispagestyle{empty}
+\clearpage\pagenumbering{roman}
 
-\section{Introduction}
+\section*{Abstract}
+
+
+% Table of contents
+\clearpage\tableofcontents
+\newpage
+\printacronyms
+
+% Main body
+\clearpage\pagenumbering{arabic}
+\import{}{Report/1-Introduction.tex}
+\import{}{Report/2-Theory.tex}
+\import{}{Report/3-Synthetic-data.tex}
+\import{}{Report/4-Real-data.tex}
+
+
+% Reference list
+\clearpage
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{apalike}
+\bibliography{Bibliography}
+
+% Appendix
+% \begin{appendices}
+% \clearpage
+% \import{}{"Text files"/Appendix.tex}
+% \end{appendices}
 
 \end{document}

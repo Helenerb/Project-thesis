@@ -1,0 +1,35 @@
+\subsection{Latent Gaussian Models}
+\label{sec:LGM}
+[Should this be a subsection or embedded into the text, possibly as a separate paragraph?]
+LGMs are hierarchical models, where the observations $\Vector{y}$ are conditionally independent given a latent gaussian random field $\Vector{x}$ and some hyper parameters $\boldsymbol{\theta}$.
+LGMs are usually expressed through a predictor $\eta_i$ related to the mean $\mu_i$ of observation $y_i$ through some known link function $g^{-1}(\cdot)$:
+\begin{equation}
+    \mu_i = g^{-1}(\eta_i).
+    \label{eq:LGMlinkFunction}
+\end{equation}
+The general form of the predictor is
+\begin{equation}
+    \eta_\text{i} = \alpha + \sum_{\text{j}=1}^{n_{\beta}}\beta_j z_{\text{ji}} + \sum_{k=1}^{n_f}f^{(k)}(u_{\text{ki}}) + \epsilon_{i}.
+    \label{LGM-linear-predictor}
+\end{equation}
+\cite{rue2009inla}
+[QUESTION: Is this general for LGMs or is this the form the predictor of the LGM needs to be on for Inla to work? ]
+
+Here, $\alpha$ is the intercept, $\boldsymbol{\beta}$ are the linear effects on some covariates \textbf{z}, the $f^{(k)}$´s are random effects on some covariates \textbf{u} and $\epsilon_i$ is the error term. 
+
+\noindent The model can be summarized as 
+\begin{equation}
+    \begin{aligned}
+    \bm{y}\mid \bm{x}, \boldsymbol{\theta} &\sim \prod_{\text{i}} \pi (y_{\text{i}} \mid \eta_{\text{i}}, \boldsymbol{\theta})\\
+    \bm{x} \mid \boldsymbol{\theta} &\sim \Normal(\Vector{\mu}(\Vector{\theta}), \bm{Q}^{-1}(\boldsymbol{\theta})) \\
+    \boldsymbol{\theta} &\sim \pi(\boldsymbol{\theta}),
+    \end{aligned}
+    \label{LGM-model-summarized}
+\end{equation}
+where
+\begin{equation}
+    \bm{x} = (\boldsymbol{\eta}, \alpha, \boldsymbol{\beta}, \boldsymbol{f}).
+    \label{LGM-latent-field}
+\end{equation}
+[Is the above def of \textbf{x} related to inla, not LGMs specifically?]
+The element that distinguishes LGMs from other Bayesian models is the assumed Gaussian prior on the latent field $\Vector{x}$ \cite{rue2009inla}. Here $\Matrix{Q}(\Vector{\theta})$ is the precision matrix and $\Vector{\mu}(\Vector{\theta})$ is the vector of means given the vector of hyperparameters $\Vector{\theta}$. $\Vector{\theta}$ may have any suitable prior distribution. 

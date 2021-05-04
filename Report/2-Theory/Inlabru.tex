@@ -1,0 +1,31 @@
+\newpage
+\section{The \inlabru library}
+\textcolor{blue}{[Sara: This section is not really finished, so you don´t need to pay much attention to it. ]}
+[NEED TO ELABORATE MORE IN THIS SECTION?]
+\inlabru is a tool, implemented in the $\texttt{R}$ library $\texttt{inlabru}$, to get around the obstacle that \inla is not able to fit models with non-linear predictors. 
+Assuming that we have an LGM, with structure as described in \ref{LGM-model-summarized}, but where the likelihood depends on a non-linear predictor $\tilde{\boldsymbol{\eta}}$:
+\begin{equation}
+    \textbf{y}\mid\textbf{x},\boldsymbol{\theta} \sim p(\textbf{y}\mid \tilde{\boldsymbol{\eta}}, \boldsymbol{\theta}).
+    \label{Eq:non-linear-predictor}
+\end{equation}
+\inlabru then uses a linearization of $\tilde{\boldsymbol{\eta}}$ to be able to successfully run \inla. The linearization is done using a Taylor approximation around some point $\textbf{u}_0$:
+\begin{equation}
+    \bar{\boldsymbol{\eta}} = \boldsymbol{\eta}_{x,t}(\textbf{u}_0) + B(\textbf{u} - \textbf{u}_0),
+\end{equation}
+where $B$ is the derivative matrix of $\boldsymbol{\eta}$ evaluated at $\textbf{u}_0$. This linearized predictor is then used to run \inla, and approximate marginal posterior distributions are obtained for the latent effects, hyperparameters and the predictor $\eta_{x,t}$. 
+\inlabru finds the optimal linearization point $\textbf{u}_0$ through a fixed-point iteration with \inla. For each step $s$, the next linearization point $\textbf{u}_s$ is set to the point that maximizes the posterior distribution for the latent effects that resulted from the \inla approximation using the linearization from the last step $\textbf{u}_{s-1}$:
+\begin{equation}
+\textbf{u}_{s} = \text{argmax}_{\textbf{u}}\,\,\bar{p}_{\textbf{u}_{s-1}}(\textbf{u}\mid \textbf{y}, \hat{\boldsymbol{\theta}}) =: f(\bar{p}_{\textbf{u}_{s-1}}), \quad \hat{\boldsymbol{\theta}} = \text{argmax}_{\boldsymbol{\theta}}\,\,\bar{p}_{\textbf{u}_{s-1}}(\boldsymbol{\theta}\mid \textbf{y}).
+\end{equation}
+Inlabru runs these iterations until it reaches approximate convergence:
+\begin{equation}
+\textbf{u}_s \approx f(\bar{p}_{\textbf{u}_{s-1}}).
+\end{equation}\cite{Inlabru}.
+
+The \inlabru-approach for our model:
+
+We have a non-linear predictor $\eta_{x,t}$ that is a function of some latent effects, $\textbf{u}$:
+\begin{equation}
+    \eta_{x,t} = C + \alpha_x, \phi\cdot t\cdot \beta_x + \beta_x\cdot\kappa_t + \epsilon, \quad \textbf{u} = [\alpha_1,...,\alpha_{N_x},\beta_1,...,\beta_{N_x},\phi,\kappa_1,...,\kappa_{N_t}]
+\end{equation}
+[To be continued!! ]

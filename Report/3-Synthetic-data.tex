@@ -1,0 +1,183 @@
+\newpage
+\section{Inference on Lee-Carter Model with Inlabru - Preliminary Test with Synthetic Data}
+\textcolor{blue}{[Sara: This section lacks most figures and some reading-through, but is the overall structure, layout and lenght of discussion okay? ]}
+\subsection{Implementation of \inlabru}
+The \inlabru library is a wrapper around the more commonly used \rinla library. The implementation of Bayesian inference in the \inlabru library is similar to that of the \rinla library, with some syntactic differences. For an extensive introduction to the \rinla library we refer to the book \cite{Rubio2020}. Similarly, further references to the \inlabru library can be found at \cite{Inlabru}. Here, we will briefly cover the main parts of code needed to use the \inlabru library to perform Bayesian inference. All code used and discussed in this paper can be found at \url{https://github.com/Helenerb/Project-thesis}. 
+\newline
+\noindent The following parts are needed to implement a LC-type of model in \texttt{R} and run \inlabru with it:
+\begin{itemize}
+    \item a data frame containing the observations and the corresponding covariate values
+    \item a definition of the components that may be included in the formula for the likelihood. For the model in \ref{eq:LC-model}, these will be $\alpha_x$, $\beta_x$, $\kappa_t$, $\phi$, $\epsilon_{xt}$ and the intercept $\mu$.
+    \item the definition of the likelihood formula, using the already-defined components
+\end{itemize}
+When all the abovementioned components are defined, \inlabru can be run with the command 
+\begin{verbatim}
+    res = bru(components = comp,
+          likelihood, 
+          options = list(/*Your desired options*/))
+\end{verbatim}
+and a data frame with the results from the approximation will be stored in the \texttt{res} variable. 
+\newline
+\subsection{First Test of Inference with \inlabru on LC-type Model}
+The basis of this paper is the investigation of whether \inlabru enables inference with \inla for models similar to LGMs, but with a non-linear predictor, such as the LC-model. Therefore, the first phase of our research will involve testing \inlabru for these models using synthetic data. Since we know the underlying models accurately when we use synthetic data, we are able to investigate whether \inlabru is able to fit these models correctly. 
+\newline
+\noindent To produce the synthetic data, we choose functions for $\alpha_x$, $\beta_x$ and $\kappa_t$ and a $\phi$ that we believe to be somewhat realistic: $\alpha_x$ is modeled both as a constant (i.e. included in the intercept $\mu$) and as different functions and realizations of random walks, $\kappa_t$ are modeled as different functions and realizations of random walks and $\beta_x$ is modeled as 
+\begin{equation*}
+    \beta_x \sim \Normal(0,1/\tau)
+\end{equation*} 
+for some precisions $\tau$. $\alpha_x$, $\beta_x$ and $\kappa_t$ are then scaled to their respective constraints, given in \ref{eq:LC-constraints}. As we expect inlabru to handle any sufficiently smooth and close-to-realistic effects to accept it as a suitable inference tool for the LC and LCC model, we do not attach a lot of importance to the choices for the synthetic models for the random effects. 
+The \inlabru method was run for multiple configurations of the true effects. Figure \ref{fig:firstRun} displays the results from the run when the random effects were modelled as
+\begin{equation}
+    \begin{aligned}
+    \alpha_x &= \cos(\frac{x-3}{6}\pi)\\
+    \beta_x &= \Normal(0,0.1^2)\\
+    \phi &= -0.5\\
+    \kappa_t &= 0.3\cos(\frac{t\cdot \pi}{5})\\
+    \tau_{\eta} &= 1/0.01^2.
+    \end{aligned}
+    \label{eq:conf21}
+\end{equation}
+for $x\in [1,10]$ and $t \in [1,10]$. 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\linewidth]{Figures/Results/2.1.png}
+    \caption{The results from running \inlabru when the random effects are simulated as in Expression \ref{eq:conf21}.}
+    \label{fig:firstRun}
+\end{figure}
+From Figure \ref{fig:firstRun} it is clear that \inlabru is able to identify all random effects significantly, as well as displaying a good estimation for the predictor $\eta$. Looking at the results from testing \inlabru with other models for the random effects, we observe that \inlabru is able to produce a good result for the predictor $\eta_{x,t}$ in all cases and good results for the random effects in most cases. In Section \ref{sec:IdentifiabilityKappa} we discuss why the combination of random effects that yield bad results from \inlabru are not considered realistic, and then not a hinder for using \inlabru to fit LC-models. 
+
+%A complete overview of the different configurations is found in Table \ref{tab:configOverview} and the results that are not displayed in the main part of this report can be found in the Appendix. 
+%\begin{table}[h!]
+%    \begin{center}
+%    \begin{tabular}{|c|c|c|c|c|c|}
+%        \hline
+%         Configuration no. & $\alpha_x$ & $\beta_x$ & $\phi$ & $\kappa_t$ & $\tau_\eta$  \\
+%         \hline 
+%         2.1 & $\cos(\frac{x-3}{6}\pi)$ & $\Normal(0, 0.1^2)$ & -0.5 & $0.3\cdot %\cos(\frac{t\cdot \phi}{5})$ & $1/0.01^2$ \\
+%         \hline
+%    \end{tabular}
+%    \label{tab:configOverview}
+%    \caption{Overview of the different configurations for the random effects that was used to test the performance of \inlabru.}
+%    \end{center}
+%\end{table}
+%\newline
+%\noindent In the first attempt to fit these kinds of models with \inlabru, we used the simplest possible model where $\alpha_x$ was modeled as a constant and not as an effect of $x$. This was done so we could isolate the performance of \inlabru on the multiplicative term in the predictor. Thus, the first model for the predictor $\eta_{x,t}$ that was tested was
+%\begin{equation*}
+%    \eta_{x,t} = \alpha + \beta_x(\phi\cdot t + \kappa_t) + \epsilon_{x,t}.
+%\end{equation*}
+%The results from running \inlabru with this model is displayed in Figure .... We observe that \inlabru seems to fit both the predictor $\eta_{x,t}$ and the random effects well. This was also the case when $\alpha_x$ was included as an effect of $x$, not only as a constant. We observe that \inlabru was able to produce a good result for the predictor $\eta_{x,t}$ in all cases and good results for the random effects in most cases. Also, in Section [REFERER TIL UNIDIENTIFIABILITY ISSUES SECTION] we discuss why the combination of random effects that yield bad results from \inlabru are not considered realistic. 
+These results provide the basis for for our paper, as it shows that \inlabru makes it possible to bypass the obstacle that \inla alone is not able to handle models with non-linear predictors. This opens up to investigation of how \inlabru handles increasingly complex LC-models. 
+
+\subsection{Choice of Implementation of $\beta_x$}
+In the implementation of the LC-model (\ref{eq:LC-model}) in \texttt{R}, the multiplicative term of the predictor $\etax$ is entered as
+\begin{equation}
+    \beta_x\cdot\phi \cdot t + \beta_x\kappa_t,
+\end{equation}
+so that the $\beta_x$ effect exists in two terms. \inla (and then also \inlabru) offers two ways to handle this. The first option is to use the same component for $\beta_x$ in both terms. The second option is to define two different components for $\beta_x$, and to use the \texttt{copy}-feature in \inla to make one component a copy of the other, plus some noise. [CITE: extensions to INLA!] We investigate whether both approaches can be used to fit our model, and if so, which one performs the best. 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\linewidth]{Figures/Results/Copy-beta.png}
+    \caption{Comparison of the results of the inference with \inlabru for $\kappav$ and $\betav$ with and without the $\texttt{copy}$-feature.}
+    \label{fig:copyBetaComparison}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[trim=0 5 0 0,clip,width=\textwidth]{Figures/Results/runtime-copy.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[trim=0 0 15 0,clip, width=\textwidth]{Figures/Results/runtime-single.png}
+    \end{subfigure}
+    \caption{The run time of running \inlabru inference using the $\texttt{copy}$-feature (right) and without using the $\texttt{copy}$-feature (left).}
+    \label{fig:copyBetaRuntimes}
+\end{figure}
+
+The results from the two runs with the different implementations are displayed in Figure \ref{fig:copyBetaComparison} and the corresponding run times are shown in Figure \ref{fig:copyBetaRuntimes}. We do not observe any difference in the accuracy of the results from the two implementations, as both seem to produce equally accurate results. From Figure \ref{fig:copyBetaRuntimes} we observe that the implementation using the $\texttt{copy}$-feature seemed to take slightly more time to run. Even through this difference in run time is not necessarily significant, we still do not want to unnecessarily complicate our implementations, and we decide to not use the \texttt{copy}-feature in the remaining simulations.
+
+\subsection{Identifiability Issues with $\kappa_t$ and $\phi\cdot t$}
+\label{sec:IdentifiabilityKappa}
+For some combinations of underlying models for $\kappa_t$ and $\phi$ we observe that \inlabru is not able to correctly identify these effects, while the prediction of $\etav$ is still correct. This indicates that there are some identifiability issues between $\kappa_t$ and $\phi \cdot t$ that become apparent for some combinations of these effects. We test several different combinations of $\kappa_t$ and $\phi$ to try to isolate the types of combinations that \inlabru are not able to correctly identify.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\linewidth]{Figures/Results/2.2.png}
+    \caption{An example of the results after running \inlabru with a configuration that yields identifiability issues with $\kappat$ and $\phi \cdot t$. }
+    \label{fig:unidentifiabilityKappa}
+\end{figure}
+Figure \ref{fig:unidentifiabilityKappa} displays the results from running \inlabru on the following configuration of random effects:
+\begin{equation}
+    \begin{aligned}
+    \alpha_x &= \cos(\frac{x-3}{6}\pi)\\
+    \beta_x &= \Normal(0,0.1^2)\\
+    \phi &= -0.5\\
+    \kappa_t &= \cos(\frac{t\cdot \pi}{20})\\
+    \tau_{\eta} &= 1/0.01^2.
+    \end{aligned}
+\end{equation}
+for $x\in[1,10]$ and $t\in[1,10]$. Here we clearly see errors in the approximations of $\kappav$ and $\phi\cdot t$ while the approximations of $\etav$ (and $\betav$ and $\alphav$) are close to the true values. We observe that \inlabru produces incorrect models for $\kappa_t$ and $\phi$ when the underlying model for $\kappa_t$ show too clear drift tendencies. This indicates that \inlabru places all drift along the period axis in the linear term $\phi$. We can accept this "misplacement", since we have explicitly defined out model as the sum of a random walk without drift and and some linear effect. Even though the realization of a drift-less random walk could easily display drift-like tendencies, we accept the assumption of \inlabru that all drift along the $t$ axis originates from the linear effect $\phi \cdot t$, since we still get good results for the predictor $\eta_{x,t}$ and the remaining random effects.
+
+\newline
+\subsection{Inference with \inlabru on the LCC-model. }
+The next step in our preliminary analysis is to test \inlabru on the LCC-model, including a cohort effect, as defined in \ref{eq:LCC-model}. The cohort effect is included in the \texttt{R} script in the same manner as the other effects. As in the previous phase, \inlabru was tested on several different realizations of the true model. All code used in this phase can be found at \url{https://github.com/Helenerb/Project-thesis/tree/main/Lee-Carter-cohort-effect}.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\linewidth]{Figures/Results/3.1.png}
+    \caption{Results from running \inlabru with the configuration of random effects given in Expression \ref{eq:conf31}}
+    \label{fig:conf31}
+\end{figure}
+Figure \ref{fig:conf31} displays the results from running \inlabru with the following configuration of random effects:
+\begin{equation}
+    \begin{aligned}
+        &\alpha_x = \cos(\frac{x-3}{8}\pi)\\
+        &\beta_x = \Normal(0,0.1^2)\\
+        &\phi = -0.5\\
+        &\kappa_t = \frac{1}{2}\cos(\frac{t\cdot \pi}{3})\\
+        &\gammax = -\frac{1}{2}\left( 0.1(t-x) + \cos(\frac{t-x-2}{4})\right)\\
+        &\tau_{\eta} = 1/0.01^2.
+    \end{aligned}
+    \label{eq:conf31}
+\end{equation}
+for $x\in[1,20]$ and $t \in [1,20]$. 
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\linewidth]{Figures/Results/3.2.png}
+    \caption{Results from running \inlabru with the configuration of random effects given in Expression \ref{eq:conf32}}
+    \label{fig:conf32}
+\end{figure}
+Figure \ref{fig:conf32} displays the results from running \inlabru with the following configuration of random effects:
+\begin{equation}
+    \begin{aligned}
+        &\alpha_x = \cos(\frac{x-3}{6}\pi) + \epsilon_{\alpha}, \quad \epsilon_{\alpha} \sim \Normal(0,0.05^2)\\
+        &\beta_x = \Normal(0,0.1^2)\\
+        &\phi = -0.5\\
+        &\kappa_t = RW(0,0.1^2)\\
+        &\gammax = \frac{1}{2}\left( 0.2(t-x) + \sin(t-x)\right)\\
+        &\tau_{\eta} = 1/0.01^2.
+    \end{aligned}
+    \label{eq:conf32}
+\end{equation}
+for $x\in[1,10]$ and $t \in [1,10]$. 
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\linewidth]{Figures/Results/3.3.png}
+    \caption{Results from running \inlabru with the configuration of random effects given in Expression \ref{eq:conf33}}
+    \label{fig:conf33}
+\end{figure}
+Figure \ref{fig:conf33} displays the results from running \inlabru with the following configuration of random effects:
+\begin{equation}
+    \begin{aligned}
+        &\alpha_x = \cos(\frac{x}{8}\pi)\\
+        &\beta_x = \Normal(0,0.1^2)\\
+        &\phi = -0.5\\
+        &\kappa_t = \frac{1}{2}\cos(\frac{t\pi}{3})\\
+        &\gammax = \frac{1}{2}\left( 0.2(t-x) + \sin((t-x)/3)\right)\\
+        &\tau_{\eta} = 1/0.01^2.
+    \end{aligned}
+    \label{eq:conf33}
+\end{equation}
+for $x\in[1,10]$ and $t \in [1,10]$. 
+From Figures \ref{fig:conf31}, \ref{fig:conf32} and \ref{fig:conf33} we observe that while the accuracy of the approximations is not as good as for the LC-model, \inlabru is still able to estimate the random effects for the LCC-model. The predictor $\etav$ is estimated well for all configurations. We do still observe some identifiability issues between $\kappav$, $\phi /cdot t$ (and to some degree $\alphav$ and $\betav$ as well), as can be seen in Figure \ref{fig:conf32}. However, when we test many different configurations, the results displayed in Figure \ref{fig:conf32} we some of the results with the worst accuracy (excluding the types of configurations discussed in Sectoion \ref{sec:IdentifiabilityKappa}.) Considering this, we can still say that these results indicate that \inlabru is a suitable tool to perform Bayesian inference on LCC-models. 

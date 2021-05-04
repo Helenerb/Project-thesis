@@ -1,0 +1,28 @@
+\section{The Age-Period-Cohort model}
+The Age-Period-Cohort (APC) model is a model that is widely used for mortality forecasting \cite{rieblerHeld2010}. The model uses three effects to analyze population data; age effects, period effects, which is typically related to the calendar year of an observation and cohort effects, which are usually equivalent to the birth-year of the observed subjects. It has been shown that these three effects combined are able to capture large parts of the underlying causes of age- and time-specific causes of mortality in a population. 
+
+We use the formualtion of the APC model that is described in \citet{rieblerHeld2010}. 
+They assume that $n_{x,t}$ is the number of persons at risk in age group $x$, $x = 1,\ldots,X$ during period $t$, $t = 1,\ldots,T$, that $y_{x,t}$ is the number of cases in age group $x$ at during period $t$. They further assume that 
+\begin{equation}
+    y_{x,t} \sim \Poisson(n_{x,t}\cdot \lambda_{x,t})
+\end{equation}
+and that the likelihood for the whole data is given by the product of the corresponding Poisson terms [reformulate!!! And understand exactly what this means. ]
+The APC model is then given by structuring the logarithm of $\lambda_{x,t}$ as a linear predictor consisting of age-, period- and cohort-related terms:
+\begin{equation}
+    \etax = \log(\lambda_{x,t}) = \mu + \rho_x + \phi_t + \psi_k.
+    \label{eq:APCmodel}
+\end{equation}
+Here, $\mu$ is the intercept (or overall mortality level), $\rho_x$ is an age effect, $\phi_t$ is a period effect and $\psi_k$ is a cohort effect. The index $k$, $k = 1,\ldots,K$ in $\psi_k$ is a birth cohort index, which depends directly on the age index $x$ and period index $t$. When the age and period intervals are of equal width, this is given by
+\begin{equation*}
+    k = (X - x) + t, \quad K = (X - 1) + T.
+\end{equation*}
+When the intervals are of different width, e.g if the age intervals are of length $M$ and the period is measured yearly, the cohort index is given by
+\begin{equation}
+    k = M \cdot (X - x) + t, \quad K = M \cdot (X - 1) + T.
+    \label{eq:cohortIndex}
+\end{equation}
+To ensure identifiability of the intercept $\mu$, sum-to-zero contstraints are imposed on the remaining effects:
+\begin{equation}
+    \sum_{x = 1}^{X}\rho_x = 0, \quad \sum_{t = 1}^T\phi_t = 0, \quad \sum_{k = 1}^K \psi_k = 0. 
+    \label{eq:APCconstraints}
+\end{equation}

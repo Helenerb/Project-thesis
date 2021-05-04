@@ -1,0 +1,92 @@
+\usepackage{import}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{bm}
+
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+%\usepackage[round]{natbib}  % formatting references as Name (Year) and (Name, Year)
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{appendix}
+%\usepackage[table,xcdraw]{xcolor}
+\usepackage{blindtext}
+
+%\usepackage{realhats}% remove this package in serious version. 
+
+\usepackage{xcolor}
+
+\newcommand{\Poisson}{\mathcal{P}oisson}
+\newcommand{\Normal}{\mathcal{N}}
+\newcommand{\inla}{\text{INLA }}
+\newcommand{\inlabru}{\texttt{inlabru} }
+\newcommand{\rinla}{\texttt{R-inla} }
+\newcommand{\Matrix}[1]{\text{#1}}
+\newcommand{\Vector}[1]{\boldsymbol{#1}}
+
+\newcommand{\thetav}{\Vector{\theta}}
+\newcommand{\xv}{\Vector{x}}
+\newcommand{\yv}{\Vector{y}}
+
+\newcommand{\etav}{\Vector{\eta}}
+\newcommand{\etax}{\eta_{x,t}}
+
+\newcommand{\alphav}{\Vector{\alpha}}
+\newcommand{\alphax}{\alpha_{x}}
+\newcommand{\betav}{\Vector{\beta}}
+\newcommand{\betax}{\beta_{x}}
+\newcommand{\kappav}{\Vector{\kappa}}
+\newcommand{\kappat}{\kappa_t}
+\newcommand{\gammav}{\Vector{\gamma}}
+\newcommand{\gammax}{\gamma_{k}}
+
+\renewcommand{\epsilon}{\varepsilon}
+
+% my own color palette:
+\definecolor{mySkyBlue}{HTML}{70A4D4}
+\definecolor{myYellow}{HTML}{ECC64B}
+\definecolor{myLightGreen}{HTML}{93AD80}
+\definecolor{myDarkBlue}{HTML}{1C84BB}
+\definecolor{myDarkRed}{HTML}{A85150}
+\definecolor{muOrange}{HTML}{DA871F}
+\definecolor{myDarkGreen}{HTML}{4C7246}
+\definecolor{myBrown}{HTML}{826133}
+\definecolor{myBeige}{HTML}{D7B36A}
+\definecolor{mySalmonPink}{HTML}{FB5E4E}
+\definecolor{myBluePurple}{HTML}{696B8D}
+\definecolor{myTurquise}{HTML}{76A7A6}
+
+%\captionsetup[table]{justification=justified,singlelinecheck=false} % table caption is left-aligned
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Style: Title
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\Vhrulefill{\leavevmode\leaders\hrule height 0.7ex depth \dimexpr0.4pt-0.7ex\hfill\kern0pt}
+\usepackage{titling}
+\usepackage{etoolbox}
+
+\title{Tittel på prosjektoppgave}
+
+\makeatletter
+    \def\@maketitle{%
+        \newpage
+        \null%
+    
+        \begin{centering}
+            \vspace*{3 cm}
+            {\huge\bf \@title\\}
+            \vspace{0.4 cm}
+            {\Large Specialization Project\\}
+            \vspace{1 cm}
+            {\large Helene Randi Behrens \\ date}
+            
+            \vspace*{\fill}
+            {Norwegian University of Science and Technology \\ Department of Mathematics}
+            
+            \vspace{1cm}\includegraphics[width=6cm]{ntnulogo}
+            
+        \end{centering}
+        \par
+        \vskip 1.5em}
+\makeatother
