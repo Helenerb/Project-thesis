@@ -519,5 +519,176 @@ ggsave('multivariate-LCC-by-period-lung.png',
        dpi = "retina"
 )
 
+# plot effects of abkg and abKg models:
+
+# abkg - no common effects:
+
+p.mu.abkg <- ggplot(data.frame(res.abkg$marginals.random$mu)) + 
+  geom_area(aes(x = index.1.x, y = index.1.y, fill = "Male"), alpha = 0.4) + 
+  geom_area(aes(x = index.2.x, y = index.2.y, fill = "Female"), alpha = 0.4) + 
+  geom_vline(data = res.abkg$summary.random$mu, aes(xintercept = mean[1], color = "Male")) + 
+  geom_vline(data = res.abkg$summary.random$mu, aes(xintercept = mean[2], color = "Female")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of intercept", y = " ", title = "Mu")
+
+p.mu.abkg
+
+p.alpha.abkg <- ggplot() + 
+  geom_ribbon(data = res.abkg$summary.random$alpha0, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Male'), alpha = 0.4) +
+  geom_ribbon(data = res.abkg$summary.random$alpha1, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Female'), alpha = 0.4) +
+  geom_point(data = res.abkg$summary.random$alpha0, aes(x = ID, y = mean, color = "Male")) + 
+  geom_point(data = res.abkg$summary.random$alpha1, aes(x = ID, y = mean, color = "Female")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "x", y = "alpha", title = "Alpha")
+
+p.alpha.abkg
+
+p.beta.abkg <- ggplot() + 
+  geom_ribbon(data = res.abkg$summary.random$beta0, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Male'), alpha = 0.4) +
+  geom_ribbon(data = res.abkg$summary.random$beta1, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Female'), alpha = 0.4) +
+  geom_point(data = res.abkg$summary.random$beta0, aes(x = ID, y = mean, color = "Male")) + 
+  geom_point(data = res.abkg$summary.random$beta1, aes(x = ID, y = mean, color = "Female")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "x", y = "beta", title = "Beta")
+
+p.beta.abkg
+
+p.kappa.abkg <- ggplot() + 
+  geom_ribbon(data = res.abkg$summary.random$kappa0, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Male'), alpha = 0.4) +
+  geom_ribbon(data = res.abkg$summary.random$kappa1, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Female'), alpha = 0.4) +
+  geom_point(data = res.abkg$summary.random$kappa0, aes(x = ID, y = mean, color = "Male")) + 
+  geom_point(data = res.abkg$summary.random$kappa1, aes(x = ID, y = mean, color = "Female")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  geom_vline(data = res.abkg$summary.random$kappa1, aes(xintercept = 9), color = palette.basis[5]) +
+  labs(x = "t", y = "kappa", title = "Kappa")
+
+p.kappa.abkg
+
+p.phi.abkg <- ggplot(data.frame(res.abkg$marginals.fixed)) + 
+  geom_area(aes(x = phi0.x, y = phi0.y, fill = "Male"), alpha = 0.4) + 
+  geom_area(aes(x = phi1.x, y = phi1.y, fill = "Female"), alpha = 0.4) + 
+  geom_vline(data = res.abkg$summary.fixed, aes(xintercept = mean[1], color = "Male")) + 
+  geom_vline(data = res.abkg$summary.fixed, aes(xintercept = mean[2], color = "Female")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of Phi", y = " ", title = "Phi")
+
+p.phi.abkg
+
+p.gamma.abkg <- ggplot() +
+  geom_ribbon(data = res.abkg$summary.random$gamma0, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Male'), alpha = 0.4) +
+  geom_ribbon(data = res.abkg$summary.random$gamma1, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Female'), alpha = 0.4) +
+  geom_point(data = res.abkg$summary.random$gamma0, aes(x = ID, y = mean, color = "Male")) + 
+  geom_point(data = res.abkg$summary.random$gamma1, aes(x = ID, y = mean, color = "Female")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "t", y = "gamma", title = "Gamma")
+
+p.gamma.abkg
+
+p.abkg <- (p.mu.abkg | p.alpha.abkg | p.beta.abkg)/(p.phi.abkg | p.kappa.abkg | p.gamma.abkg) +
+  plot_layout(guides = "collect") & 
+  plot_annotation(title = "Estimated random effects for multivariate LCC model with no common effects",
+                  subtitle = "Lung cancer")
+
+p.abkg
+
+ggsave('effects-LCC-no-common-lung.png',
+       plot = p.abkg,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# abKg - common period effects:
+
+p.mu.abKg <- ggplot(data.frame(res.abKg$marginals.random$mu)) + 
+  geom_area(aes(x = index.1.x, y = index.1.y, fill = "Male"), alpha = 0.4) + 
+  geom_area(aes(x = index.2.x, y = index.2.y, fill = "Female"), alpha = 0.4) + 
+  geom_vline(data = res.abKg$summary.random$mu, aes(xintercept = mean[1], color = "Male")) + 
+  geom_vline(data = res.abKg$summary.random$mu, aes(xintercept = mean[2], color = "Female")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of intercept", y = " ", title = "Mu")
+
+p.mu.abKg
+
+p.alpha.abKg <- ggplot() + 
+  geom_ribbon(data = res.abKg$summary.random$alpha0, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Male'), alpha = 0.4) +
+  geom_ribbon(data = res.abKg$summary.random$alpha1, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Female'), alpha = 0.4) +
+  geom_point(data = res.abKg$summary.random$alpha0, aes(x = ID, y = mean, color = "Male")) + 
+  geom_point(data = res.abKg$summary.random$alpha1, aes(x = ID, y = mean, color = "Female")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "x", y = "alpha", title = "Alpha")
+
+p.alpha.abKg
+
+p.beta.abKg <- ggplot() + 
+  geom_ribbon(data = res.abKg$summary.random$beta0, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Male'), alpha = 0.4) +
+  geom_ribbon(data = res.abKg$summary.random$beta1, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Female'), alpha = 0.4) +
+  geom_point(data = res.abKg$summary.random$beta0, aes(x = ID, y = mean, color = "Male")) + 
+  geom_point(data = res.abKg$summary.random$beta1, aes(x = ID, y = mean, color = "Female")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "x", y = "beta", title = "Beta")
+
+p.beta.abKg
+
+p.kappa.abKg <- ggplot() + 
+  geom_ribbon(data = res.abKg$summary.random$kappa, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Common'), alpha = 0.4) +
+  #geom_ribbon(data = res.abkg$summary.random$kappa1, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Female'), alpha = 0.4) +
+  geom_point(data = res.abKg$summary.random$kappa, aes(x = ID, y = mean, color = "Common")) + 
+  #geom_point(data = res.abkg$summary.random$kappa1, aes(x = ID, y = mean, color = "Female")) + 
+  scale_color_manual(name = " ", values = palette.basis[3:length(palette.basis)]) + 
+  scale_fill_manual(name = " ", values = palette.basis[3:length(palette.basis)]) +
+  geom_vline(data = res.abKg$summary.random$kappa, aes(xintercept = 9), color = palette.basis[5]) +
+  labs(x = "t", y = "kappa", title = "Kappa")
+
+p.kappa.abKg
+
+p.phi.abKg <- ggplot(data.frame(res.abKg$marginals.fixed)) + 
+  geom_area(aes(x = phi.x, y = phi.y, fill = "Common"), alpha = 0.4) + 
+  #geom_area(aes(x = phi1.x, y = phi1.y, fill = "Female"), alpha = 0.4) + 
+  geom_vline(data = res.abKg$summary.fixed, aes(xintercept = mean, color = "Male")) + 
+  #geom_vline(data = res.abKg$summary.fixed, aes(xintercept = mean[2], color = "Female")) + 
+  scale_color_manual(name = " ", values = palette.basis[3:length(palette.basis)]) + 
+  scale_fill_manual(name = " ", values = palette.basis[3:length(palette.basis)]) +
+  labs(x = "Value of Phi", y = " ", title = "Phi")
+
+p.phi.abKg
+
+p.gamma.abKg <- ggplot() +
+  geom_ribbon(data = res.abKg$summary.random$gamma0, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Male'), alpha = 0.4) +
+  geom_ribbon(data = res.abKg$summary.random$gamma1, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = 'Female'), alpha = 0.4) +
+  geom_point(data = res.abKg$summary.random$gamma0, aes(x = ID, y = mean, color = "Male")) + 
+  geom_point(data = res.abKg$summary.random$gamma1, aes(x = ID, y = mean, color = "Female")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "t", y = "gamma", title = "Gamma")
+
+p.gamma.abKg
+
+p.abKg <- (p.mu.abKg | p.alpha.abKg | p.beta.abKg)/(p.phi.abKg | p.kappa.abKg | p.gamma.abKg) +
+  plot_layout(guides = "collect") & 
+  plot_annotation(title = "Estimated random effects for multivariate LCC model with common period effects",
+                  subtitle = "Lung cancer")
+
+p.abkg
+
+ggsave('effects-LCC-common-period-lung.png',
+       plot = p.abKg,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+
 # save workspace
 save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Workspaces/multivariate-LCC.RData")
