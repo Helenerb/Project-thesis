@@ -1,7 +1,7 @@
 # compare different configurations of multivariate LCC models
 
 # load workspace
-load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Workspaces/multivariate-LCC.RData")
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Lung cancer/Workspaces/ws_multivariate-LCC-lung.RData")
 
 
 library(INLA)
@@ -691,4 +691,4 @@ ggsave('effects-LCC-common-period-lung.png',
 
 
 # save workspace
-save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Workspaces/multivariate-LCC.RData")
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Lung cancer/Workspaces/ws_multivariate-LCC-lung.RData")
