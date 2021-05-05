@@ -56,6 +56,54 @@
 \definecolor{myBluePurple}{HTML}{696B8D}
 \definecolor{myTurquise}{HTML}{76A7A6}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Some formal set-up 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{probset_style}
+
+\usepackage[norsk,english]{babel}
+\PassOptionsToPackage{T1}{fontenc}
+	\RequirePackage{fontenc}
+\PassOptionsToPackage{utf8}{inputenc}
+	\RequirePackage{inputenc}	
+\RequirePackage{microtype}
+\RequirePackage{csquotes}
+%\RequirePackage{textcase}
+
+% Setting the font here:
+\usepackage[bitstream-charter]{mathdesign}
+
+\DeclareMathSizes{10}{10}{8.5}{7.5}
+\RequirePackage[hmargin=2.5cm,vmargin=3cm,twoside,bindingoffset=0cm]{geometry}
+\PassOptionsToPackage{onehalfspacing,nodisplayskipstretch}{setspace}
+\RequirePackage{setspace}
+\RequirePackage{multicol}
+\columnsep=18pt
+\RequirePackage{lastpage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Some more color definitiions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\PassOptionsToPackage{usenames,dvipsnames}{xcolor}
+\RequirePackage{xcolor}
+\colorlet{thesismain}{black} % Maroon
+\colorlet{thesistitle}{thesismain}
+\colorlet{thesistitlelines}{thesismain}
+\colorlet{thesisheaderfooter}{thesismain} 
+\colorlet{thesischapterlines}{thesismain}
+\colorlet{thesischaptertitle}{thesismain!50!black}
+\colorlet{thesischapternumber}{thesismain!80!black}
+\colorlet{thesissectionlines}{thesismain}
+\colorlet{thesissectiontitle}{thesismain!50!black}
+\colorlet{thesismath}{thesismain}
+\colorlet{thesisfigureslines}{myDarkGreen}
+\colorlet{thesisfigures}{thesismain!50!black}
+\colorlet{thesisother}{thesismain}
+\colorlet{thesisemph}{thesismain}
+\colorlet{thesisrule}{thesismain}
+
+
 %\captionsetup[table]{justification=justified,singlelinecheck=false} % table caption is left-aligned
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -90,3 +138,85 @@
         \par
         \vskip 1.5em}
 \makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Style: Enumeration, itemization
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \RequirePackage{enumitem}
+% \setenumerate{listparindent=0\parindent,label=\color{thesisother}\alph*),leftmargin=*}
+% \renewcommand{\labelenumi}{\color{thesisother}\alph{enumi})}
+% \renewcommand{\labelitemi}{\color{thesisother}${\star}$}
+% \renewcommand{\labelitemii}{\color{thesisother}${\diamond}$}
+% \renewcommand{\labelitemiii}{\color{thesisother}${\circle}$}
+% \renewcommand{\labelitemiv}{\color{thesisother}${\ast}$}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Style: Figures, tables & captions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RequirePackage{graphicx}
+\PassOptionsToPackage{}{}
+\RequirePackage[font=small,labelfont={color=thesisfigures,bf}]{caption}
+\RequirePackage{subcaption}
+\RequirePackage{booktabs}
+\RequirePackage{multirow}
+\renewcommand{\heavyrulewidth}{1.1pt}
+\RequirePackage{colortbl}
+\arrayrulecolor{thesisfigureslines}
+\RequirePackage{siunitx}
+\RequirePackage{wrapfig}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Mathematics: Theorems
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{thmtools}
+\usepackage{fixmath}
+\usepackage{xfrac}
+%\usepackage{cases}
+%\usepackage{latexsym}
+%\usepackage{upgreek}
+
+
+\newtheoremstyle{ex}% <name>
+{10pt}% <Space above>
+{10pt}% <Space below>
+{}% <Body font>
+{}% <Indent amount>
+{\color{thesismain}}% <Theorem head font>
+{}% <Punctuation after theorem head>
+{.5em}% <Space after theorem headi>
+{\fbox{\color{black}\thmnumber{#2}} \thmnote{\color{thesismain}\hspace{1pt} #3.}}%
+\theoremstyle{ex}
+\newtheorem{answer}[section]{Answer}
+
+\newtheoremstyle{sol}% <name>
+{5pt}% <Space above>
+{0pt}% <Space below>
+{\setlist[enumerate,1]{label=\color{NavyBlue}\alph*)}}% <Body font>
+{}% <Indent amount>
+{}% <Theorem head font>
+{}% <Punctuation after theorem head>
+{.5em}% <Space after theorem headi>
+{\textcolor{MidnightBlue}{\textit{Solution.}}}% <Theorem head spec (can be left empty, meaning `normal')>
+\theoremstyle{sol}
+\newtheorem*{solution}{Solution}
+
+% Colored equation numbering.
+\makeatletter
+\def\tagform@#1{\maketag@@@{(\textcolor{thesismain}{\ignorespaces#1\unskip\@@italiccorr})}}
+\makeatother
+
+% Raise subcripts
+\makeatletter
+\newcommand{\raisemath}[1]{\mathpalette{\raisem@th{#1}}}
+\newcommand{\raisem@th}[3]{\raisebox{#1}{$#2#3$}}
+\makeatother
+
+%\renewcommand\Re{\operatorname{Re}}
+%\renewcommand\Im{\operatorname{Im}}
+%\DeclareMathOperator{\trace}{tr}
+%\renewcommand{\vec}[1]{\boldsymbol{\mathit{#1}}}

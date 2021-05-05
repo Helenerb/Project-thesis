@@ -47,26 +47,12 @@ Figurer:
 \begin{itemize}
     \item Score for LCC-modeller (tabell)
     \item Score for APC-modeller (tabell)
+    \item plott av to beste LCC
+    \item plott av to beste APC
     \item Plott av beste APC sammen med beste LCC
     \item Plott av LCC-effekter (for beste modell)
 \end{itemize}
 }
-
-\subsubsection{Stomach cancer data}
-\textcolor{myDarkGreen}{Så og si samme tekst og plott som for lung cancer - med andre diskusjoner dersom det oppstår}
-
-\subsection{Sensitivity analysis}
-\textcolor{myDarkGreen}{Skriv om behovet for en sensitivity analysis - så langt har du bare valgt relativt lite informative priors, uten å legge vekt på dette valget. Undersøk om man får forskjellig resultat av å endre prior for hyperparametrene. Presenter hvilke nye priors du tester. Presenter score statistics for forskjellige priors. 
-\newline
-Figurer:
-\begin{itemize}
-    \item Plott av forskjellige priors sammen - gir et tydelig bilde på hvor stor endringen er mellom de forskjellige priorene. 
-\end{itemize}}
-
-\newpage
-\subsection{Tables Containing Score Statistics}
-\textcolor{myDarkGreen}{Lager dem her først, flytt dem dit de hører hjemme}
-
 \begin{table}[h!]
     \begin{tabular}{l |c c c }
         Model & MSE & MDSS & Contained 95\%-interval\\
@@ -81,6 +67,57 @@ Figurer:
     \end{tabular}
     \caption{\label{tab:LCC-lung}Score statistics for the different multivariate LCC models, for the lung cancer data set. The lowest mean DSS values are marked in bold font. }
 \end{table}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-LCC-by-age-lung.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-LCC-by-period-lung.png}
+    \end{subfigure}
+    \caption{The two best LCC models - by age (left) and period (right) for the lung cancer data set}
+    \label{fig:mv-LCC-lung}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-APC-by-age-lung.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-APC-by-period-lung.png}
+    \end{subfigure}
+    \caption{The two best APC models - by age (left) and period (right) for the lung cancer data set}
+    \label{fig:mv-APC-lung}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-common-period-lung.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-no-common-lung.png}
+    \end{subfigure}
+    \caption{Plots of the effects for the two best LCC models - LCC with common period effects (left) and LCC with no common effects (right) for the lung cancer data}
+    \label{fig:effects-LCC-lung}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = .8\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-age-lung.png}
+    \caption{Comparison of the best APC model and the best LCC model - by age}
+    \label{fig:mv-LCC-by-period-lung}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = .8\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-period-lung.png}
+    \caption{Comparison of the best APC model and the best LCC model - by period}
+    \label{fig:mv-APC-by-period-lung}
+\end{figure}
+
 
 \begin{table}[h!]
     \begin{tabular}{l |c c c }
@@ -97,6 +134,10 @@ Figurer:
     \end{tabular}
     \caption{\label{tab:APC-lung}Score statistics for the different multivariate APC models, for the lung cancer data set. The lowest mean DSS values are marked in bold font. }
 \end{table}
+
+\newpage
+\subsubsection{Stomach cancer data}
+\textcolor{myDarkGreen}{Så og si samme tekst og plott som for lung cancer - med andre diskusjoner dersom det oppstår}
 
 \begin{table}[h!]
     \begin{tabular}{l |c c c }
@@ -130,7 +171,77 @@ Figurer:
     \caption{\label{tab:APC-stomach}Score statistics for the different multivariate APC models, for the stomach cancer data set. The lowest mean DSS values are marked in bold font. }
 \end{table}
 
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-LCC-by-age-stomach.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-LCC-by-period-stomach.png}
+    \end{subfigure}
+    \caption{The two best LCC models - by age (left) and period (right) for the stomach cancer data set}
+    \label{fig:mv-LCC-stomach}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-APC-by-age-stomach.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-APC-by-period-stomach.png}
+    \end{subfigure}
+    \caption{The two best APC models - by age (left) and period (right) for the stomach cancer data set}
+    \label{fig:mv-APC-stomach}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-common-period-stomach.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-no-common-stomach.png}
+    \end{subfigure}
+    \caption{Plots of the effects for the two best LCC models - LCC with common period effects (left) and LCC with no common effects (right) for the lung cancer data}
+    \label{fig:effects-LCC-stomach}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = .8\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-age-stomach.png}
+    \caption{Comparison of the best APC model and the best LCC model - by age, for the stomach cancer data set. }
+    \label{fig:mv-LCC-by-period-stomach}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = .8\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-period-stomach.png}
+    \caption{Comparison of the best APC model and the best LCC model - by period, for the stomach cancer data set}
+    \label{fig:mv-APC-by-period-stomach}
+\end{figure}
+
 \newpage
+\subsection{Sensitivity analysis}
+\textcolor{myDarkGreen}{Skriv om behovet for en sensitivity analysis - så langt har du bare valgt relativt lite informative priors, uten å legge vekt på dette valget. Undersøk om man får forskjellig resultat av å endre prior for hyperparametrene. Presenter hvilke nye priors du tester. Presenter score statistics for forskjellige priors. 
+Understrek at du ser veldig liten forskjell, og konkluderer med at valget ditt av priors sannsynligvis ikke påvirket resultatet i stor grad. 
+\newline
+Figurer:
+\begin{itemize}
+    \item Plott av forskjellige priors sammen - gir et tydelig bilde på hvor stor endringen er mellom de forskjellige priorene. 
+\end{itemize}}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/sensitivity-analysis-aPc-by-period-lung.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/sensitivity-analysis-aPc-by-period-stomach.png}
+    \end{subfigure}
+    \caption{Results from sensitivity analysis of the model that displayed the best predctive performance for lung cancer, the aPc-model (left), and stomach cancer, also the aPc model (right). }
+    \label{fig:mv-sensitivity}
+\end{figure}
 
 \newpage 
 \subsection{Old version - might still be parts that we want to use}
