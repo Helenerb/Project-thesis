@@ -21,7 +21,7 @@ Here, $\alpha$ is the intercept, $\boldsymbol{\beta}$ are the linear effects on 
 \begin{equation}
     \begin{aligned}
     \bm{y}\mid \bm{x}, \boldsymbol{\theta} &\sim \prod_{\text{i}} \pi (y_{\text{i}} \mid \eta_{\text{i}}, \boldsymbol{\theta})\\
-    \bm{x} \mid \boldsymbol{\theta} &\sim \Normal(\Vector{\mu}(\Vector{\theta}), \bm{Q}^{-1}(\boldsymbol{\theta})) \\
+    \bm{x} \mid \boldsymbol{\theta} &\sim \Normal(\Vector{0}, \bm{Q}^{-1}(\boldsymbol{\theta})) \\
     \boldsymbol{\theta} &\sim \pi(\boldsymbol{\theta}),
     \end{aligned}
     \label{LGM-model-summarized}
@@ -32,4 +32,4 @@ where
     \label{LGM-latent-field}
 \end{equation}
 [Is the above def of \textbf{x} related to inla, not LGMs specifically?]
-The element that distinguishes LGMs from other Bayesian models is the assumed Gaussian prior on the latent field $\Vector{x}$ \cite{rue2009inla}. Here $\Matrix{Q}(\Vector{\theta})$ is the precision matrix and $\Vector{\mu}(\Vector{\theta})$ is the vector of means given the vector of hyperparameters $\Vector{\theta}$. $\Vector{\theta}$ may have any suitable prior distribution. 
+The element that distinguishes LGMs from other Bayesian models is the assumed Gaussian prior on the latent field $\Vector{x}$ \cite{rue2009inla}. Here $\Matrix{Q}(\Vector{\theta})$ is the precision matrix. $\Vector{\theta}$ may have any suitable prior distribution. 

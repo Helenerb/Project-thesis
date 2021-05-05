@@ -7,6 +7,7 @@
 \end{itemize}
 \newline \newline
 Fortell om hvilke statistics du bruker; MSE, MDSS og "Contained", og fortell hvorfor du legger mest vekt på MDSS. (Kanksje si at de andre er inkludert for å gi et mer helhetlig inntrykk av prediksjonen). 
+Write about choice of cutoff-age - when the mortality rate is very low. 
 }
 
 \subsection{German cancer data}
@@ -30,6 +31,79 @@ Inkluder figurer:
 \end{itemize}
 }
 
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-LCC-by-age-lung.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-LCC-by-period-lung.png}
+    \end{subfigure}
+    \caption{The Lee-Carter types of models predicting lung cancer}
+    \label{fig:uv-LCC-lung}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-APC-by-age-lung.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-APC-by-period-lung.png}
+    \end{subfigure}
+    \caption{The APC types of models predicting lung cancer}
+    \label{fig:uv-APC-lung}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-LCC-by-age-stomach.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-LCC-by-period-stomach.png}
+    \end{subfigure}
+    \caption{The Lee-Carter types of models predicting stomach cancer}
+    \label{fig:uv-LCC-stomach}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-APC-by-age-stomach.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-APC-by-period-stomach.png}
+    \end{subfigure}
+    \caption{The APC types of models predicting stomach cancer}
+    \label{fig:uv-APC-stomach}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-comparison-by-age-lung.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-comparison-by-period-lung.png}
+    \end{subfigure}
+    \caption{The best-performing APC and LC-type models for lung cancer}
+    \label{fig:uv-comparison-lung}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-comparison-by-age-stomach.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-comparison-by-period-stomach.png}
+    \end{subfigure}
+    \caption{The best-performing APC and LC-type models for stomach cancer}
+    \label{fig:uv-comparison-stomach}
+\end{figure}
+
+\newpage
 \subsection{Prediction in the Multivariate Case}
 
 \textcolor{myDarkGreen}{

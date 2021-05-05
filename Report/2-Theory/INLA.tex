@@ -1,16 +1,17 @@
 \newpage
 \section{INLA: Integrated Nested Laplace Approximations}
-\textcolor{blue}{[Sara: In this section I am unsure if everything that I have written is correct, especially considering LGMs  - what is a defining part of the LGM and what are assumptions or model choices that Inla makes. If you can let me know if I have written something wrong, it would be nice. ]}
 The Integrated Nested Laplace Approximation (\inla from this point) is a method for approximate Bayesian inference on latent Gaussian models (LGM), first proposed by \cite{rue2009inla}. \inla is made readily available through the \texttt{R} package \texttt{R-INLA} and a thorough explanation of the method and the related framework can be found at \url{https://www.r-inla.org}. 
 Bayesian inference with \inla is applicable to the class of Bayesian models named Latent Gaussian Models (LGMs) \cite{rue2009inla}, described more throughly in Section \ref{sec:LGM}.  
 \newline \newline
 \noindent The \inla method uses the properties of the LGM and models the latent effects $\mathbf{x}$ as a Gaussian Markov Random Field (GMRF). The methodology gives approximations to the marginal posterior distributions of the latent field $\mathbf{x}$ and the associated hyperparameters $\boldsymbol{\theta}$. The main advantage of \inla compared to other methods for Bayesian inference is its computational power. [Add sentence about GMRF leading to speedy computations? (Bad) suggestion: This is a result of the GMRF assumption on the latent field, since this often gives sparse matrices in the computation.] Compared to the widely used Markov Chain Monte Carlo (MCMC) method for instance, it has been shown that \inla is able to produce more accurate results in seconds or minutes than MCMC is able to produce in hours or days \cite{rue2009inla}.
-This often makes \inla the preferred method of inference when working with model fitting, as it allows for efficient comparison of model fits and it opens up the possibility of sensitivity analysis, comparing the results when varying the prior distributions. 
-%This makes \inla a desired approach when working when adjusting models to data, as opens up for a trial-and-error approach to model fitting with a more realistically available time scope. 
+This often makes \inla, when applicable, the preferred method of inference when working with model fitting, as it allows for efficient comparison of model fits and it opens up the possibility of sensitivity analysis, comparing the results when varying the prior distributions. 
+\textcolor{myDarkGreen}{Make sure that it is clear that the disadvantage of INLA is that it has a limited scope - not overall better than MCMC. }
+ 
 \import{}{Report/2-Theory/LGM.tex}
 
 \subsection{Restrictions of the \inla framework}
-A limitation of the \inla approach is that it imposes some restrictions on the likelihood model used in the Bayesian inference. These restrictions can be formulated in three requirements:
+\textcolor{myDarkGreen}{Should the requirements for inla be formulated in a different order - first additive predictor, and then latent field should have a gaussian prior --> LGM? }
+A limitation of the \inla approach is that it imposes some restrictions on the \textcolor{myDarkGreen}{not likelihood, perhaps model/problem} model used in the Bayesian inference. These restrictions can be formulated in three requirements:
 \begin{enumerate}
     \item It should be possible to write the model as an LGM
     \item Each observation $y_i$ should depend on the latent field $\textbf{x}$ only through the predictor $\eta_i$. 
@@ -33,7 +34,8 @@ or equivalently
     \Vector{x} = (\eta_1,\ldots,\eta_N,\alpha_1,\ldots,\alpha_X,\beta_1,\ldots,\beta_X, \phi, \kappa_1,\ldots, \kappa_T)
     \label{eq:LChyperparams}
 \end{equation}
-when $x\in \{1,\ldots,X\}$, $t\in\{1,\ldots,T\}$ and $N=X\times T$. Furthermore, it is reasonable to say that the latent field $\Vector{x}$ follows a normal distribution given $\Vector{\theta}$:
+when $x\in \{1,\ldots,X\}$, $t\in\{1,\ldots,T\}$ and $N=X\times T$. \textcolor{myDarkGreen}{This is the part where you are the most unsure about the theory. Note that we do not say that the latent field IS normally distributed, but we assign it a normal prior. (I think, I still don´t quite understand this.)}
+Furthermore, it is reasonable to say that the latent field $\Vector{x}$ follows a normal distribution given $\Vector{\theta}$:
 \begin{equation}
         \Vector{x}\mid \Vector{\theta} \sim \Normal(\Vector{\mu}(\Vector{\theta}), \Matrix{Q}^{-1}(\Vector{\theta})),
         \label{eq:XNormalDist}
@@ -47,10 +49,10 @@ where the $\tau$s are the precisions from Equations \ref{eq:LC-model} and \ref{e
 \begin{equation*}
     \Delta \alpha_x = \alpha_x - \alpha_{x-1} \sim \Normal(0, 1/\tau_{\alpha})
 \end{equation*}
-and similarily for $\Vector{\kappa}$. The possibility to write the latent field as a normal distribution is then the reason for the rewriting of $\Vector{\kappa}$ as a sum of a drift-less random walk and a linear term in Expression \ref{eq:DriftlessKappa}.[IS THIS ACTUALLY TRUE??] 
+and similarily for $\Vector{\kappa}$. The possibility to write the latent field as a normal distribution is then the reason for the rewriting of $\Vector{\kappa}$ as a sum of a drift-less random walk and a linear term in Expression \ref{eq:DriftlessKappa}.\textcolor{myDarkGreen}{[IS THIS ACTUALLY TRUE??] In that case: reformulate. " When we rewrite the period-term as a sum of a random walk without drift and a linear term, $\kappa_t + \phi\cdot t$, as in Equation \ref{eq:DriftlessKappa}, we can give Gaussian priors to these effects as well."} 
 \newline
 We see that the first criterion is fulfilled, the LC-model can be written as an LGM. We also see from Expression \ref{eq:LC-model} that each $y_i$ only depends on the latent random field $\Vector{x}$ through $\eta_i$, so that the second criterion is also fulfilled. However, the multiplicative term in the expression for the predictor, $\beta_x(\kappa_t + \phi\cdot t)$ (from Expression \ref{eq:LC-model}), is in conflict with the final requirement that the predictor $\Vector{\eta}$ should be linear. This means that \inla alone cannot be used to do inference on the LC-model. 
-
+\textcolor{myDarkGreen}{Move this to the "inlabru/linearization chapter"}
 Since this non-linearity is the only part of the LC-model that is incompatible with the \inla method, it seems feasible to try to find a way around this obstacle[find better formulation]. We investigate whether it is possible to use a linearisation of $\Vector{\eta}$ as a substitute for the linear predictor with the \inla method and still produce sufficiently good results. This approach was first proposed by \cite{Inlabru} [Need older reference to the first inlabru?] in order to solve a similar problem for (... geo-spatial something, read up on exactly what.) The solution of \cite{Inlabru} is implemented in the \texttt{R} package \inlabru. We will use this package to see if a similar approach is effective on LC-models as well.     
 %A limitation of the \inla method is that it is only applicable to a specific set of models, namely LGMs as described in Section \ref{sec:LGM}. Even though a substantial number of models can be expressed as an LGM (\see \cite{rue2009inla} for a description of problems easily solved by \inla), this does leave out some widely used models. One model where \inla is not applicable is the Lee-Carter model for mortality prediction, described in Section \ref{section:Lee-Carter}.
 
