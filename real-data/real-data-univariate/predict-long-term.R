@@ -1,4 +1,8 @@
 # script for comparison of long-term predictions using different APC and LC models
+
+# load work space:
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Workspaces/ws_predict-long-term.RData")
+
 library(INLA)
 library(inlabru)
 library(ggplot2)
@@ -211,51 +215,6 @@ res.apc.2.s = bru(components = comp.apc.2,
                                  bru_max_iter = 1
                   )) 
 
-# ac model, rw1, lung cancer
-# res.ac.l = bru(components = comp.apc.1,
-#                   likelihood.ac.l, 
-#                   options = list(verbose = F,
-#                                  bru_verbose = 1, 
-#                                  num.threads = "1:1",
-#                                  control.compute = c.c,
-#                                  control.predictor = list(link = 1),
-#                                  bru_max_iter = 1
-#                   )) 
-
-# ac model, rw1, stomach cancer
-# res.ac.s = bru(components = comp.apc.1,
-#                   likelihood.ac.s, 
-#                   options = list(verbose = F,
-#                                  bru_verbose = 1, 
-#                                  num.threads = "1:1",
-#                                  control.compute = c.c,
-#                                  control.predictor = list(link = 1),
-#                                  bru_max_iter = 1
-#                   )) 
-
-# a model, rw1, lung cancer
-# res.a.l = bru(components = comp.apc.1,
-#                likelihood.a.l, 
-#                options = list(verbose = F,
-#                               bru_verbose = 1, 
-#                               num.threads = "1:1",
-#                               control.compute = c.c,
-#                               control.predictor = list(link = 1),
-#                               bru_max_iter = 1
-#                )) 
-
-
-# a model, rw1, stomach cancer
-# res.a.s = bru(components = comp.apc.1,
-#                likelihood.a.s, 
-#                options = list(verbose = F,
-#                               bru_verbose = 1, 
-#                               num.threads = "1:1",
-#                               control.compute = c.c,
-#                               control.predictor = list(link = 1),
-#                               bru_max_iter = 1
-#                )) 
-
 # lc model, both period effects and cohort, lung cancer
 res.lc.l = bru(components = comp.lc,
               likelihood.lc.l, 
@@ -323,8 +282,17 @@ res.lc.basic.s = bru(components = comp.lc,
 res.lc.basic.s = bru_rerun(res.lc.basic.s)
 
 # color palette.
-palette.basis <- c('#70A4D4', '#ECC64B', '#607A4D', '#026AA1', '#A85150')
-palette.light <- c('#ABC9E6', '#F3DC90', '#86A46F', '#40BBFD', '#C38281')
+palette.basis <- c('#70A4D4', '#ECC64B', '#607A4D', '#1C84BB', '#A85150', '#DA871F',
+                   '#4C7246', '#D7B36A', '#FB5E4E', '#696B8D', '#76A7A6', '#826133')
+
+#with a lighter green:
+palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#1C84BB', '#A85150', '#DA871F',
+                   '#4C7246', '#D7B36A', '#FB5E4E', '#696B8D', '#76A7A6', '#826133')
+
+# try to find a better palette:
+palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
+                   '#3290c1',
+                   '#5d8060', '#D7B36A', '#826133', '#A85150')
 
 
 data.apc.1.l <- res.apc.1.l$summary.fitted.values %>%
@@ -342,22 +310,6 @@ data.apc.2.l <- res.apc.2.l$summary.fitted.values %>%
 data.apc.2.s <- res.apc.2.s$summary.fitted.values %>%
   slice(1:324) %>%
   bind_cols(stomach.cancer %>% select(- c("x.1", "t.1", "xt")))
-
-# data.ac.l <- res.ac.l$summary.fitted.values %>%
-#   slice(1:324) %>%
-#   bind_cols(lung.cancer %>% select(- c("x.1", "t.1", "xt")))
-# 
-# data.ac.s <- res.ac.s$summary.fitted.values %>%
-#   slice(1:324) %>%
-#   bind_cols(stomach.cancer %>% select(- c("x.1", "t.1", "xt")))
-# 
-# data.a.l <- res.a.l$summary.fitted.values %>%
-#   slice(1:324) %>%
-#   bind_cols(lung.cancer %>% select(- c("x.1", "t.1", "xt")))
-# 
-# data.a.s <- res.a.s$summary.fitted.values %>%
-#   slice(1:324) %>%
-#   bind_cols(stomach.cancer %>% select(- c("x.1", "t.1", "xt")))
 
 data.lc.l <- res.lc.l$summary.fitted.values %>%
   slice(1:324) %>%
@@ -383,12 +335,13 @@ data.lc.basic.s <- res.lc.basic.s$summary.fitted.values %>%
   slice(1:324) %>%
   bind_cols(stomach.cancer %>% select(- c("x.1", "t.1", "xt")))
 
+# combine the different predictions:
+
 data.pred.l <- rbind(data.apc.1.l, data.apc.2.l, data.lc.l, data.lc.lin.l, data.lc.basic.l) %>%
   mutate("method" = rep(c("APC rw1", "APC rw2", "LCC", "LCC linear", "LC"), each = 324)) %>%
   mutate(SE = (mean - `mortality rate`)^2) %>%
   mutate(DSS = ((`mortality rate` - mean)/sd)^2 + 2*log(sd)) %>%
   mutate(contained = as.integer((`mortality rate` >= `0.025quant` & `mortality rate` <= `0.975quant`)))
-
 
 data.pred.s <- rbind(data.apc.1.s, data.apc.2.s, data.lc.s, data.lc.lin.s, data.lc.basic.s) %>%
   mutate("method" = rep(c("APC rw1", "APC rw2", "LCC", "LCC linear", "LC"), each = 324)) %>%
@@ -397,16 +350,22 @@ data.pred.s <- rbind(data.apc.1.s, data.apc.2.s, data.lc.s, data.lc.lin.s, data.
   mutate(contained = as.integer((`mortality rate` >= `0.025quant` & `mortality rate` <= `0.975quant`)))
 
 #   ----   Objective measures of prediction performance   ----
-pred.statistics.l <- data.pred.l %>% 
+
+# display four significant digits 
+options(pillar.sigfig = 4)
+
+# compute statistics for all age groups
+pred.statistics.include.l <- data.pred.l %>% 
+  filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
+  group_by(method) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+
+pred.statistics.include.s <- data.pred.s %>% 
   filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
   group_by(method) %>%
   summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
 
-pred.statistics.s <- data.pred.s %>% 
-  filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
-  group_by(method) %>%
-  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
-cat("\n Lung cancer data: ");pred.statistics.l;cat("\n Stomach cancer data: ");pred.statistics.s
+cat("\n Age <= 5 included");cat("\n Lung cancer data: ");pred.statistics.include.l;cat("\n Stomach cancer data: ");pred.statistics.include.s
 
 # compute statistics with cutoff at age group 5
 pred.statistics.cutoff.l <- data.pred.l %>% 
@@ -424,25 +383,12 @@ cat("\n Age <= 5 omitted");cat("\n Lung cancer data: ");pred.statistics.cutoff.l
 
 #   ----   plot APC and LCC models for comparison   ----
 
-gg.pred.s <- ggplot(data.pred.s %>%
-                           filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
-                           filter(method %in% c("APC rw2", "LCC")),
-                         aes(x = x)) + 
-  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`), alpha = 0.5) +
-  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
-  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
-  scale_color_manual(name = "Prediction method",
-                     values = palette.basis) +
-  scale_fill_manual(name = "Prediction method",
-                    values = palette.basis) +
-  #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
-  labs(title = "Stomach cancer", x = "Age groups", y = "Mortality rate") + 
-  facet_wrap(~year)
-gg.pred.s
+# plot LCC-results for stomach cancer
 
-gg.pred.l <- ggplot(data.pred.l %>%
+# by-age:
+gg.LCC.a.s <- ggplot(data.pred.s %>%
                            filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
-                           filter(method %in% c("APC rw2", "LCC")),
+                       filter(method %in% c("LC", "LCC", "LCC linear")),
                          aes(x = x)) + 
   geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`), alpha = 0.5) +
   geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
@@ -451,8 +397,310 @@ gg.pred.l <- ggplot(data.pred.l %>%
                      values = palette.basis) +
   scale_fill_manual(name = "Prediction method",
                     values = palette.basis) +
-  #scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
-  labs(title = "Lung cancer", x = "Age groups", y = "Mortality rate") + 
+  labs(title = "LCC models - stomach cancer", x = "Age groups", y = "Mortality rate") + 
   facet_wrap(~year)
-gg.pred.l
+gg.LCC.a.s
+
+ggsave('univariate-LCC-by-age-stomach.png',
+       plot = gg.LCC.a.s,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# by-period
+gg.LCC.p.s <- ggplot(data.pred.s %>%
+                       filter(x > 5) %>%
+                       filter(method %in% c("LC", "LCC", "LCC linear")),
+                     aes(x = year)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = `method`), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
+  geom_vline(aes(xintercept = "2007"), color = palette.basis[length(palette.basis)]) +
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  labs(title = "LCC models - stomach cancer", x = "Age groups", y = "Mortality rate") + 
+  theme(axis.text.x = element_text(angle = -30, hjust=0)) +
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  facet_wrap(~age)
+gg.LCC.p.s
+
+ggsave('univariate-LCC-by-period-stomach.png',
+       plot = gg.LCC.p.s,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# plot results for APC models for stomach cancer:
+# by-age:
+gg.APC.a.s <- ggplot(data.pred.s %>%
+                       filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
+                       filter(method %in% c("APC rw1", "APC rw2")),
+                     aes(x = x)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  labs(title = "APC models - stomach cancer", x = "Age groups", y = "Mortality rate") + 
+  facet_wrap(~year)
+gg.APC.a.s
+
+ggsave('univariate-APC-by-age-stomach.png',
+       plot = gg.APC.a.s,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# by-period
+gg.APC.p.s <- ggplot(data.pred.s %>%
+                       filter(x > 5) %>%
+                       filter(method %in% c("APC rw1", "APC rw2")),
+                     aes(x = year)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = `method`), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
+  geom_vline(aes(xintercept = "2007"), color = palette.basis[length(palette.basis)]) +
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  labs(title = "APC models - stomach cancer", x = "Age groups", y = "Mortality rate") + 
+  theme(axis.text.x = element_text(angle = -30, hjust=0)) +
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  facet_wrap(~age)
+gg.APC.p.s
+
+ggsave('univariate-APC-by-period-stomach.png',
+       plot = gg.APC.p.s,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# plot results for LCC-models for lung cancer
+
+# by-age:
+gg.LCC.a.l <- ggplot(data.pred.l %>%
+                       filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
+                       filter(method %in% c("LC", "LCC", "LCC linear")),
+                     aes(x = x)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  labs(title = "LCC models - lung cancer", x = "Age groups", y = "Mortality rate") + 
+  facet_wrap(~year)
+gg.LCC.a.l
+
+ggsave('univariate-LCC-by-age-lung.png',
+       plot = gg.LCC.a.l,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# by-period
+gg.LCC.p.l <- ggplot(data.pred.l %>%
+                       filter(x > 5) %>%
+                       filter(method %in% c("LC", "LCC", "LCC linear")),
+                     aes(x = year)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = `method`), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
+  geom_vline(aes(xintercept = "2007"), color = palette.basis[length(palette.basis)]) +
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  labs(title = "LCC models - lung cancer", x = "Age groups", y = "Mortality rate") + 
+  theme(axis.text.x = element_text(angle = -30, hjust=0)) +
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  facet_wrap(~age)
+gg.LCC.p.l
+
+ggsave('univariate-LCC-by-period-lung.png',
+       plot = gg.LCC.p.l,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# plot results for APC-models for lung cancer
+
+# by-age:
+gg.APC.a.l <- ggplot(data.pred.l %>%
+                       filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
+                       filter(method %in% c("APC rw1", "APC rw2")),
+                     aes(x = x)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  labs(title = "APC models - lung cancer", x = "Age groups", y = "Mortality rate") + 
+  facet_wrap(~year)
+gg.APC.a.l
+
+ggsave('univariate-APC-by-age-lung.png',
+       plot = gg.APC.a.s,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# by-period
+gg.APC.p.l <- ggplot(data.pred.l %>%
+                       filter(x > 5) %>%
+                       filter(method %in% c("APC rw1", "APC rw2")),
+                     aes(x = year)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = `method`), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
+  geom_vline(aes(xintercept = "2007"), color = palette.basis[length(palette.basis)]) +
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  labs(title = "APC models - lung cancer", x = "Age groups", y = "Mortality rate") + 
+  theme(axis.text.x = element_text(angle = -30, hjust=0)) +
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  facet_wrap(~age)
+gg.APC.p.l
+
+ggsave('univariate-APC-by-period-lung.png',
+       plot = gg.APC.p.l,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+
+# plot results for best APC model and best LCC for stomach cancer
+
+# by-age:
+gg.compare.a.s <- ggplot(data.pred.s %>%
+                       filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
+                       filter(method %in% c("APC rw2", "LCC")),
+                     aes(x = x)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  labs(title = "APC rw2 and LCC models - stomach cancer", x = "Age groups", y = "Mortality rate") + 
+  facet_wrap(~year)
+gg.compare.a.s
+
+ggsave('univariate-comparison-by-age-stomach.png',
+       plot = gg.compare.a.s,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# by-period
+gg.compare.p.s <- ggplot(data.pred.s %>%
+                       filter(x > 5) %>%
+                       filter(method %in% c("APC rw2", "LCC")),
+                     aes(x = year)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = `method`), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
+  geom_vline(aes(xintercept = "2007"), color = palette.basis[length(palette.basis)]) +
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  labs(title = "APC rw2 and LCC models - stomach cancer", x = "Age groups", y = "Mortality rate") + 
+  theme(axis.text.x = element_text(angle = -30, hjust=0)) +
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  facet_wrap(~age)
+gg.compare.p.s
+
+ggsave('univariate-comparison-by-period-stomach.png',
+       plot = gg.compare.p.s,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# plot results for best APC model and best LCC for lung cancer
+
+# by-age:
+gg.compare.a.l <- ggplot(data.pred.l %>%
+                       filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
+                       filter(method %in% c("APC rw2", "LCC")),
+                     aes(x = x)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  labs(title = "APC rw2 and LCC models - lung cancer", x = "Age groups", y = "Mortality rate") + 
+  facet_wrap(~year)
+gg.compare.a.l
+
+ggsave('univariate-comparison-by-age-lung.png',
+       plot = gg.compare.a.s,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# by-period
+gg.compare.p.l <- ggplot(data.pred.l %>%
+                       filter(x > 5) %>%
+                       filter(method %in% c("LCC", "APC rw2")),
+                     aes(x = year)) + 
+  geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = `method`), alpha = 0.5) +
+  geom_point(aes(y = mean, color = `method`, group = 1), shape = 19) + 
+  geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed"), shape = 4, size = 3) + 
+  geom_vline(aes(xintercept = "2007"), color = palette.basis[length(palette.basis)]) +
+  scale_color_manual(name = "Prediction method",
+                     values = palette.basis) +
+  scale_fill_manual(name = "Prediction method",
+                    values = palette.basis) +
+  labs(title = "APC rw2 and LCC models - lung cancer", x = "Age groups", y = "Mortality rate") + 
+  theme(axis.text.x = element_text(angle = -30, hjust=0)) +
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
+  facet_wrap(~age)
+gg.compare.p.l
+
+ggsave('univariate-comparison-by-period-lung.png',
+       plot = gg.APC.p.l,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+# save work space image:
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Workspaces/ws_predict-long-term.RData")
 
