@@ -15,6 +15,16 @@ Write about choice of cutoff-age - when the mortality rate is very low.
 Presenter datasettene. Si noe om hvor de kommer fra, hvordan de opprinnelig er aggregert og hvordan du har aggregert dem. Plott dataen aggregert over cohort, alder og period. Fortell hvordan du indekserer alder, cohort og period og si at denne indekseringen vil benyttes for alle modellene. Legg vekt på at kohort-indeksen skiller seg fra synthetic-data stadiet siden du har forskjellige intervaller. Referer til Andrea sin metode å løse det på. 
 }
 
+\subsection{Indexing German cancer data}
+\textcolor{myDarkGreen}{This probably does not need to be a subsection, include it where it fits when you find that out. }
+When formatting the data sets, it is easier to begin the indexing of age groups, period and cohorts at 0 rather than 1, so we update the indexing scheme accordingly:
+\begin{itemize}
+    \item The age indices $x$ are now $x = 0,\ldots,X$.
+    \item The period indices $t$ are now $t = 0, \ldots, T$.
+    \item The cohort indices are now given by $k = 5(X - x) + t$, $K = 5X + T$.
+\end{itemize}
+
+
 \subsection{Prediction in the Univariate Case}
 \textcolor{myDarkGreen}{
 Fortell tydelig hvilke modeller du har sammenlignet. Disse bør du ha definert tydelig fra før - vis til ligninger. Fortell hvilke implementasjons-valg du gjør. Fortell hvilke priors du bruker. Fortell hvor man kan finne koden som produserer disse resultatene (link til script på gitHub). 
