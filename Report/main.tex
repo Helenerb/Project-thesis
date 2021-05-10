@@ -16,6 +16,10 @@
 %\usepackage[table,xcdraw]{xcolor}
 \usepackage{blindtext}
 
+%try better bibliography formatting
+\usepackage[style=authoryear, backend=biber]{biblatex}
+\addbibresource{bibliography.bib}
+
 \captionsetup[table]{justification=justified,singlelinecheck=false} % table caption is left-aligned
 %\bibliographystyle{plainnat} % reference list style
 
@@ -49,6 +53,7 @@
 % Reference list
 \clearpage
 \addcontentsline{toc}{section}{References}
+\printbibliography[heading=none]
 \bibliographystyle{apalike}
 %\bibliographystyle{plainnat}
 \bibliography{Bibliography}

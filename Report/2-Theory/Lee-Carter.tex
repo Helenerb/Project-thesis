@@ -2,23 +2,20 @@
 \section{The Lee-Carter model}
 \label{section:Lee-Carter}
 \textcolor{myDarkGreen}{
-Also include:
-\begin{itemize}
-    \item More extensive background and applications of Lee-Carter models
-    \item The usage of age- period-  and cohort effects to predict population development/ mortality. Perhaps include some theory about Lexis-diagrams. Look at some of the text already written in APC-section. 
-    \item Interpretation of the different effects (perhaps in relation to the sum-to-zero constraints - that is when they become possible to interpret.
-\end{itemize}
+Include even more background on Lee-Carter models? Perhaps show first results of Lee-Carter?
+\newlinw \newline
 }
 
 % The Lee-Carter model was first proposed by \citet{LeeCarter1992} and is one of the most widely used methods for mortality forecasting in populations, displaying good results compared to alternative methods \cite{booth_tickle_2008}. Lee and Carter models the logarithms of the death rates of a population as a non-linear combination of period (typically calendar year) and age effects. They then use this model to make forecasts of future population mortality. 
 
-In the field of projecting and forecasting age-specific mortality rates on a population level, the Lee-Carter model has served as a benchmark since its introduction by \citet{LeeCarter1992}. Their original model, together with numerous extensions of it, has been a powerful tool in the fields of, among others, actuarial and demographic sciences\cite{booth_tickle_2008}. The method was originally developed to forecast American mortality rates \cite{LeeCarter1992}, but has since been used in predicting both cause-specific and overall mortality rates over several time periods and for many different populations \cite{GirosiKing2007}. 
-In the Lee-Carter approach, mortality is considered as a function of period (typically calendar year) and age, and the relation between observed mortality for a given age group in a given period and the age- and period-specific effects is formulated as 
+In the field of projecting and forecasting age-specific mortality rates on a population level, the Lee-Carter model has served as a benchmark since its introduction by \textcite{LeeCarter1992}. Their original model, together with numerous extensions of it, has been a powerful tool in the fields of, among others, actuarial and demographic sciences\cite{booth_tickle_2008}. The method was originally developed to forecast American mortality rates \cite{LeeCarter1992}, but has since been used in predicting both cause-specific and overall mortality rates over several time periods and for many different populations \cite{GirosiKing2007}. 
+\newline
+\noindent In the Lee-Carter approach, mortality is considered as a function of period (typically calendar year) and age, and the relation between observed mortality for a given age group in a given period and the age- and period-specific effects is formulated as 
 \begin{equation}
 Y_{x,t} \sim \Poisson(E_{x,t}\cdot e^{\eta_{x,t}}), \quad \eta_{x,t}= \alpha_x + \beta_x\cdot\kappa_t + \epsilon_{x,t}.
 \label{eq:LC-model}
 \end{equation}
-Here $Y_{x,t}$ is the observed number of deaths for people at age $x$ in year $t$, $E_{x,t}$ is the number of people "at risk" (observed people) of age $x$ at time $t$ and $e^\eta_{x,t}$ is the age- and time-specific mortality rate. $\epsilon_{x,t}$ is a stochastic term. The decomposition of $\eta_{x,t}$ into this combination of age effects $\alpha_x$ and $\beta_x$ and time effect $\kappa_t$ is the part that is unique for the LC-model.
+Here $Y_{x,t}$ is the observed number of deaths for people at age $x$ in year $t$, $E_{x,t}$ is the number of people "at risk" (observed people) of age $x$ at time $t$ and $e^{\eta_{x,t}}$ is the age- and time-specific mortality rate. $\epsilon_{x,t}$ is a stochastic term. The decomposition of $\eta_{x,t}$ into this combination of age effects $\alpha_x$ and $\beta_x$ and time effect $\kappa_t$ is the part that is unique for the Lee-Carter model.
 \newline
 \noindent A commonly used extension of the Lee-Carter model is the introduction of a cohort effect in addition to the effects of age and period \cite{Wisniowski2015}. A cohort can be interpreted as the birth-year of the subjects, so each cohort consist of the people that are in the same age group in the same period. So, the cohort is uniquely defined by the age and period. Including the cohort effect, following the approach of \citet{Wisniowski2015}, the cohort-extended Lee-Carter model can be formulated as
 \begin{equation}
@@ -28,14 +25,62 @@ Here $Y_{x,t}$ is the observed number of deaths for people at age $x$ in year $t
 where $\gamma_k$ is the cohort effect for cohort $k$. 
 To ensure identifiability of the models, we need to apply some constraints to the effects $\beta_x$ and $\kappa_t$, as well as $\gamma_t$ in the cohort-extended version. Following e.g. \citet{Wisniowski2015} or \citet{LeeCarter1992}, we impose sum-to-zero constraints on $\alpha_x$, $\kappa_t$ and $\gamma_t$ and sum-to-unit constraints on $\beta_x$:
 \begin{equation}
-    \sum_t\kappa_t = 0,\quad \sum_k\gamm_k = 0, \quad \sum_x\beta_x = 1.
+    \sum_t\kappa_t = 0,\quad \sum_k\gamma_k = 0, \quad \sum_x\beta_x = 1.
     \label{eq:LC-constraints}    
 \end{equation}
 Given these constraints, $\alpha_x$ can be interpreted as the age-specific mortality rate, averaged over all periods, $\kappa_t$ can be interpreted as the change in mortality over time and $\beta_x$ can be interpreted as an age-specific measure of whether the rate changes rapidly or slowly in response to changes in $\kappa_t$ \cite{LeeCarter1992}. In the cohort-extended model, $\gamma_k$ can be interpreted as the cohort-specific deviation from the overall mortality rate.
 
+\subsection{Implementation and model choices of the Lee-Carter model}
+\textcolor{myDarkGreen}{I am a little unsure where to include this section, and if some of the content here should be moved somewhere else. }
+We consider the Lee-Carter model in a Bayesian setting, meaning that we treat the effects $\alpha_x$, $\beta_x$, $\kappa_t$ and $\gamma_k$ as unknown random effects, with a likelihood model given by Equation \ref{eq:LC-model} or \ref{eq:LCC-model}. Our goal is to find a posterior distribution of these effects, given some observed mortality rates $Y_{x,t}$, and thus we need to assign some prior distributions to the random effects. Since the Lee-Carter model is used to predict future mortality rates, the period effect $\kappa_t$ is usually modelled as a random walk with drift (see for instance \cite{LeeCarter1992}, \cite{Wisniowski2015}, \cite{CZADO2005260}). Mortality rates for future periods is then predicted by extending the $\kappa_t$ that is fitted for the observed mortality rates. For this reason, the natural choice of the prior of $\kappa_t$ is a random walk with drift:
+\begin{equation}
+    \kappa_t = \kappa_{t-1} + \phi  + \epsilon_t,\quad \epsilon_t \sim \Normal(0,\tau_{\kappa}).
+    \label{eq:randomWalkDrift}
+\end{equation}
+Here, $\phi$ is the drift term and $\tau_{\kappa}$ is the precision in the normal distribution of the random term $\epsilon_t$ of the random walk. 
+Following previous literature, such as \citet{CZADO2005260} and \citet{Wisniowski2015}, we assign a driftless random walk as a prior to $\alpha_t$ and $\gamma_k$:
+\begin{equation}
+    \begin{aligned}
+        \alpha_x &= \alpha_{x-1} + \epsilon_{x}, \quad \epsilon_x \sim \Normal(0,1/\tau_{\alpha}) \\
+        \gamma_k &= \gamma_{k-1} + \epsilon_{k}, \quad \epsilon_k \sim \Normal(0,1/\tau_{\gamma}), \\
+    \end{aligned}
+\end{equation}
+where $\tau_{\alpha}$ and $\tau_{\gamma}$ are the precisons of the random terms $\epsilon_x$ and $\epsilon_k$, respectively, of the two random walks. 
+Also following \citet{CZADO2005260} and \citet{Wisniowski2015} we assign a gaussian iid prior to $\beta_x$, using previous knowledge that this often takes a less smooth shape than the remaining effects \cite{CZADO2005260}:
+\begin{equation}
+    \beta_x &\sim \Normal(0, 1/\tau_{\beta}).
+\end{equation}
+Here, $\tau_{\beta}$ is the precision of the normal distribution. 
 
+\textcolor{myDarkGreen}{Not quite sure where I should include the following seciton}
+For computational reasons, we will rewrite the original Lee-Carter model slightly. We reformulate $\kappa_t$ as the sum of a linear effect and a drift-less random walk:
+\begin{equation}
+    \kappa_t = \kappa_t^* + \phi\cdot t, \quad \kappa_t^* = \kappa_{t-1}^* + \epsilon_t, \quad \epsilon_t \sim \Normal(0,\tau_{\kappa}).
+\end{equation}
+We impose a sum-to-zero constraint on $\kappa_t^*$ (instead of on $\kappa_t$, as previously described). Since $\sum_t \phi \cdot t \new 0$ for $t > 0$, which will be true for all realistic time indices, we obtain a difference between the new and the old values of the period-effect. We include this shift as an intercept in our model. We also rewrite our model for the age-effect $\alpha_x$ as 
+\begin{equation}
+    \alpha_x = \bar{\alpha_x} + \alpha_x^*, \quad \text{where} \quad \alpha_x^* = \alpha_x - \bar{\alpha_x}.
+\end{equation}
+Here $\bar{\alpha_x}$ is the average of $\alpha_x$ for all ages $x$, and we include this term in the intercept. We then get an additional sum-to-zero constraint on $\alpha_x^*$. Denoting, from this point, $\alpha_x^*$ by $\alpha_x$ and $\kappa_t^*$ by $\kappa_t$, we get the rewritten from of the Lee-Carter and the cohort-extended Lee-Carter model as:
+\begin{equation}
+    \eta_{x,t} = \mu + \alpha_x + \beta_x(\phi \cdot t + \kappa_t) + \epsilon_{x,t}
+    \label{eq:LC-rewritten}
+\end{equation}
+and
+\begin{equation}
+    \eta_{x,t} = \mu + \alpha_x + \beta_x(\phi \cdot t + \kappa_t) + \gamma_k + \epsilon_{x,t},
+    \label{eq:LCC-rewritten}
+\end{equation}
+where $\mu$ is the intercept. With this reformulation, the effects have the following interpretation:
+\begin{itemize}
+    \item The intercept $\mu$ can be interpreted as an overall mortality rate
+    \item The age effect $\alpha_x$ can be interpreted as the age-specific deviation from the overall mortality rate
+    \item The period effect $\kappa_t + \phi \cdot t$ can be interpreted as the period-specific change in the mortality rate, where $\phi \cdot t$ describes the trend relative to the period $t = 0$ and $\kappa_t$ describes the irregularity of this trend. 
+    \item The age effect $\beta_x$ can be interpreted as the age-specific sensitivity to the period-related change in mortality. 
+    \item the cohort effect $\gamma_k$ can be interpreted as the cohort-specific change in the mortality rate, relative to the overall mortality level. 
+\end{itemize}
 
-
+\textcolor{myDarkGreen}{This is the old part: see if there is something here you should still include: }
 Other literature [hvilken??? referer!!!] have shown that $\alpha_x$ takes a shape that can be described as a random walk, $\beta_x$ often has a less smooth shape better described with an iid normal distribution with zero mean and that a random walk with drift can be used to describe the shape of $\kappa_t$. So, we impose the following models for $\alpha_x$, $\beta_x$ and $\kappa_x$:
 \begin{equation}
     \begin{aligned}
