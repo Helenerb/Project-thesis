@@ -12,6 +12,7 @@ Include in this section:
 The Age-Period-Cohort (APC) model is an alternative to the Lee-Carter model, that is also widely used for mortality projections and forecasts \cite{rieblerHeld2010}. The model considers mortality rate as a function of the age group, period (typically calendar year) and cohort (typically birth year) of the relevant population. The model has a similar structure to the Lee-Carter model, assuming that 
 \begin{equation}
     Y_{x,t} \sim \Poisson(E_{x,t}\cdot e^{\eta_{x,t}}).
+    \ref{eq:APClikelihood}
 \end{equation}
 Again, $Y_{x,t}$ are the observed mortality rates for age group $x$ at period $t$, and $E_{x,t}$ is the number of people at risk for age group $x$ at period $t$. The expression for the predictor $\eta_{x,t}$ differs from the Lee-Carter model, and is modelled as
 \begin{equation}
@@ -31,6 +32,21 @@ Given these constraints, the effects can be interpreted as, we interpret $\mu$ a
 }
 
 \subsection{Bayesian inference on the APC model}
+We consider the APC model in a Bayesian setting, in the similar manner to the Lee-Carter model. Again, we treat the age, period and cohort effects as unknown, with a likelihood model given by Expression \ref{eq:APClikelihood} and with some prior distributions. Inspired by \cite{RieblerThesis2010} \textcolor{myDarkGreen}{Perhaps update this reference, where does Andrea describe both rw1 and rw2?}, we consider two different choices of prior distributions for the random effects. These are a random walk of order one (RW1), the same model that is used for $\alpha_x$, $\kappa_t$ and $\gamma_k$ in the Lee-Carter model, and a random walk of order two (RW2). The random walk of order one is given by
+\begin{equation}
+    \rho_x = \rho_{x-1} + \epsilon_x, \quad \epsilon_x \sim \Normal(0,1/\tau_{\rho1}),
+\end{equation}
+with equivalent expressions for $\phi_t$ and $\psi_k$. The random walk of order two assumes an iid gaussian distribution on the second order differences of the increments in the effects, and is given by
+\begin{equation}
+    \rho_x = 2\rho_{x-1} - \rho_{x-2} + \epsilon_x, \quad \epsilon_x \sim \Normal(0, 1/\tau_{\rho2}),
+    \label{eq:APCrw2}
+\end{equation}
+with equivalent expressions for $\phi_t$ and $\psi_k$. 
+Following e.g. \textcite{Besag1995} we assign an iid gaussian prior to the effect $\epsilon_{x,t}$:
+\begin{equation}
+    \epsilon_{x,t} \sim \Normal(0,1/\tau_\epsilon).
+\end{equation}
+As in the Lee-Carter model, we assign PC priors to the hyperparameters $\tau_{\rho 1}, \tau_{\rho 2}, \tau_{\phi 1}, \tau_{\phi 2}, \tau_{\psi 1}, \tau_{\psi 2}, \tau_\epsilon$. 
 
 
 \subsection{Indexing of age $x$, period $t$ and cohort $k$}
@@ -41,31 +57,31 @@ To identify the different age groups, periods and cohorts that is considered by 
     \item Since the cohort (birth year) is uniquely defined by the age group and the period, we define the cohort index $k$ using these. Following the approach in \cite{rieblerHeld2010}, which was initially proposed by \cite{Heuer1997}, we define the cohort indices by $k = M(X - x) + t$, $K = M(X - 1) + T$. Here $M$ is the difference in length of the age and period intervals, the age intervals are $M$ times wider than the period intervals. For age and period intervals of equal length, the cohort indices become $k = X - x + t$, $K = X - 1 + T.$
 \end{itemize}
 
-\textcolor{myDarkGreen}{Old text: }
-The model uses three effects to analyze population data; age effects, period effects, which is typically related to the calendar year of an observation and cohort effects, which are usually equivalent to the birth-year of the observed subjects. It has been shown that these three effects combined are able to capture large parts of the underlying causes of age- and time-specific causes of mortality in a population. 
+% \textcolor{myDarkGreen}{Old text: }
+% The model uses three effects to analyze population data; age effects, period effects, which is typically related to the calendar year of an observation and cohort effects, which are usually equivalent to the birth-year of the observed subjects. It has been shown that these three effects combined are able to capture large parts of the underlying causes of age- and time-specific causes of mortality in a population. 
 
-We use the formualtion of the APC model that is described in \citet{rieblerHeld2010}. 
-They assume that $n_{x,t}$ is the number of persons at risk in age group $x$, $x = 1,\ldots,X$ during period $t$, $t = 1,\ldots,T$, that $y_{x,t}$ is the number of cases in age group $x$ at during period $t$. They further assume that 
-\begin{equation}
-    y_{x,t} \sim \Poisson(n_{x,t}\cdot \lambda_{x,t})
-\end{equation}
-and that the likelihood for the whole data is given by the product of the corresponding Poisson terms [reformulate!!! And understand exactly what this means. ]
-The APC model is then given by structuring the logarithm of $\lambda_{x,t}$ as a linear predictor consisting of age-, period- and cohort-related terms:
-\begin{equation}
-    \etax = \log(\lambda_{x,t}) = \mu + \rho_x + \phi_t + \psi_k.
-    \label{eq:APCmodel}
-\end{equation}
-Here, $\mu$ is the intercept (or overall mortality level), $\rho_x$ is an age effect, $\phi_t$ is a period effect and $\psi_k$ is a cohort effect. The index $k$, $k = 1,\ldots,K$ in $\psi_k$ is a birth cohort index, which depends directly on the age index $x$ and period index $t$. When the age and period intervals are of equal width, this is given by
-\begin{equation*}
-    k = (X - x) + t, \quad K = (X - 1) + T.
-\end{equation*}
-When the intervals are of different width, e.g if the age intervals are of length $M$ and the period is measured yearly, the cohort index is given by
-\begin{equation}
-    k = M \cdot (X - x) + t, \quad K = M \cdot (X - 1) + T.
-    \label{eq:cohortIndex}
-\end{equation}
-To ensure identifiability of the intercept $\mu$, sum-to-zero contstraints are imposed on the remaining effects:
-\begin{equation}
-    \sum_{x = 1}^{X}\rho_x = 0, \quad \sum_{t = 1}^T\phi_t = 0, \quad \sum_{k = 1}^K \psi_k = 0. 
-    \label{eq:APCconstraints}
-\end{equation}
+% We use the formualtion of the APC model that is described in \citet{rieblerHeld2010}. 
+% They assume that $n_{x,t}$ is the number of persons at risk in age group $x$, $x = 1,\ldots,X$ during period $t$, $t = 1,\ldots,T$, that $y_{x,t}$ is the number of cases in age group $x$ at during period $t$. They further assume that 
+% \begin{equation}
+%     y_{x,t} \sim \Poisson(n_{x,t}\cdot \lambda_{x,t})
+% \end{equation}
+% and that the likelihood for the whole data is given by the product of the corresponding Poisson terms [reformulate!!! And understand exactly what this means. ]
+% The APC model is then given by structuring the logarithm of $\lambda_{x,t}$ as a linear predictor consisting of age-, period- and cohort-related terms:
+% \begin{equation}
+%     \etax = \log(\lambda_{x,t}) = \mu + \rho_x + \phi_t + \psi_k.
+%     \label{eq:APCmodel}
+% \end{equation}
+% Here, $\mu$ is the intercept (or overall mortality level), $\rho_x$ is an age effect, $\phi_t$ is a period effect and $\psi_k$ is a cohort effect. The index $k$, $k = 1,\ldots,K$ in $\psi_k$ is a birth cohort index, which depends directly on the age index $x$ and period index $t$. When the age and period intervals are of equal width, this is given by
+% \begin{equation*}
+%     k = (X - x) + t, \quad K = (X - 1) + T.
+% \end{equation*}
+% When the intervals are of different width, e.g if the age intervals are of length $M$ and the period is measured yearly, the cohort index is given by
+% \begin{equation}
+%     k = M \cdot (X - x) + t, \quad K = M \cdot (X - 1) + T.
+%     \label{eq:cohortIndex}
+% \end{equation}
+% To ensure identifiability of the intercept $\mu$, sum-to-zero contstraints are imposed on the remaining effects:
+% \begin{equation}
+%     \sum_{x = 1}^{X}\rho_x = 0, \quad \sum_{t = 1}^T\phi_t = 0, \quad \sum_{k = 1}^K \psi_k = 0. 
+%     \label{eq:APCconstraints}
+% \end{equation}

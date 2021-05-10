@@ -3,12 +3,12 @@
 \label{section:Lee-Carter}
 \textcolor{myDarkGreen}{
 Include even more background on Lee-Carter models? Perhaps show first results of Lee-Carter?
-\newlinw \newline
+\newline \newline
 }
 
 % The Lee-Carter model was first proposed by \citet{LeeCarter1992} and is one of the most widely used methods for mortality forecasting in populations, displaying good results compared to alternative methods \cite{booth_tickle_2008}. Lee and Carter models the logarithms of the death rates of a population as a non-linear combination of period (typically calendar year) and age effects. They then use this model to make forecasts of future population mortality. 
 
-In the field of projecting and forecasting age-specific mortality rates on a population level, the Lee-Carter model has served as a benchmark since its introduction by \textcite{LeeCarter1992}. Their original model, together with numerous extensions of it, has been a powerful tool in the fields of, among others, actuarial and demographic sciences\cite{booth_tickle_2008}. The method was originally developed to forecast American mortality rates \cite{LeeCarter1992}, but has since been used in predicting both cause-specific and overall mortality rates over several time periods and for many different populations \cite{GirosiKing2007}. 
+In the field of projecting and forecasting age-specific mortality rates on a population level, the Lee-Carter model has served as a benchmark since its introduction by \textcite{LeeCarter1992}. Their original model, together with numerous extensions of it, has been a powerful tool in the fields of, among others, actuarial and demographic sciences \cite{booth_tickle_2008}. The method was originally developed to forecast American mortality rates \cite{LeeCarter1992}, but has since been used in predicting both cause-specific and overall mortality rates over several time periods and for many different populations \cite{GirosiKing2007}. 
 \newline
 \noindent In the Lee-Carter approach, mortality is considered as a function of period (typically calendar year) and age, and the relation between observed mortality for a given age group in a given period and the age- and period-specific effects is formulated as 
 \begin{equation}
@@ -54,9 +54,8 @@ Since $\epsilon_{x,t}$ is included to model randomness in the output, it is natu
 \begin{equation}
     \epsilon_{x,t} &\sim \Normal(0, 1/\tau_{\epsilon}).
 \end{equation}
-In the two expressions above, $\tau_\beta$ and $\tau_epsilon$ are the  
+In the two expressions above, $\tau_\beta$ and $\tau_epsilon$ are the precisions in the respective normal distributions.  
 For the hyperparameters $\tau_\kappa, \tau_\alpha, \tau_\gamma, \tau_\beta, \tau_\epsilon$ we assign a type of prior called Penalized complexity (PC) priors, which was proposed by \textcite{SimpsonRueRiebler2017} to by well-suited for these types of models \cite{Rubio2020}. \textcolor{myDarkGreen}{Note: this is a bit inaccurate (it is only well-suited to the random walks), you should elaborate. }
-
 
 \textcolor{myDarkGreen}{Not quite sure where I should include the following seciton}
 For computational reasons, we will rewrite the original Lee-Carter model slightly. We reformulate $\kappa_t$ as the sum of a linear effect and a drift-less random walk:
