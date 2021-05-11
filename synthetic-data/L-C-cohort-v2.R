@@ -24,10 +24,10 @@ palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
 N = 1000
 general.title = paste("N = ", N, "seed = ", seed)
 
-nx = 10
-nt = 10
-#nx = 20
-#nt = 20
+nx = 10 # 3.3
+nt = 10 # 3.3
+#nx = 20 # 3.1
+#nt = 20 # 3.1
 
 n.cohort = (nt - 1) + abs(1-nx) + 1
 cohort.min = 1-nx
@@ -54,8 +54,8 @@ kappa = 0.5*cos((1:nt)*pi/3)   # 25.02:14, conf 3.1, 3.3
 
 kappa = kappa - mean(kappa)
 
-alpha = cos(((1:nx - 3)* pi)/6)  # conf 3.1
-#alpha = cos(((1:nx)* pi)/8)  # conf 3.3
+#alpha = cos(((1:nx - 3)* pi)/6)  # conf 3.1
+alpha = cos(((1:nx)* pi)/8)  # conf 3.3
 alpha = alpha - mean(alpha)
 
 #gamma = 0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/2)
@@ -215,6 +215,20 @@ p.LCC.3.1
 
 ggsave('effects-LCC-synthetic-3-1.png',
        plot = p.LCC.3.1,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
+       height = 5, width = 8,
+       dpi = "retina"
+)
+
+# configuration 3.3 --> LCC model:
+p.LCC.3.3 <- (p.alpha | p.beta | p.kappa)/(p.phi | p.gamma | p.eta) +
+  plot_layout(guides = "collect") &
+  plot_annotation(title = "Estimated random effects for LCC-model, with synthetic data")
+p.LCC.3.3
+
+ggsave('effects-LCC-synthetic-3-3.png',
+       plot = p.LCC.3.3,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
        height = 5, width = 8,

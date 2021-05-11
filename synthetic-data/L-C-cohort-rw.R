@@ -101,7 +101,7 @@ obs = obs %>%
 #  plot underlying model:
 
 ggplot(data = obs) + geom_point(aes(x = x, y = beta)) + ggtitle(paste("Underlying beta", general.title))
-ggplot(data = obs) + geom_point(aes(x = t, y = kappa)) + ggtitle(paste("Underlying kappa", general.title))
+ggplot(data = obs) + geom_line(aes(x = t, y = kappa)) + ggtitle(paste("Underlying kappa", general.title))
 ggplot(data = obs) + geom_line(aes(x = x, y = alpha)) + ggtitle(paste("Underlying alpha", general.title))
 ggplot(data = obs) + geom_line(aes(x = t, y = phi.t)) + ggtitle(paste("Underlying phi", general.title))
 ggplot(data = obs) + geom_line(aes(x = cohort, y = gamma)) + ggtitle(paste("Underlying gamma", general.title))
