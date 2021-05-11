@@ -41,13 +41,13 @@ tau.iid = 1/0.1**2  # config 2.1
 #  Standard deviation of 0.01 for the noise 
 tau.epsilon = 1/0.01**2   # config 2.1
 
-# change kappa to something better suited to model real-life 
+# comment in and out different model choices to test:
 #kappa = cos((1:nt)*pi/8)
 
 #kappa = 2*cos((1:nt)*pi/20)
-#kappa = cos((1:nt)*pi/20)  #  config 2.2
+kappa = cos((1:nt)*pi/20)  #  config 2.2
 #kappa = sin((1:nt)*pi/20)  # 26.02:1117
-kappa = 0.3*cos((1:nt)*pi/5)  # config 2.1
+#kappa = 0.3*cos((1:nt)*pi/5)  # config 2.1
 #kappa = 0.5*cos((1:nt)*pi/3)  # roughly the same sd as the above
 kappa = kappa - mean(kappa)
 
@@ -188,20 +188,33 @@ p.eta <- ggplot(data = data.eta) +
   labs(x="Estimated eta", y="True value for eta", title = "Eta")
 p.eta
 
-p.alpha.x <- (p.alpha | p.beta | p.kappa)/(p.phi | p.eta) +
-  plot_layout(guides = "collect") & 
-  plot_annotation(title = "Estimated random effects for Lee-Carter model, with synthetic data")
-p.alpha.x
+# configuration 2.1 --> basic LC model with alpha as an effect of x
+# p.alpha.x <- (p.alpha | p.beta | p.kappa)/(p.phi | p.eta) +
+#   plot_layout(guides = "collect") & 
+#   plot_annotation(title = "Estimated random effects for Lee-Carter model, with synthetic data")
+# p.alpha.x
+# 
+# ggsave('effects-LC-synthetic.png',
+#        plot = p.alpha.x,
+#        device = "png",
+#        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
+#        height = 5, width = 8, 
+#        dpi = "retina"
+# )
 
-ggsave('effects-LC-synthetic.png',
-       plot = p.alpha.x,
+# configuration 2.2 --> LC model displaying identifiability issues:
+p.LC.identifiability <- (p.alpha | p.beta | p.kappa)/(p.phi | p.eta) +
+  plot_layout(guides = "collect") &
+  plot_annotation(title = "Estimated random effects for Lee-Carter model, with synthetic data")
+p.LC.identifiability
+
+ggsave('effects-LC-synthetic-identifiability.png',
+       plot = p.LC.identifiability,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
-       height = 5, width = 8, 
+       height = 5, width = 8,
        dpi = "retina"
 )
-
-
 
 # old plot set-up:
 
