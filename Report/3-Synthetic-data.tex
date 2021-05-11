@@ -2,7 +2,7 @@
 \section{Inference on Lee-Carter Model with Inlabru - Preliminary Test with Synthetic Data}
 \textcolor{blue}{[Sara: This section lacks most figures and some reading-through, but is the overall structure, layout and lenght of discussion okay? ]}
 \subsection{Implementation of \inlabru}
-The \inlabru library is a wrapper around the more commonly used \rinla library. The implementation of Bayesian inference in the \inlabru library is similar to that of the \rinla library, with some syntactic differences. For an extensive introduction to the \rinla library we refer to the book \cite{Rubio2020}. Similarly, further references to the \inlabru library can be found at \cite{Inlabru}. Here, we will briefly cover the main parts of code needed to use the \inlabru library to perform Bayesian inference. All code used and discussed in this paper can be found at \url{https://github.com/Helenerb/Project-thesis}. 
+The \inlabru library is a wrapper around the more commonly used \rinla library. The implementation of Bayesian inference in the \inlabru library is similar to that of the \rinla library, with some syntactic differences. For an extensive introduction to the \rinla library we refer to the book \cite{Rubio2020}. Further references to the \inlabru library can be found at \cite{Inlabru}. Here, we will briefly cover the main parts of code needed to use the \inlabru library to perform Bayesian inference. All code used and discussed in this paper can be found at \url{https://github.com/Helenerb/Project-thesis}. 
 \newline
 \noindent The following parts are needed to implement a LC-type of model in \texttt{R} and run \inlabru with it:
 \begin{itemize}
@@ -19,13 +19,13 @@ When all the abovementioned components are defined, \inlabru can be run with the
 and a data frame with the results from the approximation will be stored in the \texttt{res} variable. 
 \newline
 \subsection{First Test of Inference with \inlabru on LC-type Model}
-The basis of this paper is the investigation of whether \inlabru enables inference with \inla for models similar to LGMs, but with a non-linear predictor, such as the LC-model. Therefore, the first phase of our research will involve testing \inlabru for these models using synthetic data. Since we know the underlying models accurately when we use synthetic data, we are able to investigate whether \inlabru is able to fit these models correctly. 
+The basis of this paper is the investigation of whether \inlabru enables inference with \inla for models similar to LGMs, but with a non-linear predictor, such as the LC-model. Therefore, the first phase of our research involves testing \inlabru for these models using synthetic data. Since we know the underlying models accurately when we use synthetic data, we are able to investigate whether \inlabru is able to fit these models correctly. 
 \newline
 \noindent To produce the synthetic data, we choose functions for $\alpha_x$, $\beta_x$ and $\kappa_t$ and a $\phi$ that we believe to be somewhat realistic: $\alpha_x$ is modeled both as a constant (i.e. included in the intercept $\mu$) and as different functions and realizations of random walks, $\kappa_t$ are modeled as different functions and realizations of random walks and $\beta_x$ is modeled as 
 \begin{equation*}
     \beta_x \sim \Normal(0,1/\tau)
 \end{equation*} 
-for some precisions $\tau$. $\alpha_x$, $\beta_x$ and $\kappa_t$ are then scaled to their respective constraints, given in \ref{eq:LC-constraints}. As we expect inlabru to handle any sufficiently smooth and close-to-realistic effects to accept it as a suitable inference tool for the LC and LCC model, we do not attach a lot of importance to the choices for the synthetic models for the random effects. 
+for some precisions $\tau$. $\alpha_x$, $\beta_x$ and $\kappa_t$ are then scaled to their respective constraints, given in \ref{eq:LC-constraints}. As we expect \inlabru to handle any sufficiently smooth and close-to-realistic effects to accept it as a suitable inference tool for the LC and LCC model, we do not attach a lot of importance to the choices for the synthetic models for the random effects. 
 The \inlabru method was run for multiple configurations of the true effects. Figure \ref{fig:firstRun} displays the results from the run when the random effects were modelled as
 \begin{equation}
     \begin{aligned}
@@ -33,7 +33,7 @@ The \inlabru method was run for multiple configurations of the true effects. Fig
     \beta_x &= \Normal(0,0.1^2)\\
     \phi &= -0.5\\
     \kappa_t &= 0.3\cos(\frac{t\cdot \pi}{5})\\
-    \tau_{\eta} &= 1/0.01^2.
+    \tau_{\epsilon} &= 1/0.01^2.
     \end{aligned}
     \label{eq:conf21}
 \end{equation}
