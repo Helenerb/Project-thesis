@@ -103,7 +103,7 @@ A comparison between the results (estimated random effects and predictor) from t
 For some combinations of underlying models for $\kappa_t$ and $\phi$ we observe that \inlabru is not able to correctly identify these effects, while the prediction of $\etav$ is still correct. This indicates that there are some identifiability issues between $\kappa_t$ and $\phi \cdot t$ that become apparent for some combinations of these effects. We test several different combinations of $\kappa_t$ and $\phi$ to try to isolate the types of combinations that \inlabru are not able to correctly identify.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.85\linewidth]{Figures/Results/2.2.png}
+    \includegraphics[width=0.85\linewidth]{synthetic-data/Figures/effects-LC-synthetic-identifiability.png}
     \caption{An example of the results after running \inlabru with a configuration that yields identifiability issues with $\kappat$ and $\phi \cdot t$. }
     \label{fig:unidentifiabilityKappa}
 \end{figure}
@@ -117,7 +117,7 @@ Figure \ref{fig:unidentifiabilityKappa} displays the results from running \inlab
     \tau_{\epsilon} &= 1/0.01^2.
     \end{aligned}
 \end{equation}
-for $x\in[1,10]$ and $t\in[1,10]$. Here we clearly see errors in the approximations of $\kappav$ and $\phi\cdot t$ while the approximations of $\etav$ (and $\betav$ and $\alphav$) are close to the true values. We observe that \inlabru produces incorrect models for $\kappa_t$ and $\phi$ when the underlying model for $\kappa_t$ show too clear drift tendencies. This indicates that \inlabru places all drift along the period axis in the linear term $\phi$. We can accept this "misplacement", since we have explicitly defined out model as the sum of a random walk without drift and and some linear effect. Even though the realization of a drift-less random walk could easily display drift-like tendencies, we accept the assumption of \inlabru that all drift along the $t$ axis originates from the linear effect $\phi \cdot t$, since we still get good results for the predictor $\eta_{x,t}$ and the remaining random effects.
+for $x\in[1,10]$ and $t\in[1,10]$. The code used to produce these results can be found at the \texttt{GitHub} repository under \texttt{synthetic-data/L-C-alpha-x.R}. Here we clearly see errors in the approximations of $\kappav$ and $\phi\cdot t$ while the approximations of $\etav$ (and $\betav$ and $\alphav$) are close to the true values. We observe that \inlabru produces incorrect models for $\kappa_t$ and $\phi$ when the underlying model for $\kappa_t$ show too clear drift tendencies. This indicates that \inlabru places all drift along the period axis in the linear term $\phi$. We can accept this "misplacement", since we have explicitly defined out model as the sum of a random walk without drift and and some linear effect. Even though the realization of a drift-less random walk could easily display drift-like tendencies, we accept the assumption of \inlabru that all drift along the $t$ axis originates from the linear effect $\phi \cdot t$, since we still get good results for the predictor $\eta_{x,t}$ and the remaining random effects.
 
 \newline
 \subsection{Inference with \inlabru on the LCC-model. }
