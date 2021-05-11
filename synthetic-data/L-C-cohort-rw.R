@@ -7,6 +7,9 @@
 # some of the cohorts (t-x) will be negative. 
 # The mapping between the cohort value and its index in gamma is cohort.val - cohort.min + 1
 
+# load workspace image
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-cohort.rw.RData")
+
 library(INLA)
 library(inlabru)
 library(ggplot2)
@@ -24,8 +27,9 @@ set.seed(seed)
 N = 2000
 general.title = paste("N = ", N, "seed = ", seed)
 
-palette.basis <- c('#70A4D4', '#ECC64B', '#A85150', '#607A4D', '#026AA1')
-palette.light <- c('#ABC9E6', '#F3DC90', '#C38281', '#86A46F', '#40BBFD')
+# define palette:
+palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
+                   '#3290c1', '#5d8060', '#D7B36A', '#826133', '#A85150')
 
 nx = 10
 nt = 10
@@ -112,17 +116,11 @@ ggplot(data = obs, aes(x=t, y=x, fill = y.o)) + geom_tile()
 A.mat = matrix(1, nrow = 1, ncol = nx)  #  not sure if you did this correctly
 e.vec = 1
 
-# pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.1)))
-# pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.8)))
-# pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.02, 0.1)))
-# pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.8, 0.8)))
-
-# attempt with less informative priors: config 3.1 and config 3.3
+# attempt with less informative priors: config 3.2
 pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
 pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.5)))
 pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.05, 0.5)))
 pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.5)))
-
 
 # note: change names of components, to ensure no mix-up with global variables and 
 # variables in the observation.
@@ -140,10 +138,7 @@ form.1 = y.o ~ -1 + Int + alpha + beta*phi + beta*kappa + gamma + epsilon
 
 likelihood.1 = like(formula = form.1, family = "poisson", data = obs, E = at.risk)
 
-# the same control compute as in Sara's first example 
 c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
-
-#initial.values = list(alpha.c = alpha, beta.c = beta, kappa.c = kappa, phi.t = phi*(1:nt))
 
 res = bru(components = comp,
           likelihood.1, 
@@ -155,6 +150,91 @@ res = bru(components = comp,
 
 res = bru_rerun(res)
 
+
+data.alpha = cbind(res$summary.random$alpha, alpha.true = alpha[res$summary.random$alpha$ID])
+p.alpha <- ggplot(data = data.alpha, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+  geom_point(aes(y = alpha.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(title="Alpha", x = "x", y='')
+
+p.alpha
+
+data.beta = cbind(res$summary.random$beta, beta.true = beta[res$summary.random$beta$ID])
+p.beta <- ggplot(data = data.beta, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+  geom_point(aes(y = beta.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(x = "x", y = "beta", title = "Beta")
+
+p.beta
+
+data.kappa = cbind(res$summary.random$kappa, kappa.true = kappa[res$summary.random$kappa$ID])
+p.kappa <- ggplot(data = data.kappa, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+  geom_point(aes(y = kappa.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(x = "t", y = "kappa", title = "Kappa")
+
+p.kappa
+
+data.gamma = cbind(res$summary.random$gamma, gamma.true = gamma[res$summary.random$gamma$ID - cohort.min + 1])
+p.gamma <- ggplot(data = data.gamma, aes(x = ID - cohort.min + 1)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+  geom_point(aes(y = gamma.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(x = "t", y = "kappa", title = "Kappa")
+
+p.gamma
+
+p.phi <- ggplot(data.frame(res$marginals.fixed)) + 
+  geom_area(aes(x = phi.x, y = phi.y, fill = "Estimated"), alpha = 0.4) + 
+  geom_vline(data = res$summary.fixed, aes(xintercept = mean[2], color = "Estimated", fill = "Estimated")) + 
+  geom_vline(data = obs, aes(xintercept = phi, color = "True value", fill = "True value")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of phi", y = " ", title = "Phi")
+p.phi
+
+data.eta <- data.frame({eta.sim = res$summary.linear.predictor$mean[1:N]}) %>%
+  mutate(true.eta = obs$eta)
+p.eta <- ggplot(data = data.eta) +
+  geom_point(aes(x = eta.sim, y = true.eta), color = palette.basis[1]) + 
+  labs(x="Estimated eta", y="True value for eta", title = "Eta")
+p.eta
+
+
+# configuration 2.2 --> LC model displaying identifiability issues:
+p.LCC.3.2 <- (p.alpha | p.beta | p.kappa)/(p.phi | p.gamma | p.eta) +
+  plot_layout(guides = "collect") &
+  plot_annotation(title = "Estimated random effects for LCC-model, with synthetic data")
+p.LCC.3.2
+
+ggsave('effects-LCC-synthetic-3-2.png',
+       plot = p.LCC.3.2,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
+       height = 5, width = 8,
+       dpi = "retina"
+)
+
+# old plot scheme:
 cat(general.title)
 res$summary.fixed
 res$summary.hyperpar
@@ -223,56 +303,7 @@ gg.eta <- ggplot(data.eta) + geom_point(aes(x = eta.sim, y = true.eta)) +
 (gg.alpha | gg.beta | gg.kappa)/(gg.phi | gg.gamma | gg.eta) + 
   plot_layout(guides = "collect") & theme(legend.position = 'bottom')
 
-# data.alpha = cbind(res$summary.random$alpha, alpha.true = alpha[res$summary.random$alpha$ID])
-# ggplot(data = data.alpha, aes(x = ID)) + 
-#   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-#   geom_point(aes(y = mean, color = "Estimated")) + 
-#   geom_point(aes(y = alpha.true, color = "True value")) + 
-#   scale_color_manual(name = "Method",
-#                      breaks = c("Estimated", "True value"),
-#                      values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) +
-#   ggtitle(paste("Alpha: ", general.title))
-# 
-# data.beta = cbind(res$summary.random$beta, beta.true = beta[res$summary.random$beta$ID])
-# ggplot(data = data.beta) + 
-#   geom_ribbon(aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-#   geom_point(aes(x = ID, y = mean, color = "Estimated")) + 
-#   geom_point(aes(x = ID, y = beta.true, color = "True value")) +
-#   scale_color_manual(name = "Method",
-#                      breaks = c("Estimated", "True value"),
-#                      values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) + 
-#   ggtitle(paste("Beta: ", general.title))
-# 
-# data.kappa = cbind(res$summary.random$kappa, kappa.true = kappa[res$summary.random$kappa$ID])
-# ggplot(data = data.kappa, aes(x = ID)) + 
-#   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-#   geom_point(aes(y = mean, color = "Estimated")) + 
-#   geom_point(aes(y = kappa.true, color = "True value")) + 
-#   scale_color_manual(name = "Method",
-#                      breaks = c("Estimated", "True value"),
-#                      values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) + 
-#   ggtitle(paste("Kappa: ", general.title))
-# 
-# data.gamma = cbind(res$summary.random$gamma, gamma.true = gamma[res$summary.random$gamma$ID - cohort.min + 1])
-# ggplot(data = data.gamma, aes(x = ID)) + 
-#   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-#   geom_point(aes(y = mean, color = "Estimated")) + 
-#   geom_point(aes(y = gamma.true, color = "True value")) + 
-#   scale_color_manual(name = "Method",
-#                      breaks = c("Estimated", "True value"),
-#                      values = c("Estimated" = "lightskyblue", "True value" = "dodgerblue1") ) + 
-#   ggtitle(paste("Gamma: ", general.title))
-# 
-# 
-# # density plot of true eta and predicted eta:
-# data.frame({eta.sim = res$summary.linear.predictor$mean[1:N]}) %>%
-#   mutate(true.eta = obs$eta) %>%
-#   ggplot() + geom_point(aes(x = eta.sim, y = true.eta)) + 
-#   ggtitle(paste("Eta: ", general.title))
-# 
-# data.eta.density = rbind(data.frame(eta = obs$eta, sim = "Simulated"), data.frame(eta = eta.sim, sim = "True value"))
-# ggplot(data = data.eta.density, aes(x = eta, color = sim)) + 
-#   geom_density() + 
-#   ggtitle(paste("Eta density", general.title))
-# 
-# 
+# save workspace image
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-cohort.rw.RData")
+
+

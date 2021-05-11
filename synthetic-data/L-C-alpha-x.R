@@ -11,7 +11,7 @@ library(ggplot2)
 library(patchwork)
 library(tidyverse)
 
-# define palettes:
+# define palette:
 palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
                    '#3290c1',
                    '#5d8060', '#D7B36A', '#826133', '#A85150')
