@@ -120,7 +120,7 @@ runtime.single = system.time({res.single = bru(components = comp.single,
 
 runtime.single.rerun = system.time({res.single = bru_rerun(res.single)})
 
-cat("Runtime for the copy method: ")
+cat("Runtime for the single-beta method: ")
 print(runtime.single)
 cat("\n runtime for rerun: ")
 print(runtime.single.rerun)
