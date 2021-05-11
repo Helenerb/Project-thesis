@@ -2,6 +2,9 @@
 # use same model as in previouys attempts, only add alpha as an effect 
 # of x, as this is more similar to the model used in other papers. 
 
+# load workspace image
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-alpha-x.RData")
+
 library(INLA)
 library(inlabru)
 library(ggplot2)
@@ -9,12 +12,9 @@ library(patchwork)
 library(tidyverse)
 
 # define palettes:
-#palette.basis <- c( '#FD6467', '#5B1A18', '#D67236', '#F1BB7B')
-#palette.light <- c('#FEB0B1', '#982B28', '#E39F76', '#F8DFC0')
-
-palette.basis <- c('#70A4D4', '#ECC64B', '#A85150', '#607A4D', '#026AA1')
-palette.light <- c('#ABC9E6', '#F3DC90', '#C38281', '#86A46F', '#40BBFD')
-
+palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
+                   '#3290c1',
+                   '#5d8060', '#D7B36A', '#826133', '#A85150')
 
 seed = 324
 set.seed(seed)
@@ -45,9 +45,9 @@ tau.epsilon = 1/0.01**2   # config 2.1
 #kappa = cos((1:nt)*pi/8)
 
 #kappa = 2*cos((1:nt)*pi/20)
-kappa = cos((1:nt)*pi/20)  #  config 2.2
+#kappa = cos((1:nt)*pi/20)  #  config 2.2
 #kappa = sin((1:nt)*pi/20)  # 26.02:1117
-#kappa = 0.3*cos((1:nt)*pi/5)  # config 2.1
+kappa = 0.3*cos((1:nt)*pi/5)  # config 2.1
 #kappa = 0.5*cos((1:nt)*pi/3)  # roughly the same sd as the above
 kappa = kappa - mean(kappa)
 
@@ -86,7 +86,7 @@ obs = obs %>%
 #   ----  Start defining the inlabru model components  ----   
 
 #  helper values for constraining of beta:
-A.mat = matrix(1, nrow = 1, ncol = nx)  #  not sure if you did this correctly
+A.mat = matrix(1, nrow = 1, ncol = nx)
 e.vec = 1
 
 #pc.prior <- list(prec = list(prior = "pc.prec", param = c(0.2,0.8)))
@@ -121,6 +121,89 @@ res = bru(components = comp,
                          )) 
 
 #res = bru_rerun(res)
+
+# new plot set-up:
+
+p.Int <- ggplot(data.frame(res$marginals.fixed)) + 
+  geom_area(aes(x = Int.x, y = Int.y, fill = "Estimated"), alpha = 0.4) + 
+  geom_vline(data = res$summary.fixed, aes(xintercept = mean[1], color = "Estimated")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of intercept", y = " ", title = "Intercept")
+
+p.Int
+
+data.alpha = cbind(res$summary.random$alpha, alpha.true = alpha[res$summary.random$alpha$ID])
+p.alpha <- ggplot(data = data.alpha, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+  geom_point(aes(y = alpha.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(title="Alpha", x = "x", y='')
+
+p.alpha
+
+data.beta = cbind(res$summary.random$beta, beta.true = beta[res$summary.random$beta$ID])
+p.beta <- ggplot(data = data.beta, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+  geom_point(aes(y = beta.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(x = "x", y = "beta", title = "Beta")
+
+p.beta
+
+data.kappa = cbind(res$summary.random$kappa, kappa.true = kappa[res$summary.random$kappa$ID])
+p.kappa <- ggplot(data = data.kappa, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+  geom_point(aes(y = kappa.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(x = "t", y = "kappa", title = "Kappa")
+
+p.kappa
+
+p.phi <- ggplot(data.frame(res$marginals.fixed)) + 
+  geom_area(aes(x = phi.x, y = phi.y, fill = "Estimated"), alpha = 0.4) + 
+  geom_vline(data = res$summary.fixed, aes(xintercept = mean[2], color = "Estimated", fill = "Estimated")) + 
+  geom_vline(data = obs, aes(xintercept = phi, color = "True value", fill = "True value")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of phi", y = " ", title = "Phi")
+p.phi
+
+data.eta <- data.frame({eta.sim = res$summary.linear.predictor$mean[1:N]}) %>%
+  mutate(true.eta = obs$eta)
+p.eta <- ggplot(data = data.eta) +
+  geom_point(aes(x = eta.sim, y = true.eta), color = palette.basis[1]) + 
+  labs(x="Estimated eta", y="True value for eta", title = "Eta")
+p.eta
+
+p.alpha.x <- (p.alpha | p.beta | p.kappa)/(p.phi | p.eta) +
+  plot_layout(guides = "collect") & 
+  plot_annotation(title = "Estimated random effects for Lee-Carter model, with synthetic data")
+p.alpha.x
+
+ggsave('effects-LC-synthetic.png',
+       plot = p.alpha.x,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
+
+
+
+# old plot set-up:
 
 cat(general.title)
 res$summary.fixed
@@ -182,6 +265,10 @@ data.eta.density = rbind(data.frame(eta = obs$eta, sim = "Simulated"), data.fram
 ggplot(data = data.eta.density, aes(x = eta, color = sim)) + 
   geom_density() + 
   ggtitle(paste("Eta density", general.title))
+
+# save workspace image 
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-alpha-x.RData")
+
 
 
 

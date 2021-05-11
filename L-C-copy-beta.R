@@ -1,6 +1,9 @@
 #   Basic, reduced Lee-Carter with the copy-method on beta:
 # reduced version of Lee-Carter model
 
+# load workspace:
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-copy-beta.RData")
+
 #   ----  first attempt at inference of Lee-Carter models for mortality 
 #  predictions with inlabru  ----   
 library(INLA)
@@ -10,8 +13,9 @@ library(patchwork)
 library(tidyverse)
 
 # define palettes:
-palette.basis <- c('#70A4D4', '#ECC64B', '#607A4D', '#A85150', '#026AA1')
-palette.light <- c('#ABC9E6', '#F3DC90', '#86A46F', '#C38281', '#40BBFD')
+palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
+                   '#3290c1',
+                   '#5d8060', '#D7B36A', '#826133', '#A85150')
 
 seed = 324
 set.seed(seed)
@@ -138,131 +142,5 @@ gg.kappa <- ggplot(data.kappa) + geom_errorbar(aes(ID, min = X0.025quant, ymax =
 
 gg.beta | gg.kappa
 
-
-# # summary of intercept and phi:
-# res.copy$summary.fixed
-# res.single$summary.fixed
-# 
-# # summary of hyperparameters:
-# res.copy$summary.hyperpar
-# res.single$summary.hyperpar
-# 
-# data.frame(rbind(res.copy$summary.random$beta1, res.copy$summary.random$beta2, res.single$summary.random$beta)) %>% 
-#   mutate(type = rep(c("copy1","copy2","single"), each = 10)) %>%
-#   mutate(beta.true = rep(beta, 3)) %>%
-#   ggplot() + geom_errorbar(aes(ID, min = X0.025quant, ymax =X0.975quant, color =type), position=position_dodge(width=0.5)) +
-#   geom_point(aes(x = ID, y = beta.true))
-#   ggtitle("beta")
-#   
-# data.frame(rbind(res.copy$summary.random$kappa,  res.single$summary.random$kappa)) %>%
-#   mutate(type = rep(c("copy1","single"), each = 10)) %>%
-#   mutate(kappa.true = rep(kappa, 2)) %>%
-#   ggplot() + geom_errorbar(aes(ID, min = X0.025quant, ymax =X0.975quant, color =type), position=position_dodge(width=0.5)) +
-#   geom_point(aes(x = ID, y = kappa.true))
-#   ggtitle("kappa")
-# 
-# data.frame(cbind(copy = res.copy$summary.linear.predictor$mean, single = res.single$summary.linear.predictor$mean)) %>%
-#   ggplot() + geom_point(aes(x = copy, y = single)) + ggtitle("Linear predictor")
-#   
-# 
-# gg.beta.true = ggplot(data = obs, aes(x = x, y = beta)) + geom_point(color = "hotpink") + ggtitle("True beta"); gg.beta.true
-# gg.kappa.true = ggplot(data = obs, aes(x = t, y = kappa)) + geom_line(color = "hotpink") + ggtitle("True kappa")
-# gg.phi.true = ggplot(data = obs, aes(x = t, y = phi)) + geom_line(color = "hotpink") + ggtitle("True phi")
-# gg.epsilon.true = ggplot(data = obs, aes(x = x, y = t, fill = epsilon)) + geom_tile() + ggtitle("True epsilon")
-# ggplot(data = obs, aes(x = epsilon)) + geom_density()
-# 
-# gg.beta1.c = ggplot(data = cbind(res.copy$summary.random$beta1, beta.true = beta[res.copy$summary.random$beta1$ID]), aes(x = ID)) + 
-#   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-#   geom_point(aes(y = mean), color = "lightskyblue") + 
-#   geom_point(aes(y = beta.true), color = "dodgerblue1") + 
-#   ggtitle("beta1 coopy")
-# 
-# gg.beta2.c = ggplot(data = cbind(res.copy$summary.random$beta2, beta.true = beta[res.copy$summary.random$beta2$ID]), aes(x = ID)) + 
-#   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-#   geom_point(aes(y = mean), color = "lightskyblue") + 
-#   geom_point(aes(y = beta.true), color = "dodgerblue1") + 
-#   ggtitle("beta2 copy")
-# 
-# gg.beta.s = ggplot(data = cbind(res.single$summary.random$beta, beta.true = beta[res.single$summary.random$beta$ID]), aes(x = ID)) + 
-#   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-#   geom_point(aes(y = mean), color = "lightskyblue") + 
-#   geom_point(aes(y = beta.true), color = "dodgerblue1") + 
-#   ggtitle("beta single")
-# gg.beta.s
-# 
-# (gg.beta1.c | gg.beta2.c | gg.beta.s)
-# 
-# data.kappa.c = cbind(res.copy$summary.random$kappa, kappa.true = kappa[res.copy$summary.random$kappa$ID])
-# gg.kappa.c = ggplot(data = data.kappa.c, aes(x = ID)) + 
-#   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-#   geom_line(aes(y = mean), color = "lightskyblue") + 
-#   geom_line(aes(y = kappa.true), color = "dodgerblue1") + 
-#   ggtitle("Kappa copy")
-# 
-# data.kappa.s = cbind(res.single$summary.random$kappa, kappa.true = kappa[res.single$summary.random$kappa$ID])
-# gg.kappa.s = ggplot(data = data.kappa.s, aes(x = ID)) + 
-#   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = "lightskyblue1") + 
-#   geom_line(aes(y = mean), color = "lightskyblue") + 
-#   geom_line(aes(y = kappa.true), color = "dodgerblue1") + 
-#   ggtitle("Kappa single")
-# gg.kappa.s
-# 
-# (gg.kappa.c | gg.kappa.s)
-# 
-# 
-# gg.epsilon.true
-# data.epsilon.c = res.copy$summary.random$epsilon
-# data.epsilon.c = cbind(data.epsilon.c, x = apply(data.epsilon.c,1, function(row) row['ID']%/%100 ))
-# data.epsilon.c = cbind(data.epsilon.c, t = apply(data.epsilon.c, 1, function(row) row['ID']%%100))
-# gg.epsilon.c = ggplot(data = data.epsilon.c, aes(x = x, y = t, fill = mean)) + geom_tile() + ggtitle("Simulated epsilon")
-# 
-# data.epsilon.s = res.single$summary.random$epsilon
-# data.epsilon.s = cbind(data.epsilon.s, x = apply(data.epsilon.s,1, function(row) row['ID']%/%100 ))
-# data.epsilon.s = cbind(data.epsilon.s, t = apply(data.epsilon.s, 1, function(row) row['ID']%%100))
-# gg.epsilon.s = ggplot(data = data.epsilon.s, aes(x = x, y = t, fill = mean)) + geom_tile() + ggtitle("Simulated epsilon")
-# gg.epsilon.s
-# 
-# (gg.epsilon.true | gg.epsilon.c | gg.epsilon.s)
-# 
-# # density plots of true and simulated epsilon:
-# data.epsilon.density.c = rbind(data.frame(epsilon = data.epsilon.c$mean, sim = "Simulated"), data.frame(epsilon = obs$epsilon, sim = "True values"))
-# gg.epsilon.density.c = ggplot(data = data.epsilon.density.c, aes(x = epsilon, color = sim)) + 
-#   geom_density() + ggtitle("Model with copied beta")
-# 
-# data.epsilon.density.s = rbind(data.frame(epsilon = data.epsilon.s$mean, sim = "Simulated"), data.frame(epsilon = obs$epsilon, sim = "True values"))
-# gg.epsilon.density.s = ggplot(data = data.epsilon.density.s, aes(x = epsilon, color = sim)) + 
-#   geom_density() + ggtitle("Model with single beta")
-# 
-# (gg.epsilon.density.c | gg.epsilon.density.s)
-# 
-# #  results of hyperparameters:
-# cat("Precision for beta: ")
-# cat("True value: ", tau.iid)
-# cat("Simulated value copy: ", res.copy$summary.hyperpar$mean[1])
-# cat("Simulated value single: ", res.single$summary.hyperpar$mean[1])
-# 
-# cat("Precision for kappa: \n", "\n Simulated value copy: ",
-#     res.copy$summary.hyperpar$mean[2], "\n Simulated value single: ", res.single$summary.hyperpar$mean[2])
-# 
-# cat("Precision for epsilon: \n", "True value: ", tau.epsilon,"\n Simulated value copy: ",
-#     res.copy$summary.hyperpar$mean[3], "\n Simulated value single: ", res.single$summary.hyperpar$mean[3])
-# 
-# # density plot of true eta and predicted eta:
-# eta.sim.c = res.copy$summary.linear.predictor$mean
-# eta.sim.c = eta.sim.c
-# data.eta.density.c = rbind(data.frame(eta = obs$eta, sim = "True values"),
-#                          data.frame(eta = eta.sim.c, sim = "Simulated"))
-# gg.eta.density.c = ggplot(data = data.eta.density.c, aes(x = eta, color = sim)) + 
-#   geom_density() + ggtitle("Model with copied beta")
-# gg.eta.density.c
-# 
-# eta.sim.s = res.single$summary.linear.predictor$mean
-# data.eta.density.s = rbind(data.frame(eta = obs$eta, sim = "True values"),
-#                            data.frame(eta = eta.sim.s, sim = "Simulated"))
-# gg.eta.density.s = ggplot(data = data.eta.density.s, aes(x = eta, color = sim)) + 
-#   geom_density() + ggtitle("Model with single beta")
-# gg.eta.density.s
-# 
-# (gg.eta.density.c | gg.eta.density.s)
-# 
-# cat("Intercept: ", res$summary.fixed$mean[1] - log(at.risk))
+# save workspace image
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-copy-beta.RData")
