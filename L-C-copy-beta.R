@@ -127,20 +127,67 @@ print(runtime.single.rerun)
 
 # new and modern plots B)
 data.beta <- data.frame(rbind(res.copy$summary.random$beta1, res.copy$summary.random$beta2, res.single$summary.random$beta)) %>%
-  mutate(type = rep(c("copy1","copy2","single"), each = 10))
+  mutate(type = rep(c("Copied 1","Copied 2","Single"), each = 10))
 
 gg.beta = ggplot(data.beta) + geom_errorbar(aes(ID, min = X0.025quant, ymax =X0.975quant, color =type), position=position_dodge(width=0.5)) +
-  scale_color_manual(name = "", values = palette.basis) + 
+  scale_color_manual(name = "",
+                     values = c(palette.basis[1], palette.basis[1], palette.basis[2])) + 
   labs(title="Beta", x = "x", y = '')
+gg.beta
 
 data.kappa <- data.frame(rbind(res.copy$summary.random$kappa,  res.single$summary.random$kappa)) %>%
-  mutate(type = rep(c("copy1","single"), each = 10))
+  mutate(type = rep(c("Copied","Single"), each = 10))
 
 gg.kappa <- ggplot(data.kappa) + geom_errorbar(aes(ID, min = X0.025quant, ymax =X0.975quant, color =type), position=position_dodge(width=0.5)) +
   scale_color_manual(name = "", values = palette.basis) + 
   labs(title="Kappa", x = "t", y = '')
 
-gg.beta | gg.kappa
+data.frame(res.single$marginals.fixed) %>%
+  rbind(data.frame(res.copy$marginals.fixed)) %>%
+  mutate(type = rep(c("Single", "Copied"), each = 75))
+
+p.phi <- ggplot(data.frame(res.single$marginals.fixed) %>%
+                  rbind(data.frame(res.copy$marginals.fixed)) %>%
+                  mutate(type = rep(c("Single", "Copied"), each = 75)))  + 
+  geom_area(aes(x = phi.x, y = phi.y, fill = type), alpha = 0.4) + 
+  geom_vline(data = res.single$summary.fixed, aes(xintercept = mean[2], color = "Single", fill = "Single")) + 
+  geom_vline(data = res.copy$summary.fixed, aes(xintercept = mean[2], color = "Copied", fill = "Copied")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of phi", y = " ", title = "Phi")
+p.phi
+
+p.alpha <- ggplot(data.frame(res.single$marginals.fixed) %>%
+                  rbind(data.frame(res.copy$marginals.fixed)) %>%
+                  mutate(type = rep(c("Single", "Copied"), each = 75)))  + 
+  geom_area(aes(x = Intercept.x, y = Intercept.y, fill = type), alpha = 0.4) + 
+  geom_vline(data = res.single$summary.fixed, aes(xintercept = mean[1], color = "Single", fill = "Single")) + 
+  geom_vline(data = res.copy$summary.fixed, aes(xintercept = mean[1], color = "Copied", fill = "Copied")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of alpha", y = " ", title = "Alpha")
+p.alpha
+
+data.eta <- data.frame(eta.sim.s = res.single$summary.linear.predictor$mean[1:N]) %>%
+  mutate(true.eta = obs$eta) %>%
+  mutate(eta.sim.c = res.copy$summary.linear.predictor$mean[1:N])
+p.eta <- ggplot(data = data.eta) +
+  geom_point(aes(x = eta.sim.s, y = eta.sim.c), color = palette.basis[1]) + 
+  labs(x="Estimated eta with single beta", y="Estimated eta with copied beta", title = "Eta")
+p.eta
+
+p.copy.beta <- (p.alpha | gg.beta | gg.kappa)/(p.phi | p.eta) +
+  plot_layout(guides = "collect") & 
+  plot_annotation(title = "Estimated random effects using the copied and the single beta implementation")
+p.copy.beta
+
+ggsave('copy-beta.png',
+       plot = p.copy.beta,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
 
 # save workspace image
 save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-copy-beta.RData")
