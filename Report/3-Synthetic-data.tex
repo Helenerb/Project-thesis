@@ -118,33 +118,32 @@ Figure \ref{fig:unidentifiabilityKappa} displays the results from running \inlab
     \end{aligned}
 \end{equation}
 for $x\in[1,10]$ and $t\in[1,10]$. The code used to produce these results can be found at the \texttt{GitHub} repository under \texttt{synthetic-data/L-C-alpha-x.R}. Here we clearly see errors in the approximations of $\kappav$ and $\phi\cdot t$ while the approximations of $\etav$ (and $\betav$ and $\alphav$) are close to the true values. We observe that \inlabru produces incorrect models for $\kappa_t$ and $\phi$ when the underlying model for $\kappa_t$ show too clear drift tendencies. This indicates that \inlabru places all drift along the period axis in the linear term $\phi$. We can accept this "misplacement", since we have explicitly defined out model as the sum of a random walk without drift and and some linear effect. Even though the realization of a drift-less random walk could easily display drift-like tendencies, we accept the assumption of \inlabru that all drift along the $t$ axis originates from the linear effect $\phi \cdot t$, since we still get good results for the predictor $\eta_{x,t}$ and the remaining random effects.
-
 \newline
 \subsection{Inference with \inlabru on the LCC-model. }
-The next step in our preliminary analysis is to test \inlabru on the LCC-model, including a cohort effect, as defined in \ref{eq:LCC-model}. The cohort effect is included in the \texttt{R} script in the same manner as the other effects. As in the previous phase, \inlabru was tested on several different realizations of the true model. All code used in this phase can be found at \url{https://github.com/Helenerb/Project-thesis/tree/main/Lee-Carter-cohort-effect}.
+The next step in our preliminary analysis is to test \inlabru on the LCC-model, as defined in \ref{eq:LCC-model}. The cohort effect is included in the \texttt{R} script in the same manner as the other effects. As in the previous phase, \inlabru was tested on several different realizations of the true model. All code used in this phase can be found at \url{https://github.com/Helenerb/Project-thesis/synthetic-data} in the scripts \texttt{L-C-cohort-rw.R} and \texttt{L-C-cohort-v2.R}.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.85\linewidth]{Figures/Results/3.1.png}
+    \includegraphics[width=0.85\linewidth]{synthetic-data/Figures/effects-LCC-synthetic-3-1.png}
     \caption{Results from running \inlabru with the configuration of random effects given in Expression \ref{eq:conf31}}
     \label{fig:conf31}
 \end{figure}
 Figure \ref{fig:conf31} displays the results from running \inlabru with the following configuration of random effects:
 \begin{equation}
     \begin{aligned}
-        &\alpha_x = \cos(\frac{x-3}{8}\pi)\\
-        &\beta_x = \Normal(0,0.1^2)\\
+        &\alpha_x = \cos(\frac{x-3}{6}\pi)\\
+        &\beta_x = \Normal(0,0.05^2)\\
         &\phi = -0.5\\
         &\kappa_t = \frac{1}{2}\cos(\frac{t\cdot \pi}{3})\\
-        &\gammax = -\frac{1}{2}\left( 0.1(t-x) + \cos(\frac{t-x-2}{4})\right)\\
+        &\gammax = -\frac{1}{2}\left( 0.1k + \cos(\frac{k-2}{4})\right)\\
         &\tau_{\eta} = 1/0.01^2.
     \end{aligned}
     \label{eq:conf31}
 \end{equation}
-for $x\in[1,20]$ and $t \in [1,20]$. 
+for $x\in[1,20]$, $t \in [1,20]$ and $k \in [1,39]$. 
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.85\linewidth]{Figures/Results/3.2.png}
+    \includegraphics[width=0.85\linewidth]{synthetic-data/Figures/effects-LCC-synthetic-3-2.png}
     \caption{Results from running \inlabru with the configuration of random effects given in Expression \ref{eq:conf32}}
     \label{fig:conf32}
 \end{figure}
@@ -154,17 +153,17 @@ Figure \ref{fig:conf32} displays the results from running \inlabru with the foll
         &\alpha_x = \cos(\frac{x-3}{6}\pi) + \epsilon_{\alpha}, \quad \epsilon_{\alpha} \sim \Normal(0,0.05^2)\\
         &\beta_x = \Normal(0,0.1^2)\\
         &\phi = -0.5\\
-        &\kappa_t = RW(0,0.1^2)\\
-        &\gammax = \frac{1}{2}\left( 0.2(t-x) + \sin(t-x)\right)\\
+        &\kappa_t = RW1(0,0.1^2)\\
+        &\gammax = \frac{1}{2}\left( 0.2k + \sin(k)\right)\\
         &\tau_{\eta} = 1/0.01^2.
     \end{aligned}
     \label{eq:conf32}
 \end{equation}
-for $x\in[1,10]$ and $t \in [1,10]$. 
+for $x\in[1,10]$, $t \in [1,10]$ and $k \in [1,19]$. 
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.85\linewidth]{Figures/Results/3.3.png}
+    \includegraphics[width=0.85\linewidth]{synthetic-data/Figures/effects-LCC-synthetic-3-3.png}
     \caption{Results from running \inlabru with the configuration of random effects given in Expression \ref{eq:conf33}}
     \label{fig:conf33}
 \end{figure}
@@ -172,13 +171,13 @@ Figure \ref{fig:conf33} displays the results from running \inlabru with the foll
 \begin{equation}
     \begin{aligned}
         &\alpha_x = \cos(\frac{x}{8}\pi)\\
-        &\beta_x = \Normal(0,0.1^2)\\
+        &\beta_x = \Normal(0,0.05^2)\\
         &\phi = -0.5\\
         &\kappa_t = \frac{1}{2}\cos(\frac{t\pi}{3})\\
-        &\gammax = \frac{1}{2}\left( 0.2(t-x) + \sin((t-x)/3)\right)\\
+        &\gammax = \frac{1}{2}\left( 0.2k + \sin(k/3)\right)\\
         &\tau_{\eta} = 1/0.01^2.
     \end{aligned}
     \label{eq:conf33}
 \end{equation}
-for $x\in[1,10]$ and $t \in [1,10]$. 
-From Figures \ref{fig:conf31}, \ref{fig:conf32} and \ref{fig:conf33} we observe that while the accuracy of the approximations is not as good as for the LC-model, \inlabru is still able to estimate the random effects for the LCC-model. The predictor $\etav$ is estimated well for all configurations. We do still observe some identifiability issues between $\kappav$, $\phi /cdot t$ (and to some degree $\alphav$ and $\betav$ as well), as can be seen in Figure \ref{fig:conf32}. However, when we test many different configurations, the results displayed in Figure \ref{fig:conf32} we some of the results with the worst accuracy (excluding the types of configurations discussed in Sectoion \ref{sec:IdentifiabilityKappa}.) Considering this, we can still say that these results indicate that \inlabru is a suitable tool to perform Bayesian inference on LCC-models. 
+for $x\in[1,10]$, $t \in [1,10]$ and $k \in [1,39]$. 
+From Figures \ref{fig:conf31}, \ref{fig:conf32} and \ref{fig:conf33} we observe that while the accuracy of the approximations is not as good as for the LC-model, \inlabru is still able to estimate the random effects for the LCC-model. The predictor $\etav$ is estimated well for all configurations. We do still observe some identifiability issues between $\kappav$, $\phi \cdot t$ (and to some degree $\alphav$ and $\betav$ as well), as can be seen in Figure \ref{fig:conf32}. However, when we test many different configurations, most results were not worse than the results displayed in Figure \ref{fig:conf32} (excluding the types of configurations discussed in Section \ref{sec:IdentifiabilityKappa}), and many results were accurate.  Considering this, we can still say that these results indicate that \inlabru is a suitable tool to perform Bayesian inference on LCC-models. 
