@@ -73,10 +73,11 @@ In the implementation of the LC-model (\ref{eq:LC-model}) in \texttt{R}, the mul
 \begin{equation}
     \beta_x\cdot\phi \cdot t + \beta_x\kappa_t,
 \end{equation}
-so that the $\beta_x$ effect exists in two terms. \inla (and then also \inlabru) offers two ways to handle this. The first option is to use the same component for $\beta_x$ in both terms. The second option is to define two different components for $\beta_x$, and to use the \texttt{copy}-feature in \inla to make one component a copy of the other, plus some noise. [CITE: extensions to INLA!] We investigate whether both approaches can be used to fit our model, and if so, which one performs the best. 
+so that the $\beta_x$ effect exists in two terms. \inla (and then also \inlabru) offers two ways to handle this. The first option is to use the same component for $\beta_x$ in both terms. The second option is to define two different components for $\beta_x$, and to use the \texttt{copy}-feature in \inla to make one component a copy of the other, plus some noise \cite{MARTINS201368}. We investigate whether both approaches can be used to fit our model, and if so, which one performs the best. The code used to produce these results can be found at the \texttt{GitHub} repository under \texttt{synthetic-data/L-C-copy-beta.R}. 
+
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.85\linewidth]{Figures/Results/Copy-beta.png}
+    \includegraphics[width=0.85\linewidth]{synthetic-data/Figures/copy-beta.png}
     \caption{Comparison of the results of the inference with \inlabru for $\kappav$ and $\betav$ with and without the $\texttt{copy}$-feature.}
     \label{fig:copyBetaComparison}
 \end{figure}
@@ -85,17 +86,17 @@ so that the $\beta_x$ effect exists in two terms. \inla (and then also \inlabru)
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
-        \includegraphics[trim=0 5 0 0,clip,width=\textwidth]{Figures/Results/runtime-copy.png}
+        \includegraphics[trim=0 5 0 0,clip,width=\textwidth]{synthetic-data/Figures/runtime-copy.png}
     \end{subfigure}
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
-        \includegraphics[trim=0 0 15 0,clip, width=\textwidth]{Figures/Results/runtime-single.png}
+        \includegraphics[trim=0 0 15 0,clip, width=\textwidth]{synthetic-data/Figures/runtime-single.png}
     \end{subfigure}
     \caption{The run time of running \inlabru inference using the $\texttt{copy}$-feature (right) and without using the $\texttt{copy}$-feature (left).}
     \label{fig:copyBetaRuntimes}
 \end{figure}
 
-The results from the two runs with the different implementations are displayed in Figure \ref{fig:copyBetaComparison} and the corresponding run times are shown in Figure \ref{fig:copyBetaRuntimes}. We do not observe any difference in the accuracy of the results from the two implementations, as both seem to produce equally accurate results. From Figure \ref{fig:copyBetaRuntimes} we observe that the implementation using the $\texttt{copy}$-feature seemed to take slightly more time to run. Even through this difference in run time is not necessarily significant, we still do not want to unnecessarily complicate our implementations, and we decide to not use the \texttt{copy}-feature in the remaining simulations.
+A comparison between the results (estimated random effects and predictor) from the two runs with the different implementations are displayed in Figure \ref{fig:copyBetaComparison} and the corresponding run times are shown in Figure \ref{fig:copyBetaRuntimes}. We do not observe any difference in the accuracy of the results from the two implementations, they seem to produce exaclty the same results. From Figure \ref{fig:copyBetaRuntimes} we observe that the implementation using the $\texttt{copy}$-feature seemed to take slightly more time to run. Even through this difference in run time is not necessarily significant, we still do not want to unnecessarily complicate our implementations, and we decide to not use the \texttt{copy}-feature in the remaining simulations.
 
 \subsection{Identifiability Issues with $\kappa_t$ and $\phi\cdot t$}
 \label{sec:IdentifiabilityKappa}
