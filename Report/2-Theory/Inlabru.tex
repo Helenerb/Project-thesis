@@ -3,8 +3,9 @@
 \textcolor{myDarkGreen}{
 Change the perspective in this chapter. Write about the method of linearizing the predictor and running inla iteratively, to be able to use inla with non-linear LGMs. Then say that this method is implemented in the R-library inlabru. Write a quite thorough explanation of the inlabru method, as it has not been used very widely. 
 }
-[NEED TO ELABORATE MORE IN THIS SECTION?]
-\inlabru is a tool, implemented in the $\texttt{R}$ library $\texttt{inlabru}$, to get around the obstacle that \inla is not able to fit models with non-linear predictors. 
+
+Since this non-linearity is the only part of the Lee-Carter models that is incompatible with the \inla approach for Bayesian inference, it seems feasible to try to find a way around this obstacle. \textcite{BachlLindgren2019} propose a solution to a similar problem occurring in ecological surveys containing spatially correlated data. A main feature of their solution, is the linearization of a non-linear predictor, such as the $\eta_{x,t}$ in the Lee-Carter models, which is used to run \inla iteratively. We investigate if a similar approach is applicable to the Lee-Carter models. The approach proposed by \textcite{BachlLindgren2019} is implemented in the \texttt{R} package \textttt{inlabru}, and we will use this package in our investigation. Information about installation and usage of the \texttt{inlabru} package can be found at \cite{Inlabru}. This implies that we follow the following approach to linearize $\eta_{x,t}$ to obtain Bayesian inference with the \inla method:
+
 Assuming that we have an LGM, with structure as described in \ref{LGM-model-summarized}, but where the likelihood depends on a non-linear predictor $\tilde{\boldsymbol{\eta}}$:
 \begin{equation}
     \textbf{y}\mid\textbf{x},\boldsymbol{\theta} \sim p(\textbf{y}\mid \tilde{\boldsymbol{\eta}}, \boldsymbol{\theta}).

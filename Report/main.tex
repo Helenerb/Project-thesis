@@ -9,7 +9,10 @@
 
 \numberwithin{equation}{section}
 \numberwithin{figure}{section}
-\usepackage[round]{natbib}  % formatting references as Name (Year) and (Name, Year)
+\usepackage{natbib}
+%\usepackage[round]{natbib}  % formatting references as Name (Year) and (Name, Year)
+% use parencite for all citations 
+\renewcommand{\cite}[1]{\parencite{#1}}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{appendix}

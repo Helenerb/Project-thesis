@@ -2,6 +2,7 @@
 \section{Inference on Lee-Carter Model with Inlabru - Preliminary Test with Synthetic Data}
 \textcolor{blue}{[Sara: This section lacks most figures and some reading-through, but is the overall structure, layout and lenght of discussion okay? ]}
 \subsection{Implementation of \inlabru}
+\label{sec:implementationInlabru}
 The \inlabru library is a wrapper around the more commonly used \rinla library. The implementation of Bayesian inference in the \inlabru library is similar to that of the \rinla library, with some syntactic differences. For an extensive introduction to the \rinla library we refer to the book \cite{Rubio2020}. Further references to the \inlabru library can be found at \cite{Inlabru}. Here, we will briefly cover the main parts of code needed to use the \inlabru library to perform Bayesian inference. All code used and discussed in this paper can be found at \url{https://github.com/Helenerb/Project-thesis}. 
 \newline
 \noindent The following parts are needed to implement a LC-type of model in \texttt{R} and run \inlabru with it:

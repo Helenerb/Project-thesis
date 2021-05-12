@@ -12,7 +12,7 @@ Include in this section:
 The Age-Period-Cohort (APC) model is an alternative to the Lee-Carter model, that is also widely used for mortality projections and forecasts \cite{rieblerHeld2010}. The model considers mortality rate as a function of the age group, period (typically calendar year) and cohort (typically birth year) of the relevant population. The model has a similar structure to the Lee-Carter model, assuming that 
 \begin{equation}
     Y_{x,t} \sim \Poisson(E_{x,t}\cdot e^{\eta_{x,t}}).
-    \ref{eq:APClikelihood}
+    \label{eq:APClikelihood}
 \end{equation}
 Again, $Y_{x,t}$ are the observed mortality rates for age group $x$ at period $t$, and $E_{x,t}$ is the number of people at risk for age group $x$ at period $t$. The expression for the predictor $\eta_{x,t}$ differs from the Lee-Carter model, and is modelled as
 \begin{equation}
@@ -32,7 +32,7 @@ Given these constraints, the effects can be interpreted as, we interpret $\mu$ a
 }
 
 \subsection{Bayesian inference on the APC model}
-We consider the APC model in a Bayesian setting, in the similar manner to the Lee-Carter model. Again, we treat the age, period and cohort effects as unknown, with a likelihood model given by Expression \ref{eq:APClikelihood} and with some prior distributions. Inspired by \cite{RieblerThesis2010} \textcolor{myDarkGreen}{Perhaps update this reference, where does Andrea describe both rw1 and rw2?}, we consider two different choices of prior distributions for the random effects. These are a random walk of order one (RW1), the same model that is used for $\alpha_x$, $\kappa_t$ and $\gamma_k$ in the Lee-Carter model, and a random walk of order two (RW2). The random walk of order one is given by
+We consider the APC model in a Bayesian setting, in the similar manner to the Lee-Carter models. Again, we treat the age, period and cohort effects as unknown, with a likelihood model given by Expression \ref{eq:APClikelihood} and with some prior distributions. Inspired by \cite{RieblerThesis2010} \textcolor{myDarkGreen}{Perhaps update this reference, where does Andrea describe both rw1 and rw2?}, we consider two different choices of prior distributions for the random effects. These are a random walk of order one (RW1), the same model that is used for $\alpha_x$, $\kappa_t$ and $\gamma_k$ in the Lee-Carter model, and a random walk of order two (RW2). The random walk of order one is given by
 \begin{equation}
     \rho_x = \rho_{x-1} + \epsilon_x, \quad \epsilon_x \sim \Normal(0,1/\tau_{\rho1}),
 \end{equation}

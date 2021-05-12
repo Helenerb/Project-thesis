@@ -40,6 +40,13 @@ Inkluder figurer:
     \item \textbf{?} Random effects APC1?
 \end{itemize}
 }
+We begin by comparing prediction results for the univariate LC- and LCC-models to prediction resutls for APC1 and APC2 models. \textcolor{myDarkGreen}{Say something of how we are now able to get a "fair" comparison - using similar priors, the same method of inference? Refer to previous papers on the same topic? }
+In order to assess the prediction quality of the different models, we divide the data sets with cancer mortality observations in half, and use the first half (years 1999-2007) to predict the mortality rates in the second half (2008-2016), given the at-risk populations from the German population data. We find the forecasts for years 2008-2016 by using \inlabru to fit the different models to the data sets, as described in Section \ref{sec:implementationInlabr}, and setting the observed deaths to missing (\texttt{NA}) for the years that we want to predict. \inlabru then automatically calculates predictions for the missing values. 
+To assess the prediction we use MSE, as well as a mean DSS statistic (MDSS). The DSS statistic is calculated by:
+\begin{equation}
+    DSS = (\frac{Y_{x,t} - \mu_{x,t}}{\sigma_{x,t}})^2 + 2\cdot \log(\sigma_{x,t}),
+\end{equation}
+where $Y_{x,t}$ is the observed mortality rate for age group $x$ in year $t$, $\mu_{x,t}$ is the mean of the corresponding predicted mortality rate and $\sigma_{x,t}$ is the standard deviation of the prediction. In addition, we calculated the percentage of the observations that fell within the 95\% confidence bounds of the predictions.
 
 \begin{figure}[h!]
     \centering
