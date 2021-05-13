@@ -9,7 +9,7 @@ Include in this section:
     \item Perhaps say something about identifiability issues - how this is widely known and perhaps a disadvantage?
 \end{itemize}
 }
-The Age-Period-Cohort (APC) model is an alternative to the Lee-Carter model, that is also widely used for mortality projections and forecasts \cite{rieblerHeld2010}. The model considers mortality rate as a function of the age group, period (typically calendar year) and cohort (typically birth year) of the relevant population. The model has a similar structure to the Lee-Carter model, assuming that 
+The Age-Period-Cohort (APC) model is an alternative to the Lee-Carter model, that is also widely used for mortality projections and forecasts \parencite{rieblerHeld2010}. The model considers mortality rate as a function of the age group, period (typically calendar year) and cohort (typically birth year) of the relevant population. The model has a similar structure to the Lee-Carter model, assuming that 
 \begin{equation}
     Y_{x,t} \sim \Poisson(E_{x,t}\cdot e^{\eta_{x,t}}).
     \label{eq:APClikelihood}
@@ -19,20 +19,20 @@ Again, $Y_{x,t}$ are the observed mortality rates for age group $x$ at period $t
     \etax = \mu + \rho_x + \phi_t + \psi_k + \epsilon_{x,t}.
     \label{eq:APCmodel}
 \end{equation}
-Here, $\mu$ is an intercept, $\rho_x$ is an age effect, $\phi_t$ is a period effect, $\psi_k$ is a cohort effect and $\epsilon_{x,t}$ is a random term. Note that in the classical formulation of the APC model, described in e.g. \textcite{Clayton1987}, the random term $\epsilon_{x,t}$ is not included. Inspired by \textcite{RieblerThesis2010} and \textcite{Besag1995}, we add this term to model randomness in mortality rates that cannot be explained by either age, period or cohort effects, and also because this makes the model more easily comparable to the LC-model, which has a similar term. 
+Here, $\mu$ is an intercept, $\rho_x$ is an age effect, $\phi_t$ is a period effect, $\psi_k$ is a cohort effect and $\epsilon_{x,t}$ is a random term. Note that in the classical formulation of the APC model, described in e.g. \textcite{Clayton1987}, the random term $\epsilon_{x,t}$ is not included. Inspired by \textcite{RieblerThesis2010} and \textcite{Besag1995}, we add this term to model randomness in mortality rates that cannot be explained by either age, period or cohort effects, and also because this makes the model more easily comparable to the Lee-Carter models, which have a similar term. 
 \newline
-\noindent To ensure identifiability of the intercept $\mu$ it is common practice to impose sum-to-zero constraints on the random effects \cite{RieblerThesis2010}:
+\noindent To ensure identifiability of the intercept $\mu$ it is common practice to impose sum-to-zero constraints on the random effects \parencite{RieblerThesis2010}:
 \begin{equation}
     \sum_{x}\rho_x = 0, \quad \sum_{t}\phi_t = 0, \quad \sum_{k} \psi_k = 0. 
     \label{eq:APCconstraints}
 \end{equation}
-Given these constraints, the effects can be interpreted as, we interpret $\mu$ as an overall mortality level \cite{RieblerThesis2010} and the effects $\rho_x$, $\phi_t$ and $\gamma_k$ as age- period- and cohort specific variations in the mortality rate, relative this overall level. 
-\newpar The APC-model is subject to a well-known identifiability problem, due to the linear structure of the predictor $\eta_{x,t}$ \cite{RieblerThesis2010}. This implies that while we can find well-defined values for $\mu$ and $\eta_{x,t}$, we cannot uniquely distinguish the age, period and cohort effects from one another. 
+We interpret $\mu$ as an overall mortality level \parencite{RieblerThesis2010} and the effects $\rho_x$, $\phi_t$ and $\gamma_k$ as age- period- and cohort specific variations in the mortality rate, relative this overall level. 
+\newpar The APC-model is subject to a well-known identifiability problem, due to the linear structure of the predictor $\eta_{x,t}$ \parencite{RieblerThesis2010}. This implies that while we can find well-defined values for $\mu$ and $\eta_{x,t}$, we cannot uniquely distinguish the age, period and cohort effects from one another. 
 \textcolor{myDarkGreen}{Say something more: Or just end with something like: This means that when we consider results from analyses using the APC model, we only look at the value of the predictior $\eta_{x,t}$, and by that the mortality rate, not the individual effects. 
 }
 
 \subsection{Bayesian inference on the APC model}
-We consider the APC model in a Bayesian setting, in the similar manner to the Lee-Carter models. Again, we treat the age, period and cohort effects as unknown, with a likelihood model given by Expression \ref{eq:APClikelihood} and with some prior distributions. Inspired by \cite{RieblerThesis2010} \textcolor{myDarkGreen}{Perhaps update this reference, where does Andrea describe both rw1 and rw2?}, we consider two different choices of prior distributions for the random effects. These are a random walk of order one (RW1), the same model that is used for $\alpha_x$, $\kappa_t$ and $\gamma_k$ in the Lee-Carter model, and a random walk of order two (RW2). The random walk of order one is given by
+We consider the APC model in a Bayesian setting, in a similar manner to the Lee-Carter models. Again, we treat the age, period and cohort effects as unknown, with a likelihood model given by Expression \ref{eq:APClikelihood} and with some prior distributions. Inspired by \parencite{RieblerThesis2010} \textcolor{myDarkGreen}{Perhaps update this reference, where does Andrea describe both rw1 and rw2?}, we consider two different choices of prior distributions for the random effects. These are a random walk of order one (RW1), the same model that is used for $\alpha_x$, $\kappa_t$ and $\gamma_k$ in the Lee-Carter models, and a random walk of order two (RW2). The random walk of order one is given by
 \begin{equation}
     \rho_x = \rho_{x-1} + \epsilon_x, \quad \epsilon_x \sim \Normal(0,1/\tau_{\rho1}),
 \end{equation}
@@ -48,19 +48,10 @@ Following e.g. \textcite{Besag1995} we assign an iid gaussian prior to the effec
 \end{equation}
 As in the Lee-Carter model, we assign PC priors to the hyperparameters $\tau_{\rho 1}, \tau_{\rho 2}, \tau_{\phi 1}, \tau_{\phi 2}, \tau_{\psi 1}, \tau_{\psi 2}, \tau_\epsilon$. 
 
-
-\subsection{Indexing of age $x$, period $t$ and cohort $k$}
-To identify the different age groups, periods and cohorts that is considered by the models, we apply the following indexing scheme:
-\begin{itemize}
-    \item The age groups included in the population in question are indexed by $x = 1,\ldots,X$ such that age group $x=1$ correspond to the youngest age and age group $x=X$ corresponds to the oldest age.
-    \item The periods for which we consider the population in question are indexed by $t=1,\ldots,T$, where period $t=0$ corresponds to the first period and period $t = T$ refers to the most recent period. 
-    \item Since the cohort (birth year) is uniquely defined by the age group and the period, we define the cohort index $k$ using these. Following the approach in \cite{rieblerHeld2010}, which was initially proposed by \cite{Heuer1997}, we define the cohort indices by $k = M(X - x) + t$, $K = M(X - 1) + T$. Here $M$ is the difference in length of the age and period intervals, the age intervals are $M$ times wider than the period intervals. For age and period intervals of equal length, the cohort indices become $k = X - x + t$, $K = X - 1 + T.$
-\end{itemize}
-
 % \textcolor{myDarkGreen}{Old text: }
 % The model uses three effects to analyze population data; age effects, period effects, which is typically related to the calendar year of an observation and cohort effects, which are usually equivalent to the birth-year of the observed subjects. It has been shown that these three effects combined are able to capture large parts of the underlying causes of age- and time-specific causes of mortality in a population. 
 
-% We use the formualtion of the APC model that is described in \citet{rieblerHeld2010}. 
+% We use the formualtion of the APC model that is described in \textcite{rieblerHeld2010}. 
 % They assume that $n_{x,t}$ is the number of persons at risk in age group $x$, $x = 1,\ldots,X$ during period $t$, $t = 1,\ldots,T$, that $y_{x,t}$ is the number of cases in age group $x$ at during period $t$. They further assume that 
 % \begin{equation}
 %     y_{x,t} \sim \Poisson(n_{x,t}\cdot \lambda_{x,t})
