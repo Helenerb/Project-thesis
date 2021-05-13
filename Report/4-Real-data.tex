@@ -48,6 +48,8 @@ TO assess the performance of the various predictions, we consider both the accur
 \end{equation}
 Here $Y_{x,t}$ is the observed mortality rate for age group $x$ in year $t$, $\mu_{x,t}$ is the mean of the corresponding predicted mortality rate and $\sigma_{x,t}$ is the standard deviation of the prediction \cite{Gneiting2007}. A lower DSS score indicate a better prediction. Predictions close to the observed value gives a lower score, as does a lower standard deviation (narrower prediction intervals), as long as the distance between the observed and predicted value, $\mid Y_{x,t} - \mu_{x,t} \mid$, is less than one standard deviation $\sigma$ (see \textcite{Keilman2020} for details). Following e.g. \textcite{RieblerHeldRue2012}, we use the DSS as the main scoring rule for comparison of the different prediction methods. Since the DSS is calculated for each prediction of mortality rate for age $x$ and year $t$, we take the average over all ages and periods, and use this measure, denoted MDSS, in our comparisons. In addition, to get a better impression of the qualities of the predictions, we calculate the mean squared error (MSE) and the percentage of the observations that fell within the 95\% confidence bounds of the predictions.
 
+For younger ages, below ca. 25 years old, the mortality rates for both lung- and stomach cancer are very low, and almost at zero. All methods gives a prediction very close to zero with a very narrow prediction interval for these ages, and we are more interested in evaluating the prediction methods for mortality rates significantly greater than zero. Therefore, we omit the prediction values for $x < 5$, corresponding to ages less than 25, when calculating the score statistics. We then get a better impression of the quality of the prediction of non-zero mortality rates. 
+
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{.45\linewidth}
@@ -130,6 +132,8 @@ Hvilke modeller tester du? Her bør du ha snakket om tidligere hvilke modeller s
 \newline \newline
 Fortell hva slags priors du har brukt, og fortell om hvordan du implementerer multivariate modeller i inlabru. Ha kanskje med en kodesnutt for å vise syntaksen. 
 }
+
+\textcolor{myDarkGreen}{Thought: For the multivariate version where all effects are kept common, you should also have a common intercept! If not it might be very different to adjust one random effect to two different overall mortality rates?}
 
 \subsubsection{Lung cancer data}
 \textcolor{myDarkGreen}{
