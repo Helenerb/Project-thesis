@@ -48,14 +48,19 @@ Following previous literature, such as \textcite{CZADO2005260} and \textcite{Wis
 where $\tau_{\alpha}$ and $\tau_{\gamma}$ are the precisons of the random terms $\epsilon_x$ and $\epsilon_k$, respectively, of the two random walks. 
 Also following \textcite{CZADO2005260} and \textcite{Wisniowski2015} we assign a gaussian iid prior to $\beta_x$, using previous knowledge that this often takes a less smooth shape than the remaining effects \parencite{CZADO2005260}:
 \begin{equation}
-    \beta_x &\sim \Normal(0, 1/\tau_{\beta}).
+    \beta_x \sim \Normal(0, 1/\tau_{\beta}).
 \end{equation}
 Since $\epsilon_{x,t}$ is included to model randomness in the output, it is natural to choose a gaussian iid prior for this effect as well:
 \begin{equation}
     \epsilon_{x,t} &\sim \Normal(0, 1/\tau_{\epsilon}).
 \end{equation}
 In the two expressions above, $\tau_\beta$ and $\tau_\epsilon$ are the precisions in the respective normal distributions.  
-For the hyperparameters $\tau_\kappa, \tau_\alpha, \tau_\gamma, \tau_\beta, \tau_\epsilon$ we assign a type of prior called Penalized complexity (PC) priors, which was proposed by \textcite{SimpsonRueRiebler2017} to by well-suited for these types of models \parencite{Rubio2020}. \textcolor{myDarkGreen}{Note: this is a bit inaccurate (it is only well-suited to the random walks), you should elaborate. }
+For the hyperparameters $\tau_\kappa, \tau_\alpha, \tau_\gamma, \tau_\beta, \tau_\epsilon$ we assign a type of prior called Penalized complexity (PC) priors, which was proposed by \textcite{SimpsonRueRiebler2017} to by well-suited for these types of models \parencite{Rubio2020}. The PC priors penalize deviation from a base model, and by that rewarding less complex models. For the precisions $\tau$, the PC-priors are defined by the statement \begin{equation}
+    \mathbb{P}(\sigma > \sigma_0) = \alpha,
+\end{equation}
+where $\sigma = 1/\sqrt{\tau}$ is the standard deviation, and $\sigma_0$ and $\alpha$ are parameters that we may decide. 
+
+\textcolor{myDarkGreen}{Note: this is a bit inaccurate (it is only well-suited to the random walks), you should elaborate. }
 
 \subsubsection{Reformulation of the Lee-Carter model}
 \textcolor{myDarkGreen}{Not quite sure where I should include the following seciton}
