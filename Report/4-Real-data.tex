@@ -11,6 +11,7 @@ Write about choice of cutoff-age - when the mortality rate is very low.
 }
 
 \subsection{German cancer data}
+\label{sec:GermanCancerData}
 \textcolor{myDarkGreen}{
 Presenter datasettene. Si noe om hvor de kommer fra, hvordan de opprinnelig er aggregert og hvordan du har aggregert dem. Plott dataen aggregert over cohort, alder og period. Fortell hvordan du indekserer alder, cohort og period og si at denne indekseringen vil benyttes for alle modellene. Legg vekt på at kohort-indeksen skiller seg fra synthetic-data stadiet siden du har forskjellige intervaller. Referer til Andrea sin metode å løse det på. 
 }
@@ -147,6 +148,29 @@ Fortell hva slags priors du har brukt, og fortell om hvordan du implementerer mu
 }
 
 \textcolor{myDarkGreen}{Thought: For the multivariate version where all effects are kept common, you should also have a common intercept! If not it might be very different to adjust one random effect to two different overall mortality rates?}
+
+From the plots of the cancer mortality data in Section \ref{sec:GermanCancerData}, we observe a significant difference in male and female mortality rates, for both cancer types. The investigation of multivariate models with sex as a covariate, is then a natural next step in our analysis. We fit different multivariate models, as outlined in Section \ref{sec:multivariateAPC}, and compare the results. In other words, we now fit multivariate versions of Lee-Carter and APC models to the observed male and female cancer deaths, and use the male and female populations as the at-risk values. To avoid having to compare too many different models, we test only the Lee-Carter and APC models that displayed the best MDSS in the univariate case, namely the LCC-model and the APC2-model (for both lung and stomach cancer). It is not clear from the plots of the data which, if any, of the effects that should be kept common for male and female populations. Therefore, we find predictions using models with all combinations of common and separate age, period and cohort effects, and compare the results. We test the following versions of the LCC-model:
+\begin{itemize}
+    \item All common: $\eta_{x,t,s} = \mu_s + \alpha_x + \beta_x(\phi\cdot t + \kappa_t) + \gamma_k + \epsilon_{x,t,s}$
+    \item Common age, period: $\eta_{x,t,s} = \mu_s + \alpha_x + \beta_x(\phi\cdot t + \kappa_t) + \gamma_{k,s} + \epsilon_{x,t,s}$
+    \item Common age, cohort: $\eta_{x,t,s} = \mu_s + \alpha_x + \beta_x(\phi_s\cdot t + \kappa_{t,s}) + \gamma_{k} + \epsilon_{x,t,s}$
+    \item Common period, cohort: $\eta_{x,t,s} = \mu_s + \alpha_{x,s} + \beta_{x,s}(\phi\cdot t + \kappa_t) + \gamma_{k} + \epsilon_{x,t,s}$
+    \item Common age: $\eta_{x,t,s} = \mu_s + \alpha_x + \beta_x(\phi_s\cdot t + \kappa_{t,s}) + \gamma_{k,s} + \epsilon_{x,t,s}$
+    \item Common period: $\eta_{x,t,s} = \mu_s + \alpha_{x,s} + \beta_{x,s}(\phi\cdot t + \kappa_{t}) + \gamma_{k,s} + \epsilon_{x,t,s}$
+    \item Common cohort: $\eta_{x,t,s} = \mu_s + \alpha_{x,s} + \beta_{x,s}(\phi_s\cdot t + \kappa_{t,s}) + \gamma_{k} + \epsilon_{x,t,s}$
+    \item No common: $\eta_{x,t,s} = \mu_s + \alpha_{x,s} + \beta_{x,s}(\phi_s\cdot t + \kappa_{t,s}) + \gamma_{k,s} + \epsilon_{x,t,s}$
+\end{itemize}
+Note that the "No common" version of the model is equivalent to fitting two separate univariate LCC models to the male and female parts of the data. Note also that we always keep $\alpha_x$ and $\beta_x$ either common or separate, we could have also included all versions of the model where one is kept common and the other is separate. We do not do this, simply to reduce the number of models we need to compare, and because we do not expect it to have a lot of impact on the result. \textcolor{myDarkGreen}{Do you have enough reason to say this? }
+For the APC2-model, we test the following multivariate versions:
+\begin{itemize}
+    \item APC:
+    \item APc:
+    \item ApC:
+    \item aPC: 
+    \item aPc:
+    \item apC:
+    \item apc:
+\end{itemize}
 
 \subsubsection{Lung cancer data}
 \textcolor{myDarkGreen}{
