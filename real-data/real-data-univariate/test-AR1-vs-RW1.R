@@ -100,6 +100,15 @@ comp.rw1 = ~ -1 +
   gamma(k, model = "rw1", values =  unique(lung.cancer$k), constr = TRUE, hyper = pc.prior, scale.model = TRUE) +
   epsilon(xt, model = "iid", hyper = pc.prior)
 
+comp.rw1.iid = ~ -1 + 
+  Int(1) + 
+  alpha(x, model = "iid", values = unique(lung.cancer$x), constr = TRUE, hyper = pc.prior) + 
+  phi(t, model = "linear", prec.linear = 1) +
+  beta(x.1, model = "iid", extraconstr = list(A = A.mat, e = e.vec), hyper = pc.prior) + 
+  kappa(t.1, model = "rw1", values = unique(lung.cancer$t), constr = TRUE, hyper = pc.prior, scale.model = TRUE) +
+  gamma(k, model = "rw1", values =  unique(lung.cancer$k), constr = TRUE, hyper = pc.prior, scale.model = TRUE) +
+  epsilon(xt, model = "iid", hyper = pc.prior)
+
 form.lc = total ~ -1 + Int + alpha + beta*phi + beta*kappa +  gamma + epsilon
 
 likelihood.lc.l = like(formula = form.lc, family = "poisson", data = lung.cancer.until2007, E = lung.cancer.until2007$total.t)
@@ -147,6 +156,26 @@ res.lc.s.rw1 = bru(components = comp.rw1,
                                   bru_max_iter = 50
                    ))
 
+res.lc.l.rw1.iid = bru(components = comp.rw1.iid,
+                   likelihood.lc.l, 
+                   options = list(verbose = F,
+                                  bru_verbose = 1, 
+                                  num.threads = "1:1",
+                                  control.compute = c.c,
+                                  control.predictor = list(link = 1),
+                                  bru_max_iter = 50
+                   )) 
+
+res.lc.s.rw1.iid = bru(components = comp.rw1.iid,
+                   likelihood.lc.s, 
+                   options = list(verbose = F,
+                                  bru_verbose = 1, 
+                                  num.threads = "1:1",
+                                  control.compute = c.c,
+                                  control.predictor = list(link = 1),
+                                  bru_max_iter = 50
+                   ))
+
 palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
                    '#3290c1',
                    '#5d8060', '#D7B36A', '#826133', '#A85150')
@@ -167,8 +196,12 @@ data.lc.s.rw1 <- res.lc.s.rw1$summary.fitted.values %>%
   slice(1:324) %>%
   bind_cols(stomach.cancer %>% select(- c("x.1", "t.1", "xt")))
 
-data.pred.l <- rbind(data.lc.l.ar1, data.lc.l.rw1) %>%
-  mutate("method" = rep(c("AR1", "RW1"), each = 324)) %>%
+data.lc.l.rw1.iid <- res.lc.l.rw1.iid$summary.fitted.values %>%
+  slice(1:324) %>%
+  bind_cols(lung.cancer %>% select(- c("x.1", "t.1", "xt")))
+
+data.pred.l <- rbind(data.lc.l.ar1, data.lc.l.rw1, data.lc.l.rw1.iid) %>%
+  mutate("method" = rep(c("AR1", "RW1", "iid"), each = 324)) %>%
   mutate(SE = (mean - `mortality rate`)^2) %>%
   mutate(DSS = ((`mortality rate` - mean)/sd)^2 + 2*log(sd)) %>%
   mutate(contained = as.integer((`mortality rate` >= `0.025quant` & `mortality rate` <= `0.975quant`)))
