@@ -1,20 +1,11 @@
-\newpage
-\section{The Age-Period-Cohort model}
+\subsection{The Age-Period-Cohort model}
 \label{sec:APC-model}
-\textcolor{myDarkGreen}{
-Include in this section:
-\begin{itemize}
-    \item Explain how the APC model is an alternative to the LC-models.
-    \item Elaborate a bit further on performance of APC earlier. 
-    \item Perhaps say something about identifiability issues - how this is widely known and perhaps a disadvantage?
-\end{itemize}
-}
 The Age-Period-Cohort (APC) model is an alternative to the Lee-Carter model, that is also widely used for mortality projections and forecasts \parencite{rieblerHeld2010}. The model considers mortality rate as a function of the age group, period (typically calendar year) and cohort (typically birth year) of the relevant population. The model has a similar structure to the Lee-Carter model, assuming that 
 \begin{equation}
-    Y_{x,t} \sim \Poisson(E_{x,t}\cdot e^{\eta_{x,t}}).
+    Y_{x,t} \sim \Poisson(E_{x,t}\cdot e^{\eta_{x,t}})
     \label{eq:APClikelihood}
 \end{equation}
-Again, $Y_{x,t}$ are the observed mortality rates for age group $x$ at period $t$, and $E_{x,t}$ is the number of people at risk for age group $x$ at period $t$. The expression for the predictor $\eta_{x,t}$ differs from the Lee-Carter model, and is modelled as
+\parencite{RieblerThesis2010}. Again, $Y_{x,t}$ are the observed mortality rates for age group $x$ at period $t$, and $E_{x,t}$ is the number of people at risk for age group $x$ at period $t$. The expression for the predictor $\eta_{x,t}$ differs from the Lee-Carter model, and is modelled as
 \begin{equation}
     \etax = \mu + \rho_x + \phi_t + \psi_k + \epsilon_{x,t}.
     \label{eq:APCmodel}
@@ -26,11 +17,11 @@ Here, $\mu$ is an intercept, $\rho_x$ is an age effect, $\phi_t$ is a period eff
     \sum_{x}\rho_x = 0, \quad \sum_{t}\phi_t = 0, \quad \sum_{k} \psi_k = 0. 
     \label{eq:APCconstraints}
 \end{equation}
-We interpret $\mu$ as an overall mortality level \parencite{RieblerThesis2010} and the effects $\rho_x$, $\phi_t$ and $\gamma_k$ as age- period- and cohort specific variations in the mortality rate, relative this overall level. 
-\newpar The APC-model is subject to a well-known identifiability problem, due to the linear structure of the predictor $\eta_{x,t}$ \parencite{RieblerThesis2010}. This implies that while we can find well-defined values for $\mu$ and $\eta_{x,t}$, we cannot uniquely distinguish the age, period and cohort effects from one another. 
-\textcolor{myDarkGreen}{Say something more: Or just end with something like: This means that when we consider results from analyses using the APC model, we only look at the value of the predictior $\eta_{x,t}$, and by that the mortality rate, not the individual effects. 
-}
-
+$\mu$ may be interpreted as an overall mortality level \parencite{RieblerThesis2010} and the effects $\rho_x$, $\phi_t$ and $\gamma_k$ may be interpreted as age- period- and cohort specific variations in the mortality rate, relative this overall level. 
+\newpar The APC-model is subject to a well-known identifiability problem, due to the linear structure of the predictor $\eta_{x,t}$ \parencite{RieblerThesis2010}. This implies that while we can find well-defined values for $\mu$ and $\eta_{x,t}$, given the constraints in Expression \ref{eq:APCconstraints}, we cannot uniquely distinguish the age, period and cohort effects from one another. 
+\textcolor{myDarkGreen}{Say something more: Or just end with something like: This means that when we consider results from analyses using the APC model, we only look at the value of the predictior $\eta_{x,t}$, and by that the mortality rate, not the individual effects.} This problem has been widely discussed in previous literature, so we do not explore it further here and we refer the interested reader to e.g. \textcite{RieblerThesis2010}. 
+\newpar As it is reasonable to believe that the effects $\rho_x$, $\phi_t$ and $\psi_k$ are quite smooth (one expects the mortality rates for age-groups, periods and cohorts that are close to each other to be similar), this is usually reflected in the model choices of $\rho_x$, $\phi_t$ and $\psi_k$. \textcite{RieblerThesis2010} discuss using both random walks of order one (RW1), which penalize deviation from a constant, and random walks of order two (RW2), which penalize deviation from a linear trend, to model the time effects. 
+\textcolor{myDarkGreen}{Should I say something more about how RW2 and RW1 "solve" the identifiability problem differently? }
 
 
 % \textcolor{myDarkGreen}{Old text: }
