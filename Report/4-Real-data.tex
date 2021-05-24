@@ -5,26 +5,22 @@
     \item Prediksjon med APC og LC modeller
     \item Først univariate, så multivariate
 \end{itemize}
-\newline \newline
-Fortell om hvilke statistics du bruker; MSE, MDSS og "Contained", og fortell hvorfor du legger mest vekt på MDSS. (Kanksje si at de andre er inkludert for å gi et mer helhetlig inntrykk av prediksjonen). 
-Write about choice of cutoff-age - when the mortality rate is very low. 
 }
-
+In the second part of our investigation, we apply the Lee-Carter methods to real data and use \inlabru to make inference. We compare the results to the application of APC-models on the same data sets, also using \inlabru. Note that in the case of the APC model, inference with \inlabru will yield the same results as inference using only \inla. Since the random effects in the APC model are not uniquely identifible, we compare the two models by their predictive abilities. We test both univariate and multivariate versions of the Lee-Carter and APC models (the latter with sex as a covariate), and we begin with the univariate case. 
 \subsection{German cancer data}
 \label{sec:GermanCancerData}
 \textcolor{myDarkGreen}{
 Presenter datasettene. Si noe om hvor de kommer fra, hvordan de opprinnelig er aggregert og hvordan du har aggregert dem. Plott dataen aggregert over cohort, alder og period. Fortell hvordan du indekserer alder, cohort og period og si at denne indekseringen vil benyttes for alle modellene. Legg vekt på at kohort-indeksen skiller seg fra synthetic-data stadiet siden du har forskjellige intervaller. Referer til Andrea sin metode å løse det på. 
+
+TODO!!!
 }
 
-\subsection{Indexing German cancer data}
-\textcolor{myDarkGreen}{This probably does not need to be a subsection, include it where it fits when you find that out. }
 When formatting the data sets, it is easier to begin the indexing of age groups, period and cohorts at 0 rather than 1, so we update the indexing scheme accordingly:
 \begin{itemize}
     \item The age indices $x$ are now $x = 0,\ldots,X$.
     \item The period indices $t$ are now $t = 0, \ldots, T$.
     \item The cohort indices are now given by $k = 5(X - x) + t$, $K = 5X + T$.
 \end{itemize}
-
 
 \subsection{Prediction in the Univariate Case}
 \textcolor{myDarkGreen}{
@@ -35,26 +31,26 @@ Presenter score statistics. Fortell om valget om å kutte prediksjonene ved x < 
 }
 We begin by comparing prediction results for the univariate LC- and LCC-models (see Equations \ref{eq:LC-rewritten} and \ref{eq:LCC-rewritten}) to prediction results for the APC1- and APC2-models (see Section \ref{sec:BayesianInferenceAPC}).
 \textcolor{myDarkGreen}{Say something of how we are now able to get a "fair" comparison - using similar priors, the same method of inference? Refer to previous papers on the same topic? }
-For the Lee-Carter models, we include an additional version of the LCC-model, where we omit the $\beta_x\cdot \kappa_t$ term, which gives the predictor
+In the comparison of the the Lee-Carter models, we include an additional version of the LCC-model, where we omit the $\beta_x\cdot \kappa_t$ term, which gives the predictor
 \begin{equation}
     \eta_{x,t} = \mu + \alpha_x + \beta_x\cdot \phi \cdot t + \gamma_k + \epsilon_{x,t}.
 \end{equation}
 We refer to this model as the LCC-linear model, since it only has a linear period term $\phi \cdot t$. We include this model in the comparison, since we se from ... \textcolor{myDarkGreen}{You have to write this part} that the term $\kappa_t$ seem to be insignificant. Thus, we investigate if a reduced version of the model performs better. 
 
-In order to assess the prediction quality of the different models, we divide the data sets with cancer mortality observations in half, and use the first half (years 1999-2007) to predict the mortality rates in the second half (2008-2016), given the at-risk populations from the German population data. We find the forecasts for years 2008-2016 by using \inlabru to fit the different models to the data sets, as described in Section \ref{sec:implementationInlabr}, and setting the observed deaths to missing (\texttt{NA}) for the years that we want to predict. \inlabru then automatically calculates predictions for the missing values. 
-TO assess the performance of the various predictions, we consider both the accuracy and the sharpness of the predictions, i.e. how close the mean predicted values are to the true mortality rates and how wide or narrow the prediction intervals are. Predictions with a higher accuracy are preferred to predictions with lower accuracy, and sharp predictions, with a narrow prediction interval, are preferred as long as the predictions are also fairly accurate. A score statistic that take all of this into consideration is the Dawid-Sebastiani Score (DSS), defined by 
+In order to assess the prediction quality of the different models, we divide the data sets with cancer mortality observations in half, and use the first half (years 1999-2007) to predict the mortality rates in the second half (2008-2016), given the at-risk populations from the German population data. We find the forecasts for years 2008-2016 by using \inlabru to fit the different models to the data sets, as described in Section \ref{sec:implementationInlabru}, and setting the observed deaths to missing (\texttt{NA}) for the years that we want to predict. \inlabru then automatically calculates predictions for the missing values. 
+To assess the performance of the various predictions, we consider both the accuracy and the sharpness of the predictions, i.e. how close the mean predicted values are to the true mortality rates and how wide or narrow the prediction intervals are. Predictions with a higher accuracy are preferred to predictions with lower accuracy, and sharp predictions, with a narrow prediction interval, are preferred as long as the predictions are also fairly accurate. A score statistic that take all of this into consideration is the Dawid-Sebastiani Score (DSS), defined by 
 \begin{equation}
     DSS = (\frac{Y_{x,t} - \mu_{x,t}}{\sigma_{x,t}})^2 + 2\cdot \log(\sigma_{x,t}).
 \end{equation}
-Here $Y_{x,t}$ is the observed mortality rate for age group $x$ in year $t$, $\mu_{x,t}$ is the mean of the corresponding predicted mortality rate and $\sigma_{x,t}$ is the standard deviation of the prediction \cite{Gneiting2007}. A lower DSS score indicate a better prediction. Predictions close to the observed value gives a lower score, as does a lower standard deviation (narrower prediction intervals), as long as the distance between the observed and predicted value, $\mid Y_{x,t} - \mu_{x,t} \mid$, is less than one standard deviation $\sigma$ (see \textcite{Keilman2020} for details). Following e.g. \textcite{RieblerHeldRue2012}, we use the DSS as the main scoring rule for comparison of the different prediction methods. Since the DSS is calculated for each prediction of mortality rate for age $x$ and year $t$, we take the average over all ages and periods, and use this measure, denoted MDSS, in our comparisons. In addition, to get a better impression of the qualities of the predictions, we calculate the mean squared error (MSE) and the percentage of the observations that fell within the 95\% confidence bounds of the predictions.
+Here $Y_{x,t}$ is the observed mortality rate for age group $x$ in year $t$, $\mu_{x,t}$ is the mean of the corresponding predicted mortality rate and $\sigma_{x,t}$ is the standard deviation of the prediction \parencite{Gneiting2007}. A lower DSS score indicate a better prediction. Predictions close to the observed value give a lower score, as does a lower standard deviation (narrower prediction intervals), as long as the distance between the observed and predicted value, $\mid Y_{x,t} - \mu_{x,t} \mid$, is less than one standard deviation $\sigma$ (see \textcite{Keilman2020} for details). Following e.g. \textcite{RieblerHeldRue2012}, we use the DSS as the main scoring rule for comparison of the different prediction methods. Since the DSS is calculated for each prediction of mortality rate for age $x$ and year $t$, we take the average over all ages and periods, and use this measure, denoted MDSS, in our comparisons. In addition, to get a better impression of the qualities of the predictions, we calculate the mean squared error (MSE) and the percentage of the observations that fell within the 95\% confidence bounds of the predictions.
 
-For younger ages, below ca. 25 years old, the mortality rates for both lung- and stomach cancer are very low, and almost at zero. All methods gives a prediction very close to zero with a very narrow prediction interval for these ages, and we are more interested in evaluating the prediction methods for mortality rates significantly greater than zero. Therefore, we omit the prediction values for $x < 5$, corresponding to ages less than 25, when calculating the score statistics. We then get a better impression of the quality of the prediction of non-zero mortality rates. 
+\newpar For younger ages, below ca. 25 years old, the mortality rates for both lung- and stomach cancer are very low, and almost at zero. All methods gives a prediction very close to zero with a very narrow prediction interval for these ages, and we are more interested in evaluating the prediction methods for mortality rates that are significantly greater than zero. Therefore, we omit the prediction values for $x < 5$, corresponding to ages less than 25, when calculating the score statistics. We then get a better impression of the quality of the prediction of non-zero mortality rates. 
 
-We set the parameters in the prior distributions to
+\newpar To get sufficiently uninformative prior distributions, we set the parameters in the PC priors to
 \begin{equation*}
     \mathbb{P}(1/\sqrt{\tau} > 1) = 0.05
 \end{equation*}
-for all presicions $\tau$ in our models, so that we get sufficiently uninformative priors. The code used to produce these results can be found in the \texttt{GitHub} repostitory, under \texttt{real-data/real-data-univariate/predict-long-term.R}. 
+for all precisions $\tau$ in our models. The code used to produce these results can be found in the \texttt{GitHub} repostitory, under \texttt{real-data/real-data-univariate/predict-long-term.R}. 
 
 \begin{figure}[h!]
     \centering
@@ -64,7 +60,7 @@ for all presicions $\tau$ in our models, so that we get sufficiently uninformati
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-LCC-by-period-lung.png}
     \end{subfigure}
-    \caption{The Lee-Carter types of models predicting lung cancer}
+    \caption{Prediction results from inference with the Lee-Carter types of models on the lung cancer data set.}
     \label{fig:uv-LCC-lung}
 \end{figure}
 
@@ -76,7 +72,7 @@ for all presicions $\tau$ in our models, so that we get sufficiently uninformati
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-APC-by-period-lung.png}
     \end{subfigure}
-    \caption{The APC types of models predicting lung cancer}
+    \caption{ Prediction results from inference with the APC types of models on the lung cancer data set.}
     \label{fig:uv-APC-lung}
 \end{figure}
 
@@ -88,7 +84,7 @@ for all presicions $\tau$ in our models, so that we get sufficiently uninformati
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-LCC-by-period-stomach.png}
     \end{subfigure}
-    \caption{The Lee-Carter types of models predicting stomach cancer}
+    \caption{Prediction results from inference with the Lee-Carter types of models on the stomach cancer data set.}
     \label{fig:uv-LCC-stomach}
 \end{figure}
 
@@ -100,15 +96,17 @@ for all presicions $\tau$ in our models, so that we get sufficiently uninformati
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-APC-by-period-stomach.png}
     \end{subfigure}
-    \caption{The APC types of models predicting stomach cancer}
+    \caption{Prediction results from inference with the APC types of models on the stomach cancer data set.}
     \label{fig:uv-APC-stomach}
 \end{figure}
 
-Figures \ref{fig:uv-LCC-lung} and \ref{fig:uv-APC-lung} display the prediction results for lung cancer mortality, using the Lee-Carter and the APC methods, respectively. We present the predictions for each predicted year, with age groups along the x-axis (the left-most image in the figures) and for each age group, with all years along the x-axis (right-most image in the figures). For the images where results are displayed by age groups, we only show the results for ages above 30. This is simply because the real and predicted mortality rates are very close to zero for younger ages, so these results are not very interesting. The score statistics for these results are displayed in Table \textcolor{myDarkGreen}{TODO}. Figures \ref{fig:uv-LCC-stomach} and \ref{fig:uv-APC-stomach} and Table \textcolor{myDarkGreen}{TODO} show the same results for predictions of stomach cancer mortality. 
+Figures \ref{fig:uv-LCC-lung} and \ref{fig:uv-APC-lung} display the prediction results for lung cancer mortality, using the Lee-Carter and the APC methods, respectively. We present the predictions for each predicted year, with age groups along the x-axis (the left-most image in the figures) and for each age group, with all years along the x-axis (right-most image in the figures). For the images where results are displayed by age groups, we only show the results for ages above 30. This is simply because the real and predicted mortality rates are very close to zero for younger ages, so these results are not very interesting. The red line marks the division between fitted and predicted mortality rates. The score statistics for these results are displayed in Table \textcolor{myDarkGreen}{TODO}. Figures \ref{fig:uv-LCC-stomach} and \ref{fig:uv-APC-stomach} and Table \textcolor{myDarkGreen}{TODO} show the same results for predictions of stomach cancer mortality. 
 \newpar
-From Figures \ref{fig:uv-LCC-lung} and \ref{fig:uv-LCC-stomach} we observe that, for both lung and stomach cancer, the LCC and LCC-linear models perform significantly better than the LC-model. This difference is especially apparent for the older age groups. The LCC- and the LCC-linear models seem, from the plotted results, to give very similar, and quite good, predictions. These observations are confirmed by the score statistics in Table \textcolor{myDarkGreen}{TODO}. The MDSS for the LC-model is clearly higher than the MDSS for the LCC and the LCC-linear models, which is a clear indication that the LC-model performs worse than the others. \textcolor{myDarkGreen}{The LCC and the LCC-linear models have very similar score statistics. The MDSS for the LCC model is slightly lower than the MDSS for the LCC-linear model, both for lung and stomach cancer, indicating that the former gives better predictions. Since this was our original proposed model, and we do not seem to gain performance in prediction by omitting the non-linear period term $\kappa_t$, we keep this model in our following investigation. Still, we underline that it seems like most of the period-related variability in the mortality rates can be explained by a linear trend. }
+First of all, we observe that Figures \ref{fig:uv-LCC-lung} and \ref{fig:uv-LCC-stomach} confirm the results from Section \ref{sec:SyntheticData} that it is possible to fit Lee-Carter models to mortality data using \inlabru, as all Lee-Carter models seem to fit the observed data well for the years that are not predicted. Furthermore, we observe that for both lung and stomach cancer, the LCC and LCC-linear models perform significantly better than the LC-model. This difference is especially apparent for the older age groups. The LCC- and the LCC-linear models seem, from the plotted results, to give very similar, and quite good, predictions. These observations are confirmed by the score statistics in Table \textcolor{myDarkGreen}{TODO}. The MDSS for the LC-model is clearly higher than the MDSS for the LCC and the LCC-linear models, which is a clear indication that the LC-model performs worse than the others. \textcolor{myDarkGreen}{The LCC and the LCC-linear models have very similar score statistics. The MDSS for the LCC model is slightly lower than the MDSS for the LCC-linear model, both for lung and stomach cancer, indicating that the former gives better predictions. Since this was our original proposed model, and we do not seem to gain performance in prediction by omitting the non-linear period term $\kappa_t$, we keep this model in our following investigation. Still, we underline that it seems like most of the period-related variability in the mortality rates can be explained by a linear trend. }
 
-For the two APC models, APC1 and APC2, it is less clear which model perform the best. Figures \ref{fig:uv-APC-lung} and \ref{fig:uv-APC-stomach} display the results from using the APC models to predict lung and stomach cancer mortality. Firstly, we note that both the APC1 and APC2 models seem to predict the mortality rates well, both for lung and stomach cancer. We observe that for both cancer types, the APC2 model produces predictions with wider prediction intervals than the APC1 model does. We also observe that the prediction intervals from the APC2 model is widening with more recent years (the predictions get less sharp further into the future). This tendency is not as clear for the APC1 model. For lung cancer mortality, we observe from Figure \ref{fig:uv-APC-lung} that the APC2 predictions might be slightly more accurate than the APC1 predictions. We especially see this tendency for older age groups. For stomach cancer however, we are not able to determine which of the models are more accurate just from looking at the plots in Figure \ref{fig:uv-APC-stomach}. \textcolor{myDarkGreen}{TODO: include tables and say something about how RW2 is preferred based on MDSS} 
+For the two APC models, APC1 and APC2, it is less clear which model perform the best. Figures \ref{fig:uv-APC-lung} and \ref{fig:uv-APC-stomach} display the results from using the APC models to predict lung and stomach cancer mortality. Firstly, we note that both the APC1 and APC2 models seem to predict the mortality rates well, both for lung and stomach cancer. We observe that for both cancer types, the APC2 model produces predictions with wider prediction intervals than the APC1 model does. We also observe that the prediction intervals from the APC2 model is widening with more recent years (the predictions get less sharp further into the future). This tendency is not as clear for the APC1 model. For lung cancer mortality, we observe from Figure \ref{fig:uv-APC-lung} that the APC2 predictions might be slightly more accurate than the APC1 predictions. We especially see this tendency for older age groups. For stomach cancer however, we are not able to determine which of the models are more accurate just from looking at the plots in Figure \ref{fig:uv-APC-stomach}. \textcolor{myDarkGreen}{TODO: include tables and say something about how RW2 is preferred based on MDSS
+
+We note that it seems like what age we set as the cut-off when calculating the MDSS influence which of the APC1 and APC2 models get the lowest MDSS. If we omit more ages, e.g. all predictions where $x < 7$, when calculating the MDSS, the APC1 model get a lower score than the APC2 model. We interpret this as an indication that the APC1 model is better suited to model mortality rates for older age groups.  } 
 
 \begin{figure}[h!]
     \centering

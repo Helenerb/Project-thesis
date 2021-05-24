@@ -1,5 +1,6 @@
 \newpage
 \section{Inference on Lee-Carter Model with Inlabru - Preliminary Test with Synthetic Data}
+\label{sec:SyntheticData}
 We investigate whether a linearization of the non-linear predictors $\eta_{x,t}$ in the Lee-Carter models will enable usage of \inla to perform Bayesian inference on these models. We follow the linearization scheme proposed by \textcite{BachlLindgren2019}, and use the \inlabru library in \texttt{R} to perform the linearization and iterative runs of the \inla-method. In the first part of our investigation, we apply the methodology to synthetic data. The advantage of using synthetic data to test this method is that we know the exact model from which the data are sampled, and we are then able to determine whether the model approximated by \inlabru is close to the real (synthetic) model. 
 
 \subsection{Implementation of \inlabru}
