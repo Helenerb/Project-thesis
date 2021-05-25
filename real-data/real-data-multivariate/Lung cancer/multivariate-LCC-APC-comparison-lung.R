@@ -1,5 +1,8 @@
 # comparison of the best LCC and the best APC multivariate models for lung cancer data:
 
+# load work space:
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Lung cancer/Workspaces/ws_multivariate-LCC-APC-comparison.RData")
+
 library(INLA)
 library(inlabru)
 library(ggplot2)
@@ -159,9 +162,9 @@ pred.statistics.cutoff <- data.pred %>%
 
 cat("\n Age <= 5 omitted");cat("\n Lung cancer data: ");pred.statistics.cutoff
 
-# color palette.
-palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#1C84BB', '#A85150', '#DA871F',
-                   '#4C7246', '#D7B36A', '#FB5E4E', '#696B8D', '#76A7A6', '#826133')
+# color palette:
+palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
+                   '#3290c1', '#5d8060', '#D7B36A', '#826133', '#A85150')
 
 gg.pred <- ggplot(data.pred %>%
                     filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")),
@@ -215,12 +218,12 @@ ggsave('multivariate-comparison-by-cohort-lung.png',
 
 # plot along years - for different age groups:
 gg.pred.period <- ggplot(data.pred %>%
-                           filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
                            filter(x > 5),
                          aes(x = year)) + 
   geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = interaction(method, sex)), alpha = 0.5) +
   geom_point(aes(y = mean, color = `method`, group = 1, group = interaction(method, sex)), shape = 19) + 
   geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed", shape = `sex`), size = 2) + 
+  geom_vline(aes(xintercept = "2007"), color = palette.basis[length(palette.basis)]) +
   scale_color_manual(name = "Prediction method",
                      values = palette.basis) +
   scale_fill_manual(name = "Prediction method",
@@ -240,6 +243,9 @@ ggsave('multivariate-comparison-by-period-lung.png',
        height = 5, width = 8, 
        dpi = "retina"
 )
+
+# save workspace image
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Lung cancer/Workspaces/ws_multivariate-LCC-APC-comparison.RData")
 
 
 

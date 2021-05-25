@@ -281,15 +281,7 @@ res.lc.basic.s = bru(components = comp.lc,
                    )) 
 res.lc.basic.s = bru_rerun(res.lc.basic.s)
 
-# color palette.
-palette.basis <- c('#70A4D4', '#ECC64B', '#607A4D', '#1C84BB', '#A85150', '#DA871F',
-                   '#4C7246', '#D7B36A', '#FB5E4E', '#696B8D', '#76A7A6', '#826133')
-
-#with a lighter green:
-palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#1C84BB', '#A85150', '#DA871F',
-                   '#4C7246', '#D7B36A', '#FB5E4E', '#696B8D', '#76A7A6', '#826133')
-
-# try to find a better palette:
+# color palette:
 palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
                    '#3290c1',
                    '#5d8060', '#D7B36A', '#826133', '#A85150')

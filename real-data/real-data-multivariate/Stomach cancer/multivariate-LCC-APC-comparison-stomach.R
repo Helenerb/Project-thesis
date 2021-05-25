@@ -1,6 +1,8 @@
 # comparison between best LCC model - shared period effect - and best APC model 
 # - shared period effect (aPc) - for stomach cancer data
 
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Stomach cancer/Workspaces/ws_multivariate-LCC-APC-comparison-stomach.RData")
+
 library(INLA)
 library(inlabru)
 library(ggplot2)
@@ -167,9 +169,9 @@ cat("\n Age <= 5 omitted");cat("\n Stomach cancer data: ");pred.statistics.cutof
 
 # plot results:
 
-# color palette
-palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#1C84BB', '#A85150', '#DA871F',
-                   '#4C7246', '#D7B36A', '#FB5E4E', '#696B8D', '#76A7A6', '#826133')
+# color palette:
+palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
+                   '#3290c1', '#5d8060', '#D7B36A', '#826133', '#A85150')
 
 gg.pred <- ggplot(data.pred %>%
                     filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")),
@@ -223,12 +225,12 @@ ggsave('multivariate-comparison-by-cohort-stomach.png',
 
 # plot along years - for different age groups:
 gg.pred.period <- ggplot(data.pred %>%
-                           filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>%
                            filter(x > 5),
                          aes(x = year)) + 
   geom_ribbon(aes(min = `0.025quant`, ymax = `0.975quant`, fill = `method`, group = interaction(method, sex)), alpha = 0.5) +
   geom_point(aes(y = mean, color = `method`, group = 1, group = interaction(method, sex)), shape = 19) + 
   geom_point(aes(y = `mortality rate`, color = "Observed", fill = "Observed", shape = `sex`), size = 2) + 
+  geom_vline(aes(xintercept = "2007"), color = palette.basis[length(palette.basis)]) +
   scale_color_manual(name = "Prediction method",
                      values = palette.basis) +
   scale_fill_manual(name = "Prediction method",
@@ -249,4 +251,5 @@ ggsave('multivariate-comparison-by-period-stomach.png',
        dpi = "retina"
 )
 
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Stomach cancer/Workspaces/ws_multivariate-LCC-APC-comparison-stomach.RData")
 
