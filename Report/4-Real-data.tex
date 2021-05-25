@@ -23,12 +23,6 @@ When formatting the data sets, it is easier to begin the indexing of age groups,
 \end{itemize}
 
 \subsection{Prediction in the Univariate Case}
-\textcolor{myDarkGreen}{
-Fortell tydelig hvilke modeller du har sammenlignet. Disse bør du ha definert tydelig fra før - vis til ligninger. Fortell hvilke implementasjons-valg du gjør. Fortell hvilke priors du bruker. Fortell hvor man kan finne koden som produserer disse resultatene (link til script på gitHub). 
-\newline \newline
-Presenter score statistics. Fortell om valget om å kutte prediksjonene ved x < 5 (og fortell hvilken alder det tilsvarer) for å få et riktigere resultat.
-\newline \newline
-}
 We begin by comparing prediction results for the univariate LC- and LCC-models (see Equations \ref{eq:LC-rewritten} and \ref{eq:LCC-rewritten}) to prediction results for the APC1- and APC2-models (see Section \ref{sec:BayesianInferenceAPC}).
 \textcolor{myDarkGreen}{Say something of how we are now able to get a "fair" comparison - using similar priors, the same method of inference? Refer to previous papers on the same topic? }
 In the comparison of the the Lee-Carter models, we include an additional version of the LCC-model, where we omit the $\beta_x\cdot \kappa_t$ term, which gives the predictor
@@ -132,6 +126,66 @@ We note that it seems like what age we set as the cut-off when calculating the M
     \caption{The best-performing APC and LC-type models for stomach cancer}
     \label{fig:uv-comparison-stomach}
 \end{figure}
+
+\begin{centering}
+    \begin{table}[h!]
+        \begin{tabular}{l |c c c }
+            Model & MSE &   MDSS & Contained 95\%-interval\\
+            \hline
+            APC2    & 3.896e-9 & -19.27    & 0.7778 \\
+            APC2    & 2.174e-9 & -19.88    & 0.8889 \\
+            LC      & 5.144e-8 & -16.02    & 0.6204 \\
+            LCC     & 4.746e-9 & -20.12    & 0.9907 \\
+            LCC-linear      & 5.238e-9 & -20.01    & 0.9722 \\
+        \end{tabular}
+        \caption{Lung cancer data, cutoff at x <= 5}
+    \end{table}
+\end{centering}
+
+\begin{centering}
+    \begin{table}[h!]
+        \begin{tabular}{l |c c c }
+          Model & MSE &   MDSS & Contained 95\%-interval\\
+          \hline
+            APC1     & 1.969e-9 & -19.12    & 0.7963 \\
+            APC2     & 5.840e-9 & -19.52    & 0.9167 \\
+            LC      & 6.851e-8 & -15.50    & 0.5926 \\
+            LCC     & 1.112e-8 & -19.46    & 0.9352 \\
+            LCC-linear      & 1.141e-8 & -19.39    & 0.8889
+        \end{tabular}
+        \caption{Stomach cancer data, cutoff at x <= 5}
+    \end{table}
+\end{centering}
+
+\begin{centering}
+    \begin{table}[h!]
+        \begin{tabular}{l |c c c }
+        Model & MSE &   MDSS & Contained 95\%-interval\\
+        \hline
+        APC1    & 4.672e-9 & -18.59    & 0.8444 \\
+        APC2    & 2.606e-9 & -19.01    & 0.9556 \\
+        LC         & 6.173e-8 & -13.98    & 0.5444 \\
+        LCC        & 5.695e-9 & -18.93    & 0.9889 \\
+        LCC-linear & 6.285e-9 & -18.79    & 0.9667 \\
+        \end{tabular}
+        \caption{Lung cancer data, cutoff at x <= 7}
+    \end{table}
+\end{centering}
+
+\begin{centering}
+    \begin{table}[h!]
+        \begin{tabular}{l |c c c }
+        Model & MSE &   MDSS & Contained 95\%-interval\\
+        \hline
+        APC1    & 2.357e-9 & -18.61    & 0.8778 \\
+        APC2    & 7.004e-9 & -18.74    & 0.9778 \\
+        LC         & 8.221e-8 & -13.62    & 0.5333 \\
+        LCC        & 1.334e-8 & -18.38    & 0.9333 \\
+        LCC-linear & 1.369e-8 & -18.29    & 0.8778 \\
+        \end{tabular}
+        \caption{Stomach cancer data, cutoff at x <= 7}
+    \end{table}
+\end{centering}
 
 Figures \ref{fig:uv-comparison-lung} and \ref{fig:uv-comparison-stomach} display the results from the Lee-Carter and the APC models with the lowest MDSS, the LCC- and the APC2-models respectively. For both cancer types, the APC2 model has the lowest MDSS, and we see from the plotted results that it seem to be slightly more accurate than the LCC model. We do, however note that the prediction intervals are narrower for the LCC model predictions for both cancer types. \textcolor{myDarkGreen}{Say anything more about this? }
 
