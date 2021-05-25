@@ -373,7 +373,7 @@ pred.statistics.cutoff.s <- data.pred.s %>%
   summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
 cat("\n Age <= 5 omitted");cat("\n Lung cancer data: ");pred.statistics.cutoff.l;cat("\n Stomach cancer data: ");pred.statistics.cutoff.s
 
-# compute statistics with cutoff at age group 7:
+# compute statistics with cutoff at age group 8:
 pred.statistics.cutoff.8.l <- data.pred.l %>% 
   filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
   filter(x > 8) %>%
@@ -428,7 +428,7 @@ gg.LCC.p.s <- ggplot(data.pred.s %>%
                      values = palette.basis) +
   scale_fill_manual(name = "Prediction method",
                     values = palette.basis) +
-  labs(title = "LCC models - stomach cancer", x = "Age groups", y = "Mortality rate") + 
+  labs(title = "LCC models - stomach cancer", x = "Year", y = "Mortality rate") + 
   theme(axis.text.x = element_text(angle = -30, hjust=0)) +
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   facet_wrap(~age)
@@ -480,7 +480,7 @@ gg.APC.p.s <- ggplot(data.pred.s %>%
                      values = palette.basis) +
   scale_fill_manual(name = "Prediction method",
                     values = palette.basis) +
-  labs(title = "APC models - stomach cancer", x = "Age groups", y = "Mortality rate") + 
+  labs(title = "APC models - stomach cancer", x = "Year", y = "Mortality rate") + 
   theme(axis.text.x = element_text(angle = -30, hjust=0)) +
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   facet_wrap(~age)
@@ -533,7 +533,7 @@ gg.LCC.p.l <- ggplot(data.pred.l %>%
                      values = palette.basis) +
   scale_fill_manual(name = "Prediction method",
                     values = palette.basis) +
-  labs(title = "LCC models - lung cancer", x = "Age groups", y = "Mortality rate") + 
+  labs(title = "LCC models - lung cancer", x = "Year", y = "Mortality rate") + 
   theme(axis.text.x = element_text(angle = -30, hjust=0)) +
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   facet_wrap(~age)
@@ -586,7 +586,7 @@ gg.APC.p.l <- ggplot(data.pred.l %>%
                      values = palette.basis) +
   scale_fill_manual(name = "Prediction method",
                     values = palette.basis) +
-  labs(title = "APC models - lung cancer", x = "Age groups", y = "Mortality rate") + 
+  labs(title = "APC models - lung cancer", x = "Year", y = "Mortality rate") + 
   theme(axis.text.x = element_text(angle = -30, hjust=0)) +
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   facet_wrap(~age)
@@ -640,7 +640,7 @@ gg.compare.p.s <- ggplot(data.pred.s %>%
                      values = palette.basis) +
   scale_fill_manual(name = "Prediction method",
                     values = palette.basis) +
-  labs(title = "APC rw2 and LCC models - stomach cancer", x = "Age groups", y = "Mortality rate") + 
+  labs(title = "APC rw2 and LCC models - stomach cancer", x = "Year", y = "Mortality rate") + 
   theme(axis.text.x = element_text(angle = -30, hjust=0)) +
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   facet_wrap(~age)
@@ -693,7 +693,7 @@ gg.compare.p.l <- ggplot(data.pred.l %>%
                      values = palette.basis) +
   scale_fill_manual(name = "Prediction method",
                     values = palette.basis) +
-  labs(title = "APC rw2 and LCC models - lung cancer", x = "Age groups", y = "Mortality rate") + 
+  labs(title = "APC rw2 and LCC models - lung cancer", x = "Year", y = "Mortality rate") + 
   theme(axis.text.x = element_text(angle = -30, hjust=0)) +
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   facet_wrap(~age)
