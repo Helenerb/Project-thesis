@@ -127,8 +127,8 @@ We note that it seems like what age we set as the cut-off when calculating the M
     \label{fig:uv-comparison-stomach}
 \end{figure}
 
-\begin{centering}
-    \begin{table}[h!]
+\begin{table}[h!]
+    \begin{center}
         \begin{tabular}{l |c c c }
             Model & MSE &   MDSS & Contained 95\%-interval\\
             \hline
@@ -139,14 +139,14 @@ We note that it seems like what age we set as the cut-off when calculating the M
             LCC-linear      & 5.238e-9 & -20.01    & 0.9722 \\
         \end{tabular}
         \caption{Lung cancer data, cutoff at x <= 5}
-    \end{table}
-\end{centering}
+    \end{center}
+\end{table}
 
-\begin{centering}
-    \begin{table}[h!]
+\begin{table}[h!]
+    \begin{center}
         \begin{tabular}{l |c c c }
-          Model & MSE &   MDSS & Contained 95\%-interval\\
-          \hline
+            Model & MSE &   MDSS & Contained 95\%-interval\\
+            \hline
             APC1     & 1.969e-9 & -19.12    & 0.7963 \\
             APC2     & 5.840e-9 & -19.52    & 0.9167 \\
             LC      & 6.851e-8 & -15.50    & 0.5926 \\
@@ -154,38 +154,38 @@ We note that it seems like what age we set as the cut-off when calculating the M
             LCC-linear      & 1.141e-8 & -19.39    & 0.8889
         \end{tabular}
         \caption{Stomach cancer data, cutoff at x <= 5}
-    \end{table}
-\end{centering}
+    \end{center}
+\end{table}
 
-\begin{centering}
-    \begin{table}[h!]
+\begin{table}[h!]
+    \begin{center}
         \begin{tabular}{l |c c c }
-        Model & MSE &   MDSS & Contained 95\%-interval\\
-        \hline
-        APC1    & 4.672e-9 & -18.59    & 0.8444 \\
-        APC2    & 2.606e-9 & -19.01    & 0.9556 \\
-        LC         & 6.173e-8 & -13.98    & 0.5444 \\
-        LCC        & 5.695e-9 & -18.93    & 0.9889 \\
-        LCC-linear & 6.285e-9 & -18.79    & 0.9667 \\
+            Model & MSE &   MDSS & Contained 95\%-interval\\
+            \hline
+            APC1    & 5.174e-9 & -18.74    & 0.9136 \\
+            APC2    & 2.889e-9 & -18.64    & 0.9753 \\
+            LC         & 6.859e-8 & -12.95    & 0.4938 \\
+            LCC        & 6.322e-9 & -18.49    & 0.9877 \\
+            LCC-linear & 6.977e-9 & -18.40    & 0.9753 \\
         \end{tabular}
-        \caption{Lung cancer data, cutoff at x <= 7}
-    \end{table}
-\end{centering}
+        \caption{Lung cancer data, cutoff at x <= 8}
+    \end{center}
+\end{table}
 
-\begin{centering}
-    \begin{table}[h!]
+\begin{table}[h!]
+    \begin{center}
         \begin{tabular}{l |c c c }
-        Model & MSE &   MDSS & Contained 95\%-interval\\
-        \hline
-        APC1    & 2.357e-9 & -18.61    & 0.8778 \\
-        APC2    & 7.004e-9 & -18.74    & 0.9778 \\
-        LC         & 8.221e-8 & -13.62    & 0.5333 \\
-        LCC        & 1.334e-8 & -18.38    & 0.9333 \\
-        LCC-linear & 1.369e-8 & -18.29    & 0.8778 \\
+            Model & MSE &   MDSS & Contained 95\%-interval\\
+            \hline
+            APC1    & 2.591e-9 & -18.63    & 0.9383 \\
+            APC2    & 7.774e-9 & -18.35    & 0.9877 \\
+            LC         & 9.134e-8 & -12.60    & 0.4938 \\
+            LCC        & 1.481e-8 & -17.99    & 0.9383 \\ 
+            LCC-linear & 1.520e-8 & -17.89    & 0.8889 \\
         \end{tabular}
-        \caption{Stomach cancer data, cutoff at x <= 7}
-    \end{table}
-\end{centering}
+        \caption{Stomach cancer data, cutoff at x <= 8}
+    \end{center}
+\end{table}
 
 Figures \ref{fig:uv-comparison-lung} and \ref{fig:uv-comparison-stomach} display the results from the Lee-Carter and the APC models with the lowest MDSS, the LCC- and the APC2-models respectively. For both cancer types, the APC2 model has the lowest MDSS, and we see from the plotted results that it seem to be slightly more accurate than the LCC model. We do, however note that the prediction intervals are narrower for the LCC model predictions for both cancer types. \textcolor{myDarkGreen}{Say anything more about this? }
 
