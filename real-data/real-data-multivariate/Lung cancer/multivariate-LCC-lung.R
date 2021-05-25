@@ -410,8 +410,8 @@ cat("CPO, LCC model: "); -1*mean(log(res.lc.n$cpo$cpo[!is.na(res.lc.n$cpo$cpo)])
 
 #   ----   TODO: Compare all methods   ----
 
-data.pred <- rbind(data.pred.abkg, data.pred.abKg, data.pred.abkG, data.pred.ABkg, data.pred.ABKg, data.pred.ABkG, data.pred.ABKG) %>%
-  mutate("method" = rep(c("No common", "Common period", "Common cohort", "Common age", "Common age & period", "Common age & cohort", "All common"), each = 648))
+data.pred <- rbind(data.pred.abkg, data.pred.abKg, data.pred.abkG, data.pred.ABkg, data.pred.ABKg, data.pred.ABkG, data.pred.abKG, data.pred.ABKG) %>%
+  mutate("method" = rep(c("No common", "Common period", "Common cohort", "Common age", "Common age & period", "Common age & cohort","Common period & cohort", "All common"), each = 648))
 
 # display four significant digits 
 options(pillar.sigfig = 4)
