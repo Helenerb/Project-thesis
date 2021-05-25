@@ -22,6 +22,8 @@
 %try better bibliography formatting
 \usepackage[style=authoryear, backend=biber]{biblatex}
 \addbibresource{bibliography.bib}
+\usepackage[nottoc]{tocbibind}
+\setlength{\bibitemsep}{.5\baselineskip}
 
 \captionsetup[table]{justification=centering,singlelinecheck=false} % table caption is left-aligned
 %\bibliographystyle{plainnat} % reference list style
@@ -55,11 +57,12 @@
 
 % Reference list
 \clearpage
+\section*{References}
 \addcontentsline{toc}{section}{References}
 \printbibliography[heading=none]
 %\bibliographystyle{apalike}
 %\bibliographystyle{plainnat}
-\bibliography{Bibliography}
+%\bibliography{Bibliography}
 
 % Appendix
 % \begin{appendices}
