@@ -357,7 +357,7 @@ pred.statistics.include.s <- data.pred.s %>%
   group_by(method) %>%
   summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
 
-cat("\n Age <= 5 included");cat("\n Lung cancer data: ");pred.statistics.include.l;cat("\n Stomach cancer data: ");pred.statistics.include.s
+cat("\n Age < 5 included");cat("\n Lung cancer data: ");pred.statistics.include.l;cat("\n Stomach cancer data: ");pred.statistics.include.s
 
 # compute statistics with cutoff at age group 5
 pred.statistics.cutoff.l <- data.pred.l %>% 
@@ -372,6 +372,20 @@ pred.statistics.cutoff.s <- data.pred.s %>%
   group_by(method) %>%
   summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
 cat("\n Age <= 5 omitted");cat("\n Lung cancer data: ");pred.statistics.cutoff.l;cat("\n Stomach cancer data: ");pred.statistics.cutoff.s
+
+# compute statistics with cutoff at age group 7:
+pred.statistics.cutoff.7.l <- data.pred.l %>% 
+  filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
+  filter(x > 7) %>%
+  group_by(method) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+
+pred.statistics.cutoff.7.s <- data.pred.s %>% 
+  filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
+  filter(x > 7) %>%
+  group_by(method) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+cat("\n Age <= 7 omitted");cat("\n Lung cancer data: ");pred.statistics.cutoff.7.l;cat("\n Stomach cancer data: ");pred.statistics.cutoff.7.s
 
 #   ----   plot APC and LCC models for comparison   ----
 
