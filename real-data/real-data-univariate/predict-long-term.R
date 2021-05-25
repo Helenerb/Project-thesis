@@ -667,7 +667,7 @@ gg.compare.a.l <- ggplot(data.pred.l %>%
 gg.compare.a.l
 
 ggsave('univariate-comparison-by-age-lung.png',
-       plot = gg.compare.a.s,
+       plot = gg.compare.a.l,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
        height = 5, width = 8, 
@@ -694,7 +694,7 @@ gg.compare.p.l <- ggplot(data.pred.l %>%
 gg.compare.p.l
 
 ggsave('univariate-comparison-by-period-lung.png',
-       plot = gg.APC.p.l,
+       plot = gg.compare.p.l,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
        height = 5, width = 8, 
