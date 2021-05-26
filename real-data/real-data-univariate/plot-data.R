@@ -322,9 +322,17 @@ p.total.cohort <- ggplot(stomach.cancer.cohort %>% filter(sex == "male.t" | sex 
   scale_color_manual(name = "Sex", values = palette.basis) +
   labs(title="German population", x = "Cohort", y = "Total occurrances")
 
-(p.total.cohort | p.stomach.cohort | p.lung.cohort) + 
+p.data.cohort.toal <- (p.total.cohort | p.stomach.cohort | p.lung.cohort) + 
   plot_annotation(title = "Total occurrances of cases by birth year") +
   plot_layout(guides = "collect") & theme(legend.position = 'bottom')
+
+ggsave('data-cohort-total',
+       plot = p.data.cohort.toal,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
+       height = 5, width = 8, 
+       dpi = "retina"
+)
 
 # plot percent-wise cases:
 
