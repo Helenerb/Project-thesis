@@ -23,6 +23,15 @@ When formatting the data sets, it is easier to begin the indexing of age groups,
 
 \textcolor{myDarkGreen}{TODO: Present the data. Make a summary of it. }
 
+\subsection{LC and LCC on full dataset}
+\label{sec:LC-full-data}
+To get an overview of the dataset and the performance of the LC model on these datasets, we begin by fitting the LC and the LCC model to the full datasets and compare it to plots of the data. 
+
+\newpar Figures \ref{fig:data-by-age}, \ref{fig:data-by-year} and \ref{fig:data-by-cohort} display percent-wise deaths by lung - and stomach cancer, by age groups, years and cohorts (birth years) respectively. Figure \ref{fig:LC-full-dataset} display the random effects obtained by fitting the LC-model to the two data sets, as well as the estimated predictor. Figure \ref{fig:LCC-full-dataset} displays the results from fitting the LCC-model to the stomach cancer data set. 
+
+\newpar From the Figure \ref{fig:LC-full-dataset} and Figure \ref{fig:LCC-full-dataset} we see that $\alphav$ is the random effect that is modeled with the highest precision for both the LC-model and the LCC-model. This indicates a clear tendency of change in the mortality rate for different age groups, with a higher mortality rate for older age groups. Figure \ref{fig:data-by-age} confirms this, as it shows a much higher mortality rate for older age groups, for both males and females. 
+\newpar We observe from Figures \ref{fig:LC-full-dataset} and \ref{fig:LCC-full-dataset} that there is much higher uncertainty related to the estimation of the period effects, $\kappav$ and $\phi\cdot t$. The estimated $\kappav$ seemes in both cases to be almost insignificant, with wide confidence bounds centered around zero. The $\phi \cdot t$ effect on the other hand, does show a clear tendency of a decreasing mortality rate for higher years. [TODO: TENK GJENNOM HVORFOR PHI ER NEGATIV NÅR DU HAR EN ØKENDE TIDSTREND!! HER KAN DU JO BEGYNNE Å SPEKULERE I AT DET KANSKJE ER SMART Å HA MED EN KOHORT-EFFEKT...] We also observe a clear tendency in the cohort-effects. [OGSÅ: LEGG TIL NYE PLOTT AV EFFEKT MED LC PÅ EKTE DATA, TROR DE DU HAR NÅ KAN VÆRE UTDATERTE..]
+
 \subsection{Prediction in the Univariate Case}
 We begin by comparing prediction results for the univariate LC- and LCC-models (see Equations \ref{eq:LC-rewritten} and \ref{eq:LCC-rewritten}) to prediction results for the APC1- and APC2-models (see Section \ref{sec:BayesianInferenceAPC}).
 \textcolor{myDarkGreen}{Say something of how we are now able to get a "fair" comparison - using similar priors, the same method of inference? Refer to previous papers on the same topic? }
@@ -189,6 +198,7 @@ However, we note that it seems like what age we set as the cut-off when calculat
 Figures \ref{fig:uv-comparison-lung} and \ref{fig:uv-comparison-stomach} display the results from the Lee-Carter and the APC models with the lowest MDSS, the LCC- and the APC2-models respectively. For both cancer types, the APC2-model has a lower MDSS than the LCC-model does (see Tables \ref{tbl:uv-lung-5} and \ref{tbl:uv-stomach-5}), and we see from the plotted results that the APC2-model seems to be slightly more accurate than the LCC-model. We do, however note that the prediction intervals are narrower for the LCC-model predictions for both cancer types.
 
 \subsection{Sensitivity Analysis - choice of priors for $\alpha_x$ and $\gamma_k$}
+\textcolor{myDarkBlue}{Not finished. Not sure if I should include it. }
 \textcolor{myDarkGreen}{Include this section if time: show that your choice of random walk priors for kappa and alpha does not change the prediction results - in comparison with choosing AR1 gamma (as in \textcite{Wisniowski2015}) or iid alpha (as in \textcite{Wisniowski2015}). 
 You have the code, you just need to tidy it. 
 }
@@ -199,13 +209,9 @@ You have the code, you just need to tidy it.
 
 \textcolor{myDarkGreen}{
 Intro: forskjell på multivariate og univariate. Referer til figuren av plottet data - tydelig forskjell på kjønnene, som kan tyde på at en multivariate modell vil fungere bedre. 
-\newline \newline 
-Hvilke modeller tester du? Her bør du ha snakket om tidligere hvilke modeller som kunne ha blitt testet (common age, period cohort og alle kombinasjonene) på et generelt nivå, og her forteller du hvordan disse appliseres (?) til de to beste modellene fra univariate analyse (LCC og APC2). Skriv opp disse modellene eksplisitt, og forklar notasjonen din. 
-\newline \newline
-Fortell hva slags priors du har brukt, og fortell om hvordan du implementerer multivariate modeller i inlabru. Ha kanskje med en kodesnutt for å vise syntaksen. 
 }
 
-\textcolor{myDarkGreen}{Thought: For the multivariate version where all effects are kept common, you should also have a common intercept! If not it might be very different to adjust one random effect to two different overall mortality rates?}
+\textcolor{myDarkGreen}{Thought: For the multivariate version where all effects are kept common, you should also have a common intercept! If not it might be very different to adjust one random effect to two different overall mortality rates? Or, if this is difficult, should the male and female intercept just be the same? }
 
 From the plots of the cancer mortality data in Section \ref{sec:GermanCancerData}, we observe a significant difference in male and female mortality rates, for both cancer types. The investigation of multivariate models with sex as a covariate, is then a natural next step in our analysis. We fit multivariate versions of Lee-Carter and APC models to the observed male and female cancer deaths, and use the male and female populations as the at-risk values. To avoid having to compare too many different models, we test only the Lee-Carter and APC models that displayed the best MDSS in the univariate case, namely the LCC-model and the APC2-model (for both lung and stomach cancer). We use the approach described in Section \ref{sec:multivariateAPC} to obtain multivariate versions of the LCC- and APC2-model, namely keeping some of the random effects common across the sexes. It is not clear from the plots of the data which, if any, of the effects that should be kept common for male and female populations. Therefore, we find predictions using models with all combinations of common and separate age, period and cohort effects, and compare the results. We test the following versions of the LCC-model:
 \begin{itemize}
@@ -265,17 +271,21 @@ res.aPc = bru(components = comp.aPc,
               options = list(/*Desired options*/
               )) 
 \end{verbatim}
-\newpar We present the results for lung and stomach cancer, respectively, in the following two sections.
+\newpar We perform the preciction analysis in the same way as for the univariate case, using the years 1999-2007 to fit the models and then predict the mortality for years 2008-2016. We use the same hyperpriors as for the univariate analysis, namely PC priors with parameters $\mathbb{P}(1/\sqrt{\tau} > 1) = 0.05$, and we gain exclude the predictions for ages younger than 30 years old ($x \leq 5$) when we calculate the score statistics.
+
+We present the results for lung and stomach cancer, respectively, in the following two sections.
 
 \subsubsection{Lung cancer data}
 \textcolor{myDarkGreen}{
 Inkluder først og fremst resultatene, og kommebter kort hva de viser. Her bør du også diskutere hvordan noen av konfigurasjonene ikke konvergerte for LCC modellene - finn en god måte å skrive det inn i resultatene. Fortell hvor mange iterasjoner du satte som maks. Snakk om at det er "reasonable to assume" at dette ikke gir noen forskjell på resultatet. Det at modellen bruker lang tid på å konveregere er i seg selv et tegn på at modellen ikke er godt egnet til å tilpasse dataen (?), i tillegg ser vi fra APC resultatene at modeller med mange felles effekter gir tydelig dårligere prediksjoner enn modeller med få felles effekter. Det er dermed ingen grunn til å tro at modellene som ikke konvergerte ville ha gitt bedre prediksjoner. 
 }
-We apply the LCC- and APC2-models that are described in Section \ref{sec:pred-mv} to the lung cancer data. The score statistics for the prediction results are displayed in Tables \ref{tbl:mv-LCC-lung} and \ref{tbl:mv-APC-lung}, in the same manner as for the univariate analysis. We again exclude the predictions for ages younger than 30 years old ($x \leq 5$) when we calculate the score statistics. 
+We apply the LCC- and APC2-models that are described in Section \ref{sec:pred-mv} to the lung cancer data. The score statistics for the prediction results are displayed in Tables \ref{tbl:mv-LCC-lung} and \ref{tbl:mv-APC-lung}. 
 
-\newpar We note that for some of the LCC-models with many common effects, \inlabru needed more than 50 iterations to find a linearization. These models are the LCC-model with all effects common and the LCC-model with common period and cohort effects. For these models, we then present the prediction results obtained by \inlarbu after 50 iterations of the linearization, which are not necessarily the optimal predictions. Comparing these results to the converged results from the other models does then not give a completely correct image of the difference in predictive performance. However, from Table \ref{tbl:mv-APC-lung} we observe that the two corresponding APC2-models (the APC and the aPC models) display a clearly higher MDSS than the APC models with fewer shared effects. We then see no reason to suspect that the LCC-model with all effects common and common period and cohort effects could have outperformed the LCC-models with fewer common effects.  \textcolor{myDarkGreen}{The difference is not exactly that big. Perhaps you need to change the argumentation? Or not argument for it, just state that it did not converge... also, this also applies to the ABkG (common age, cohort) model. But then it is very wrong. }
+\newpar We observe from the score statistics in Table \ref{tbl:mv-LCC-lung} that the LCC-models with the lowest MDSS are the model with no common effects ("No common") and the model with a shared period effect ("Common period"). Out of these, the "Common period"-model has a slightly lower MDSS. We observe the same trend for the different APC-models, from Table \ref{tbl:mv-APC-lung} we see that the apc- and aPc-models have the lowest MDSS. We also note the general trend of models with fewer shared effects generally out-performing models with more shared effects. This can be interpreted as an indication that the male and female lung cancer mortality rates have a low degree of correlation, which is a result that is in alignment with the clear difference between male and female mortality rates, seen in e.g. Figure \textcolor{myDarkGreen}{TODO}. 
 
-\begin{table}[h!]
+\newpar We note that for some of the LCC-models with many common effects, \inlabru need more than 50 iterations to find a linearization. These models are the LCC-model with all effects common ("All common"), the model with common period and cohort effects ("Common period, cohort") and the model with common age and cohort effects ("Common age, cohort"). For these models, we then present the prediction results obtained by \inlarbu after 50 iterations of the linearization, which are not necessarily the optimal predictions. Comparing these results to the converged results from the other models does then not give a completely correct image of the difference in predictive performance. However, from Table \ref{tbl:mv-APC-lung} we observe that the two corresponding APC2-models (the APC and the aPC models) display a clearly higher MDSS than the APC models with fewer shared effects. We then see no reason to suspect that the LCC-model with all effects common and common period and cohort effects could have outperformed the LCC-models with fewer common effects. \textcolor{myDarkGreen}{The difference is not exactly that big. Perhaps you need to change the argumentation? Or not argument for it, just state that it did not converge... also, this also applies to the ABkG (common age, cohort) model. But then it is very wrong. }
+
+\begin{table}
     \begin{center}
     \begin{tabular}{l |c c c }
         Model & MSE & MDSS & Contained 95\%-interval\\
@@ -293,58 +303,7 @@ We apply the LCC- and APC2-models that are described in Section \ref{sec:pred-mv
     \end{center}
 \end{table}
 
-\begin{figure}[h!]
-    \centering
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-LCC-by-age-lung.png}
-    \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-LCC-by-period-lung.png}
-    \end{subfigure}
-    \caption{The two LCC-models with the lowest MDSS - by age (left) and period (right) for the lung cancer data set}
-    \label{fig:mv-LCC-lung}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-APC-by-age-lung.png}
-    \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-APC-by-period-lung.png}
-    \end{subfigure}
-    \caption{The two APC2-models with the lowest MDSS - by age (left) and period (right) for the lung cancer data set}
-    \label{fig:mv-APC-lung}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-common-period-lung.png}
-    \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-no-common-lung.png}
-    \end{subfigure}
-    \caption{Plots of the effects for the two LCC-models with the lowest MDSS - common period effects (left) and no common effects (right) for the lung cancer data}
-    \label{fig:effects-LCC-lung}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width = .8\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-age-lung.png}
-    \caption{Comparison of the APC2- and the LCC-models with the lowest MDSS - by age}
-    \label{fig:mv-LCC-by-period-lung}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width = .8\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-period-lung.png}
-    \caption{Comparison of the APC2- and the LCC-models with the lowest MDSS - by period}
-    \label{fig:mv-APC-by-period-lung}
-\end{figure}
-
-
-\begin{table}[h!]
+\begin{table}
     \begin{center}
     \begin{tabular}{l |c c c }
         Model & MSE & MDSS & Contained 95\%-interval\\
@@ -362,9 +321,64 @@ We apply the LCC- and APC2-models that are described in Section \ref{sec:pred-mv
     \end{center}
 \end{table}
 
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-LCC-by-age-lung.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-LCC-by-period-lung.png}
+    \end{subfigure}
+    \caption{The two LCC-models with the lowest MDSS - by age (left) and period (right) for the lung cancer data set}
+    \label{fig:mv-LCC-lung}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-APC-by-age-lung.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-APC-by-period-lung.png}
+    \end{subfigure}
+    \caption{The two APC2-models with the lowest MDSS - by age (left) and period (right) for the lung cancer data set}
+    \label{fig:mv-APC-lung}
+\end{figure}
+
+\newpar In Figures \ref{fig:mv-LCC-lung} and \ref{fig:mv-APC-lung} the prediction results produced with the two LCC-models and the two APC2-models, respectively, with the lowest MDSS score are displayed. For the two LCC-models, we observe very little difference between the two predictions. For the two APC2-models, the predictions from the apc-model seem to have a slightly wider 95\% prediction intervals than the predictions from the aPc-model. \textcolor{myDarkBlue}{Should I include this result with these figures?}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-common-period-lung.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-no-common-lung.png}
+    \end{subfigure}
+    \caption{Plots of the effects for the two LCC-models with the lowest MDSS - common period effects (left) and no common effects (right) for the lung cancer data}
+    \label{fig:effects-LCC-lung}
+\end{figure}
+
+textcolor{myDarkBlue}{The following paragraph is not finished! }
+\newpar Figure \ref{fig:effects-LCC-lung} displays the estimated random effects from the "No common" and the "Common period" LCC-models. For both models, the intercepts $\mu_s$, the random effects $\alpha_x$ and the linear term $\phi$ seem to be clearly identified, with rather narrow confidence bounds. The estimated $\beta_x$ effects have clearly wider confidence bounds, especially for younger ages (low $x$). We note that LCC-models with very similar values for $\beta_x$, i.e. all $\beta_x = 1/X$, reduce to APC-models \parencite{Wisniowski2015}. Still, for the ages above 30 years ($x > 5$), the estimated values for $\beta_x$ are sufficiently variable and with narrower confidence bound, so we do not suspect this to be the case here. For both models, the estimated mean values of $\kappa_t$ are close to zero with wide confidence bounds. This is an indication that a linear version of the LCC-models, including only the term $\phi \cdot t$ to describe the period effect might be just as good or better. Finally, we note that while the the estimated cohort effects $\gamma_k$ have rather wide confidence bounds, we do observe clear trends in the cohort effect. For the cohorts where $k > 50$, corresponding to birth years at around year 1960 and younger, there is little variation in the cohort effect. We attribute this stabilization to the fact that these cohorts are the population that have not reached the age where they have the highest risk of getting lung cancer by 2016, so we do not have enough information to see how these cohorts will be affected differently. There is a clear difference in the estimated $\gamma_k$ for the models. In particular, we note that for the "Common period"-model, the estimated values for the female $\gamma_k$ are higher than the estimated male $\gamma_k$, while it is the other way around for the "No common"-model. In addition, we observe that the values of $\gamma_k$ for the "Common period"-model cover a larger range. An explanation for this might be that the "No period" model represents the period-specific differences in male and female mortality through the cohort effect $\gamma_k$ rather than through the period effect $\phi \cdot t$, such as in the "No common"-model. Finally, we observe that the $\gamma_k$ for both models display a dip for the cohort $k \approx 25$, corresponding to birth years around 1935. This dip occurs for both male and females, but is more prominent for the male cohort effect. \textcolor{myDarkGreen}{How does this make sense? Intuitively, these cohorts should have a higher risk of lung cancer, since they were young in the 1950s? Something to do with the war? Or some identifiability issue? Or very few people alive from this cohort? }
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-age-lung.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-period-lung.png}
+    \end{subfigure}
+    \caption{The prediction results for the aPc-model and the "Common period"-model.}
+    \label{fig:mv-APC-LCC-lung}
+\end{figure}
+
+Figure \ref{fig:mv-APC-LCC-lung} displays the prediction results from the LCC- and the APC2-models with the lowest MDSS, which are the "Common period"-model and the aPc-model, respectively. Out of these two, the aPc-model has the lowest MDSS score. From Figure \ref{fig:mv-APC-LCC-lung} we observe the same tendency as for the univariate case, that the LCC-model has slightly narrower confidence bounds. Furthermore, we see that both models predict the mortality rates for all age-groups quite well for all years, with one exception. This is the prediction of the mortality rate for males older than 85 years for the period 2010-2016, where the predictions from both models are clearly worse than for the rest. \textcolor{myDarkGreen}{TODO: find out why!!! }
+
 \newpage
 \subsubsection{Stomach cancer data}
-\textcolor{myDarkGreen}{Så og si samme tekst og plott som for lung cancer - med andre diskusjoner dersom det oppstår}
+\textcolor{myDarkGreen}{Instead of repeating everything you said in the lung cancer analysis, you should say that you have done the analysis in exactly the same way, and that the results were very similar, and that you will only comment on the differences. And then briefly present the plots that you have included. }
 
 \begin{table}[h!]
     \begin{tabular}{l |c c c }
@@ -422,7 +436,7 @@ We apply the LCC- and APC2-models that are described in Section \ref{sec:pred-mv
     \label{fig:mv-APC-stomach}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}
     \centering
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-common-period-stomach.png}
@@ -430,22 +444,20 @@ We apply the LCC- and APC2-models that are described in Section \ref{sec:pred-mv
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-no-common-stomach.png}
     \end{subfigure}
-    \caption{Plots of the effects for the two best LCC models - LCC with common period effects (left) and LCC with no common effects (right) for the lung cancer data}
+    \caption{Plots of the effects for the two best LCC models - LCC with common period effects (left) and LCC with no common effects (right) for the lung cancer data. The solid red line indicate the division between observed and predicted periods. }
     \label{fig:effects-LCC-stomach}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}
     \centering
-    \includegraphics[width = .8\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-age-stomach.png}
-    \caption{Comparison of the best APC model and the best LCC model - by age, for the stomach cancer data set. }
-    \label{fig:mv-LCC-by-period-stomach}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width = .8\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-period-stomach.png}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-age-stomach.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-period-stomach.png}
+    \end{subfigure}
     \caption{Comparison of the best APC model and the best LCC model - by period, for the stomach cancer data set}
-    \label{fig:mv-APC-by-period-stomach}
+    \label{fig:mv-LCC-APC-stomach}
 \end{figure}
 
 \newpage
@@ -472,167 +484,9 @@ Figurer:
 
 \newpage 
 \subsection{Identifiability issues}
+\textcolor{myDarkBlue}{This is not finished, but I don´t know if we still need to include a separate section about this? Or if we should move all the discussion about the effects of the plots here? }
 \textcolor{myDarkGreen}{
 Here, you can mention apparent identifiability issues. Perhaps talk about periodicity in cohort effects? Mention that a linear kappa might have been sufficient. 
 
 \parencite{Wisniowski2015} states that the LCC model is identifiable as long as the betas are significantly different --> discuss if this is true in your case! (It does not seem like it is...)
 }
-
-\newpage 
-\newpage
-\newpage
-\subsection{Old version - might still be parts that we want to use}
-% change name of the section 
-We test the previously described models on data containing deaths by lung- and stomach cancer, respectively, in Germany for the years 1999-2016. The observations are grouped by age groups of five years. We use the \inlabru library to run different versions of the LC- and APC models, and compare them. To be able to compare the performance of the different models, we omit the observations for year 2015 and 2016 and use the model fitted to the remaining data to predict the mortality rate for these two years. 
-
-\subsection{LC and LCC on full dataset}
-To get an overview of the dataset and the performance of the LC model on these datasets, we begin by fitting the LC and the LCC model to the full datasets and compare it to plots of the data. 
-
-Figures \ref{fig:data-by-age}, \ref{fig:data-by-year} and \ref{fig:data-by-cohort} display percent-wise deaths by lung - and stomach cancer, by age groups, years and cohorts (birth years) respectively. Figure \ref{fig:LC-full-dataset} display the random effects obtained by fitting the LC-model to the two data sets, as well as the estimated predictor. Figure \ref{fig:LCC-full-dataset} displays the results from fitting the LCC-model to the stomach cancer data set. 
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width = .9\linewidth]{Figures/Results/Data/data-by-age-percent.png}
-    \caption{The full stomach and lung cancer data sets, plotted by age groups $x = 0,\ldots,17$, for all years. }
-    \label{fig:data-by-age}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width = .9\linewidth]{Figures/Results/Data/data-by-year-percent.png}
-    \caption{The full stomach and lung cancer data sets, plotted for each year, for all ages. }
-    \label{fig:data-by-year}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width = .9\linewidth]{Figures/Results/Data/data-by-cohort-percent.png}
-    \caption{The full stomach and lung cancer data sets, plotted for each cohort $k = 0,\ldots,102$, for all ages and years.}
-    \label{fig:data-by-cohort}
-\end{figure}
-
-
-\begin{figure}[h!]
-    \centering
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{Figures/Runs/Runs - real data/16.03:1341/16.03:1341 Alpha.png}
-    \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{Figures/Runs/Runs - real data/16.03:1341/16.03:1341 Kappa.png}
-    \end{subfigure}
-    
-    \centering
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{Figures/Runs/Runs - real data/16.03:1341/16.03:1341 Beta.png}
-    \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{Figures/Runs/Runs - real data/16.03:1341/16.03:1341 Phi.png}
-    \end{subfigure}
-    
-    \centering
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{Figures/Runs/Runs - real data/16.03:1341/16.03:1341 Eta t.png}
-    \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{Figures/Runs/Runs - real data/16.03:1341/16.03:1341 Eta x.png}
-    \end{subfigure}
-
-    \caption{The LC-model applied both to the stomach cancer data and lung cancer data, with no absent values. }
-    \label{fig:LC-full-dataset}
-\end{figure}
-
-\begin{figure}[h!]
-\centering
-\begin{subfigure}[b]{.3\linewidth}
-    \includegraphics[width=\linewidth]{Figures/Runs/Runs - real data/16.03:1326/16.03:1326 Alpha.png}
-\end{subfigure}
-\begin{subfigure}[b]{.3\linewidth}
-    \includegraphics[width=\linewidth]{Figures/Runs/Runs - real data/16.03:1326/16.03:1326 Kappa.png}
-\end{subfigure}
-\begin{subfigure}[b]{.3\linewidth}
-    \includegraphics[width=\linewidth]{Figures/Runs/Runs - real data/16.03:1326/16.03:1326 Beta.png}
-\end{subfigure}
-
-\centering
-\begin{subfigure}[b]{.3\linewidth}
-    \includegraphics[width=\linewidth]{Figures/Runs/Runs - real data/16.03:1326/16.03:1326 Gamma.png}
-\end{subfigure}
-\begin{subfigure}[b]{.3\linewidth}
-    \includegraphics[width=\linewidth]{Figures/Runs/Runs - real data/16.03:1326/16.03:1326 Eta t.png}
-\label{fig:26.02:1607 Gamma}
-\end{subfigure}
-\begin{subfigure}[b]{.3\linewidth}
-    \includegraphics[width=\linewidth]{Figures/Runs/Runs - real data/16.03:1326/16.03:1326 Eta x.png}
-\label{fig:26.02:1607 Eta}
-\end{subfigure}
-
-\centering
-\begin{subfigure}[b]{.3\linewidth}
-    \includegraphics[width=\linewidth]{Figures/Runs/Runs - real data/16.03:1326/16.03:1326 Phi.png}
-\label{fig:LCC-full-dataset}
-\end{subfigure}
-
-\caption{The LCC model applied to the stomach cancer data set. }
-\label{fig:26.02:1607}
-\end{figure}
-
-From the Figure \ref{fig:LC-full-dataset} and Figure \ref{fig:LCC-full-dataset} we see that $\alphav$ is the random effect that is modeled with the highest precision for both the LC-model and the LCC-model. This indicates a clear tendency of change in the mortality rate for different age groups, with a higher mortality rate for older age groups. Figure \ref{fig:data-by-age} confirms this, as it shows a much higher mortality rate for older age groups, for both males and females. 
-We observe from Figures \ref{fig:LC-full-dataset} and \ref{fig:LCC-full-dataset} that there is much higher uncertainty related to the estimation of the period effects, $\kappav$ and $\phi\cdot t$. The estimated $\kappav$ seemes in both cases to be almost insignificant, with wide confidence bounds centered around zero. The $\phi \cdot t$ effect on the other hand, does show a clear tendency of a decreasing mortality rate for higher years. [TODO: TENK GJENNOM HVORFOR PHI ER NEGATIV NÅR DU HAR EN ØKENDE TIDSTREND!! HER KAN DU JO BEGYNNE Å SPEKULERE I AT DET KANSKJE ER SMART Å HA MED EN KOHORT-EFFEKT...] We also observe a clear tendency in the cohort-effects. [OGSÅ: LEGG TIL NYE PLOTT AV EFFEKT MED LC PÅ EKTE DATA, TROR DE DU HAR NÅ KAN VÆRE UTDATERTE..]
-
-\subsection{Prediction using LC-models}
-So far, we have discussed two different versions of the Lee-Carter model, the original LC-model and the LCC-model, which is extended by a cohort effect. Considering the results from above, where we observed that the $\kappav$ effect did not seem to be significant, it is reasonable to also consider a third version of the LC model, where we only use the $\phi \cdot t$ factor to model period effects:
-\begin{equation}
-    \etax = \mu + \alphax + \betax\cdot\phi\cdot t + \gammax + \epsilon_{x,t}.
-    \label{eq:LClinear}
-\end{equation}
-We compare the performance of these three models by fitting these models to the data sets with missing values for the years 2015 and 2016, and then using these models to predict the missing mortality rates. This way, we are able to assess the performance of the different models compared to each other and say something about which model is the preferred model in our case. 
-
-\begin{figure}
-    \centering
-    \includegraphics[width = .9\linewidth]{Figures/Results/LC-pred-compare-agex-s.png}
-    \caption{The predicted mortality rates of stomach cancer for 2015 (left) and 2016 (right) from three different versions of the LC-model: the basic LC-model (light blue), the LCC-model (yellow) and the LCC-model without the $\kappat$ factor (green), together with the observed mortality rates (dark blue crosses).}
-    \label{fig:LC-compare-s}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width = .9\linewidth]{Figures/Results/LC-pred-compare-lung-ageX.png}
-    \caption{The predicted mortality rates of lung cancer for 2015 (left) and 2016 (right) from three different versions of the LC-model: the basic LC-model (light blue), the LCC-model (yellow) and the LCC-model without the $\kappat$ factor (green), together with the observed mortality rates (dark blue crosses).}
-    \label{fig:LC-compare-l}
-\end{figure}
-
-From Figures \ref{fig:LC-compare-l} and \ref{fig:LC-compare-s} it is clear that the basic LC-model is less suited to predict the mortality rates for older age groups for both stomach cancer patients and lung cancer patients. The two remaining models, the LCC-model and the LCC-model with only a linear period effect seem to give more or less equally accurate and precise predictions. When running \inlabru for these two models, we observe that the script using the LCC-model takes quite a while longer to converge. Since Figures \ref{fig:LC-compare-l} and \ref{fig:LC-compare-s} does not display any significant difference between the predictions of the two models, we can say that we prefer the reduced LCC-model, and we use this in the further prediction from this point. [RECONSIDER WHETHER YOU ACTUALLY WANT TO MAKE THIS CHOICE. ]
-
-In a similar fashion we compare the two different APC-models, using a random walk of first and second order, respectively, to model the age-, period- and cohort effects. [YOU SHOULD HAVE MENTIONED AND WRITTEN DOWN THESE MODELS EARLIER. ] A comparison of the predictions of the morality rates for lung and stomach cancer in 2015 and 2016 yielded by the two models are presented in Figures \ref{fig:APC-compare-s} and \ref{fig:APC-compare-l}. We observe that the two models give very similar predictions, but that the rw2-model seem to be somewhat more accurate. [ALSO, THE RW2 MODEL IS A BIT MORE "CORRECT"? SOMETHING ABOUT THIS IN ANDREAS PAPER.]  
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width = .9\linewidth]{Figures/Results/pred-APC-compare-s-agex.png}
-    \caption{The predicted mortality rates of stomach cancer for 2015 (left) and 2016 (right) from two different versions of the APC-model: using a random walk of first order (rw1) (yellow) and a random walk of second order (rw2) (green) to model the random effects, together with the observed mortality rates (light blue crosses).}
-    \label{fig:APC-compare-s}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width = .9\linewidth]{Figures/Results/pred-APC-comp-l-agex.png}
-    \caption{The predicted mortality rates of lung cancer for 2015 (left) and 2016 (right) from two different versions of the APC-model: using a random walk of first order (rw1) (yellow) and a random walk of second order (rw2) (green) to model the random effects, together with the observed mortality rates (light blue crosses).}
-    \label{fig:APC-compare-l}
-\end{figure}
-
-Finally, we compare the LC- and APC-models that yielded the best results - the LCC-model with a linear period-effect and the rw2 APC-model. The predictions are displayed in Figures \ref{fig:APC-LC-compare-s} and \ref{fig:APC-LC-compare-l}. We observe that the LCC and the APC models display quite simliar and good predictions of the mortality rates, but that the APC model predictions seem to be somewhat more precise than the LC model.
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width = .9\linewidth]{Figures/Results/pred-LC-APC-agex-s.png}
-    \caption{The predicted mortality rates of stomach cancer for 2015 (left) and 2016 (right) for the rw2 APC-model (light blue) and the LCC-model with a linear period effect (yellow), together with the observed mortality rates (dark green crosses).}
-    \label{fig:APC-LC-compare-s}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width = .9\linewidth]{Figures/Results/pred-LC-APC-agex-l.png}
-    \caption{The predicted mortality rates of lung cancer for 2015 (left) and 2016 (right) for the rw2 APC-model (light blue) and the LCC-model with a linear period effect (yellow), together with the observed mortality rates (dark green crosses).}
-    \label{fig:APC-LC-compare-l}
-\end{figure}
-
-Until now we have considered the performance of the predictions from the different models only graphically. Now, we will 
