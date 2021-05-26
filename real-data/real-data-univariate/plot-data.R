@@ -108,7 +108,7 @@ p.data.age.rate <- (p.lung.age.rate | p.stomach.age.rate) +
 p.data.age.rate
   
 
-ggsave('data-age-rate',
+ggsave('data-age-rate.png',
        plot = p.data.age.rate,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
@@ -143,7 +143,7 @@ p.data.cohort.rate <- (p.lung.cohort.rate | p.stomach.cohort.rate) +
 p.data.cohort.rate
 
 
-ggsave('data-cohort-rate',
+ggsave('data-cohort-rate.png',
        plot = p.data.cohort.rate,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
@@ -194,7 +194,7 @@ p.age.total <- (p.total.age | p.stomach.age | p.lung.age) +
   plot_layout(guides = "collect") & theme(legend.position = 'bottom')
 p.age.total
 
-ggsave('data-age-total',
+ggsave('data-age-total.png',
        plot = p.age.total,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
@@ -260,7 +260,7 @@ p.year.total <- (p.total.year | p.stomach.year | p.lung.year) +
   plot_layout(guides = "collect") & theme(legend.position = 'bottom')
 p.year.total
 
-ggsave('data-year-total',
+ggsave('data-year-total.png',
        plot = p.year.total,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
@@ -322,11 +322,11 @@ p.total.cohort <- ggplot(stomach.cancer.cohort %>% filter(sex == "male.t" | sex 
   scale_color_manual(name = "Sex", values = palette.basis) +
   labs(title="German population", x = "Cohort", y = "Total occurrances")
 
-p.data.cohort.toal <- (p.total.cohort | p.stomach.cohort | p.lung.cohort) + 
+p.data.cohort.total <- (p.total.cohort | p.stomach.cohort | p.lung.cohort) + 
   plot_annotation(title = "Total occurrances of cases by birth year") +
   plot_layout(guides = "collect") & theme(legend.position = 'bottom')
 
-ggsave('data-cohort-total',
+ggsave('data-cohort-total.png',
        plot = p.data.cohort.total,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
