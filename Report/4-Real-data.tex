@@ -309,19 +309,27 @@ We present the results for lung and stomach cancer, respectively, in the followi
 \newpage
 \subsection{Sensitivity analysis}
 
-Throughout our analysis, we have used the same informative priors for all hyperparameters, for both the Lee-Carter models and the APC-models, without considering the effect this choice have on the prediction results. To investigate whether predictions with different hyperpriors would produce a different result, we run the analysis using the aPc-model with three different prior distributions and compare the results. \textcolor{myDarkGreen}{Sett inn tabell i stedet for Figure}. The score statistics for the different runs are presented in Table TODO. We observe that the predictions using the different hyperpriors have very similar score statistics, an indication that our choice of hyperpriors did not significantly influence the result. 
+Throughout our analysis, we have used the same informative priors for all hyperparameters, for both the Lee-Carter models and the APC-models, without considering the effect this choice have on the prediction results. To investigate whether predictions with different hyperpriors would produce a different result, we run the analysis using the aPc-model with three different prior distributions, namely PC-priors with the parameters
+\begin{equation}
+    \begin{aligned}
+        \mathbb{P}(1/\sqrt{\tau} > 1) & = 0.05 \\
+        \mathbb{P}(1/\sqrt{\tau} > 3) & = 0.05 \\
+        \mathbb{P}(1/\sqrt{\tau} > 1) & = 0.95.
+    \end{aligned}
+\end{equation}
+The score statistics for the different runs are presented in Tables \ref{tbl:mv-sensitivity-lung} and \ref{tbl:mv-sensitivity-stomach}. We observe that the predictions using the different hyperpriors have very similar score statistics, an indication that our choice of hyperpriors did not significantly influence the result. 
 
-\begin{figure}[h!]
-    \centering
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/sensitivity-analysis-aPc-by-period-lung.png}
-    \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/sensitivity-analysis-aPc-by-period-stomach.png}
-    \end{subfigure}
-    \caption{Results from sensitivity analysis of the model that displayed the best predctive performance for lung cancer, the aPc-model (left), and stomach cancer, also the aPc model (right). \textcolor{myDarkGreen}{Remove this image if we have the table?}}
-    \label{fig:mv-sensitivity}
-\end{figure}
+% \begin{figure}[h!]
+%     \centering
+%     \begin{subfigure}[b]{.45\linewidth}
+%         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/sensitivity-analysis-aPc-by-period-lung.png}
+%     \end{subfigure}
+%     \begin{subfigure}[b]{.45\linewidth}
+%         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/sensitivity-analysis-aPc-by-period-stomach.png}
+%     \end{subfigure}
+%     \caption{Results from sensitivity analysis of the model that displayed the best predctive performance for lung cancer, the aPc-model (left), and stomach cancer, also the aPc model (right). \textcolor{myDarkGreen}{Remove this image if we have the table?}}
+%     \label{fig:mv-sensitivity}
+% \end{figure}
 
 \begin{table}
     \begin{center}
@@ -332,17 +340,22 @@ Throughout our analysis, we have used the same informative priors for all hyperp
         P(sd > 1) = 0.95 & 0.00000002518 & -19.37    & 0.9120\\
         P(sd > 3) = 0.05 & 0.00000002519 & -19.37    & 0.9120\\
         \end{tabular}
-    \caption{Stomach cancer data, results from sensitivity analysis}\label{tbl:mv-sensitivity-stomach}
+    \caption{Results from sensitivity analysis, stomach cancer data.}\label{tbl:mv-sensitivity-stomach}
     \end{center}
 \end{table}
 
-Age <= 5 omitted
- Lung cancer data - senstivity analysis: # A tibble: 3 x 4
-  prior                      MSE   MDSS contained
-  <chr>                    <dbl>  <dbl>     <dbl>
-1 P(sd > 1) = 0.05 0.00000001238 -19.83    0.9028
-2 P(sd > 1) = 0.95 0.00000001189 -19.74    0.9028
-3 P(sd > 3) = 0.05 0.00000001182 -19.73    0.9028
+\begin{table}
+    \begin{center}
+        \begin{tabular}{l |c c c }
+        Model & MSE &   MDSS & Contained 95\%-interval\\
+        \hline
+        P(sd > 1) = 0.05 & 0.00000001238 & -19.83    & 0.9028 \\
+        P(sd > 1) = 0.95 & 0.00000001189 & -19.74    & 0.9028 \\
+        P(sd > 3) = 0.05 & 0.00000001182 & -19.73    & 0.9028 \\
+        \end{tabular}
+    \caption{Results from sensitivity analysis, lung cancer data}\label{tbl:mv-sensitivity-lung}
+    \end{center}
+\end{table}
 
 \newpage 
 \subsection{Identifiability issues}
