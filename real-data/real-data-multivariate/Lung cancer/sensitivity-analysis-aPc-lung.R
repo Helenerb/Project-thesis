@@ -1,5 +1,8 @@
 # sensitivity analysis of APC model with shared period effect:
 
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Lung cancer/Workspaces/ws_sensitivity-analysis-aPc-lung.RData")
+
+
 library(INLA)
 library(inlabru)
 library(ggplot2)
@@ -262,5 +265,7 @@ ggsave('sensitivity-analysis-aPc-by-period-lung.png',
        height = 5, width = 8, 
        dpi = "retina"
 )
+
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-multivariate/Lung cancer/Workspaces/ws_sensitivity-analysis-aPc-lung.RData")
 
 
