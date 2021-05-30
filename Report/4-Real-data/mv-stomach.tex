@@ -64,7 +64,21 @@ We apply the APC2- and LCC-models to the stomach cancer data set and analyse the
 %     \label{fig:mv-APC-stomach}
 % \end{figure}
 
-\newpar The prediction results from these models are displayed in Figure \ref{fig:mv-LCC-APC-stomach}. Again, we observe little difference between the APC2 and the LCC-model, other than seemingly wider confidence bounds for the APC2-model. We note that out of the two, the APC2-model has the lowest MDSS. Both models fit the female mortality rates for all ages, for all years quite well. The male mortality rates are also most of the time accurately predicted by both models. The exception is the 85+ age group for the years 2011-2016, and to some degree the 70-74 age group for the same period. \textcolo{myDarkGreen}{You do not have a good explanation for why yet. } 
+\newpar The prediction results from these models are displayed in Figure \ref{fig:mv-LCC-APC-stomach}. Again, we observe little difference between the APC2 and the LCC-model, other than seemingly wider confidence bounds for the APC2-model. We note that out of the two, the APC2-model has the lowest MDSS. Both models fit the female mortality rates for all ages, for all years quite well. The male mortality rates are also most of the time accurately predicted by both models. The exception is the 85+ age group for the years 2011-2016, and to some degree the 70-74 age group for the same period. \textcolor{myDarkGreen}{You do not have a good explanation for why yet. } 
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-age-stomach.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-period-stomach.png}
+    \end{subfigure}
+    \caption{Comparison of the best APC model and the best LCC model - by period, for the stomach cancer data set}
+    \label{fig:mv-LCC-APC-stomach}
+\end{figure}
+
+\newpar Figure \ref{fig:effects-LCC-stomach} presents the estimated random effects from the predictions using the "Common period" and "No common" LCC methods. We observe that the structure of the effects are very similar to the estimated effects for the lung cancer data, and we refer to the analysis in Section \ref{sec:mv-lung} for a more thorough review of these. 
 
 \begin{figure}
     \centering
@@ -78,14 +92,3 @@ We apply the APC2- and LCC-models to the stomach cancer data set and analyse the
     \label{fig:effects-LCC-stomach}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-age-stomach.png}
-    \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-period-stomach.png}
-    \end{subfigure}
-    \caption{Comparison of the best APC model and the best LCC model - by period, for the stomach cancer data set}
-    \label{fig:mv-LCC-APC-stomach}
-\end{figure}

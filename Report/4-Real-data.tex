@@ -308,13 +308,8 @@ We present the results for lung and stomach cancer, respectively, in the followi
 
 \newpage
 \subsection{Sensitivity analysis}
-\textcolor{myDarkGreen}{Skriv om behovet for en sensitivity analysis - så langt har du bare valgt relativt lite informative priors, uten å legge vekt på dette valget. Undersøk om man får forskjellig resultat av å endre prior for hyperparametrene. Presenter hvilke nye priors du tester. Presenter score statistics for forskjellige priors. 
-Understrek at du ser veldig liten forskjell, og konkluderer med at valget ditt av priors sannsynligvis ikke påvirket resultatet i stor grad. 
-\newline
-Figurer:
-\begin{itemize}
-    \item Plott av forskjellige priors sammen - gir et tydelig bilde på hvor stor endringen er mellom de forskjellige priorene. 
-\end{itemize}}
+
+Throughout our analysis, we have used the same informative priors for all hyperparameters, for both the Lee-Carter models and the APC-models, without considering the effect this choice have on the prediction results. To investigate whether predictions with different hyperpriors would produce a different result, we run the analysis using the aPc-model with three different prior distributions and compare the results. \textcolor{myDarkGreen}{Sett inn tabell i stedet for Figure}. The score statistics for the different runs are presented in Table TODO. We observe that the predictions using the different hyperpriors have very similar score statistics, an indication that our choice of hyperpriors did not significantly influence the result. 
 
 \begin{figure}[h!]
     \centering
@@ -324,7 +319,7 @@ Figurer:
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/sensitivity-analysis-aPc-by-period-stomach.png}
     \end{subfigure}
-    \caption{Results from sensitivity analysis of the model that displayed the best predctive performance for lung cancer, the aPc-model (left), and stomach cancer, also the aPc model (right). }
+    \caption{Results from sensitivity analysis of the model that displayed the best predctive performance for lung cancer, the aPc-model (left), and stomach cancer, also the aPc model (right). \textcolor{myDarkGreen}{Remove this image if we have the table?}}
     \label{fig:mv-sensitivity}
 \end{figure}
 
