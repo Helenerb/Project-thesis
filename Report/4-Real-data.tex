@@ -323,6 +323,27 @@ Throughout our analysis, we have used the same informative priors for all hyperp
     \label{fig:mv-sensitivity}
 \end{figure}
 
+\begin{table}
+    \begin{center}
+        \begin{tabular}{l |c c c }
+        Model & MSE &   MDSS & Contained 95\%-interval\\
+        \hline
+        P(sd > 1) = 0.05 & 0.00000002535 & -19.36    & 0.9120\\
+        P(sd > 1) = 0.95 & 0.00000002518 & -19.37    & 0.9120\\
+        P(sd > 3) = 0.05 & 0.00000002519 & -19.37    & 0.9120\\
+        \end{tabular}
+    \caption{Stomach cancer data, results from sensitivity analysis}\label{tbl:mv-sensitivity-stomach}
+    \end{center}
+\end{table}
+
+Age <= 5 omitted
+ Lung cancer data - senstivity analysis: # A tibble: 3 x 4
+  prior                      MSE   MDSS contained
+  <chr>                    <dbl>  <dbl>     <dbl>
+1 P(sd > 1) = 0.05 0.00000001238 -19.83    0.9028
+2 P(sd > 1) = 0.95 0.00000001189 -19.74    0.9028
+3 P(sd > 3) = 0.05 0.00000001182 -19.73    0.9028
+
 \newpage 
 \subsection{Identifiability issues}
 \textcolor{myDarkBlue}{This is not finished, but I don´t know if we still need to include a separate section about this? Or if we should move all the discussion about the effects of the plots here? }
