@@ -96,18 +96,6 @@ pc.prior <- list(prec = list(prior = "pc.prec", param = c(1, 0.05)))
 A.mat = matrix(1, nrow = 1, ncol = length(unique(lung.cancer$x))) 
 e.vec = 1
 
-# priors based on hyperparameters from previous runs
-# pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.658, 0.5)))
-# pc.prior.beta <- list(prec = list(prior = "pc.prec", param = c(0.0837, 0.5)))
-# pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.6)))  # perhaps update this after run
-# pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.00813, 0.5)))
-# pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.0316, 0.5)))
-# pc.prior.alpha <- list(prec = list(prior = "pc.prec"))
-# pc.prior.beta <- list(prec = list(prior = "pc.prec"))
-# pc.prior.kappa <- list(prec = list(prior = "pc.prec"))
-# pc.prior.gamma <- list(prec = list(prior = "pc.prec"))
-# pc.prior.epsilon <- list(prec = list(prior = "pc.prec"))
-
 # note: this way of defining the x, t and k - values are only possible knowing that 
 # we do not have any missing data points in stomach.cancer (we can, however, have zero-data.)
 # also, we know that the lung cancer data set and the stomach cancer data set contain
@@ -166,7 +154,7 @@ likelihood.lc.basic.l = like(formula = form.lc.basic, family = "poisson", data =
 likelihood.lc.basic.s = like(formula = form.lc.basic, family = "poisson", data = stomach.cancer.until2007, E = stomach.cancer.until2007$total.t )
 
 
-# the same control compute as in Sara's first example 
+# control compute
 c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
 
 # run inlabru for all models:
