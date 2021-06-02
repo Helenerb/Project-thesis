@@ -44,7 +44,8 @@ Figure \ref{fig:data-rate} present the observed mortality rates for years 1999, 
 
 \subsection{LC and LCC on full dataset}
 \label{sec:LC-full-data}
-\textcolor{myDarkBlue}{Not finished! And not sure if I should include this section? It would contain just fitting the data to the LC- and LCC-models and look at the effects, without prediction. Does it add any value? The results from this part give rise to the inclusion of the linear LCC model in the nect Section. }
+We begin by fitting the Lee-Carter models to the full data sets to investigate if the results obtained from the previous sections are applicable to real-life situations. We use the same inference procedure as described in Section \ref{sec:implementationInlabru} and the script used to produce the results can be found at \texttt{real-data/real-data-univariate/uv-fit-full-data.R}. 
+
 To get an overview of the dataset and the performance of the LC model on these datasets, we begin by fitting the LC and the LCC model to the full datasets and compare it to plots of the data. 
 
 \newpar Figures \ref{fig:data-by-age}, \ref{fig:data-by-year} and \ref{fig:data-by-cohort} display percent-wise deaths by lung - and stomach cancer, by age groups, years and cohorts (birth years) respectively. Figure \ref{fig:LC-full-dataset} display the random effects obtained by fitting the LC-model to the two data sets, as well as the estimated predictor. Figure \ref{fig:LCC-full-dataset} displays the results from fitting the LCC-model to the stomach cancer data set. 
@@ -217,21 +218,6 @@ However, we note that it seems like what age we set as the cut-off when calculat
 
 Figures \ref{fig:uv-comparison-lung} and \ref{fig:uv-comparison-stomach} display the results from the Lee-Carter and the APC models with the lowest MDSS, the LCC- and the APC2-models respectively. For both cancer types, the APC2-model has a lower MDSS than the LCC-model does (see Tables \ref{tbl:uv-lung-5} and \ref{tbl:uv-stomach-5}), and we see from the plotted results that the APC2-model seems to be slightly more accurate than the LCC-model. We do, however note that the prediction intervals are narrower for the LCC-model predictions for both cancer types.
 
-\subsection{Sensitivity Analysis - choice of priors for $\alpha_x$ and $\gamma_k$}
-\textcolor{myDarkBlue}{Not finished. Not sure if I should include it. }
-\textcolor{myDarkGreen}{Include this section if time: show that your choice of random walk priors for kappa and alpha does not change the prediction results - in comparison with choosing AR1 gamma (as in \textcite{Wisniowski2015}) or iid alpha (as in \textcite{Wisniowski2015}). 
-You have the code, you just need to tidy it. 
-}
-In the Lee-Carter models, we have used random walk prior distributions for both the time effects $\alpha_x$ and the cohort effects. Other literature, e.g. \textcite{Wisniowski2015} have made other choices of prior distributions, and we investigate how our choice of prior affect the prediction results. We compare the prediction results for the LCC-model with choices of prior distributions as given in Section \ref{sec:BayesianInferenceLC} to two versions of the LCC-model with prior distributions for, respectively, $\alpha_x$ and $\gamma_k$ as in \textcite{Wisniowski2015}:
-\begin{equation*}
-    \begin{aligned}
-    \alpha_x & \sim \Normal(0, 1/\tau_alpha) \\
-    \gamma_k & \sim AR(1).
-    \end{aligned}
-\end{equation*}
-The score statistics for the different results are presented in Table 
-
-
 \newpage
 \subsection{Prediction in the Multivariate Case}
 \label{sec:pred-mv}
@@ -332,8 +318,8 @@ The score statistics for the different runs are presented in Tables \ref{tbl:mv-
         \begin{tabular}{l |c c c }
         Model & MSE &   MDSS & Contained 95\%-interval\\
         \hline
-        P(sd > 1) = 0.05 & 0.00000002535 & -19.36    & 0.9120\\
-        P(sd > 1) = 0.95 & 0.00000002518 & -19.37    & 0.9120\\
+        P(sd > 1) = 0.05 & 0.00000002.535e-8 & -19.36    & 0.9120\\
+        P(sd > 1) = 0.95 & 0.00000002.518e-8 & -19.37    & 0.9120\\
         P(sd > 3) = 0.05 & 0.00000002519 & -19.37    & 0.9120\\
         \end{tabular}
     \caption{Results from sensitivity analysis, stomach cancer data.}\label{tbl:mv-sensitivity-stomach}
@@ -345,9 +331,9 @@ The score statistics for the different runs are presented in Tables \ref{tbl:mv-
         \begin{tabular}{l |c c c }
         Model & MSE &   MDSS & Contained 95\%-interval\\
         \hline
-        P(sd > 1) = 0.05 & 0.00000001238 & -19.83    & 0.9028 \\
-        P(sd > 1) = 0.95 & 0.00000001189 & -19.74    & 0.9028 \\
-        P(sd > 3) = 0.05 & 0.00000001182 & -19.73    & 0.9028 \\
+        P(sd > 1) = 0.05 & 1.238e-8 & -19.83    & 0.9028 \\
+        P(sd > 1) = 0.95 & 1.189e-8 & -19.74    & 0.9028 \\
+        P(sd > 3) = 0.05 & 1.182e-8 & -19.73    & 0.9028 \\
         \end{tabular}
     \caption{Results from sensitivity analysis, lung cancer data}\label{tbl:mv-sensitivity-lung}
     \end{center}
