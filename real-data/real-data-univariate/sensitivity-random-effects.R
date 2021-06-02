@@ -1,4 +1,9 @@
 # script to test whether AR1 models perform much better than RW1 for cohort effects:
+
+# load work space image 
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Workspaces/ws_sensitivity-random-effects.RData")
+
+
 library(INLA)
 library(inlabru)
 library(ggplot2)
@@ -200,17 +205,43 @@ data.lc.l.rw1.iid <- res.lc.l.rw1.iid$summary.fitted.values %>%
   slice(1:324) %>%
   bind_cols(lung.cancer %>% select(- c("x.1", "t.1", "xt")))
 
+data.lc.s.rw1.iid <- res.lc.s.rw1.iid$summary.fitted.values %>%
+  slice(1:324) %>%
+  bind_cols(stomach.cancer %>% select(- c("x.1", "t.1", "xt")))
+
 data.pred.l <- rbind(data.lc.l.ar1, data.lc.l.rw1, data.lc.l.rw1.iid) %>%
   mutate("method" = rep(c("AR1", "RW1", "iid"), each = 324)) %>%
   mutate(SE = (mean - `mortality rate`)^2) %>%
   mutate(DSS = ((`mortality rate` - mean)/sd)^2 + 2*log(sd)) %>%
   mutate(contained = as.integer((`mortality rate` >= `0.025quant` & `mortality rate` <= `0.975quant`)))
 
-data.pred.s <- rbind(data.lc.s.ar1, data.lc.s.rw1) %>%
-  mutate("method" = rep(c("AR1", "RW1"), each = 324)) %>%
+data.pred.s <- rbind(data.lc.s.ar1, data.lc.s.rw1, data.lc.s.rw1.iid) %>%
+  mutate("method" = rep(c("AR1", "RW1", "iid"), each = 324)) %>%
   mutate(SE = (mean - `mortality rate`)^2) %>%
   mutate(DSS = ((`mortality rate` - mean)/sd)^2 + 2*log(sd)) %>%
   mutate(contained = as.integer((`mortality rate` >= `0.025quant` & `mortality rate` <= `0.975quant`)))
+
+# display four significant digits 
+options(pillar.sigfig = 4)
+
+# lung cancer:
+pred.statistics.cutoff <- data.pred.l %>% 
+  filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
+  filter(x > 5) %>%
+  group_by(method) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+
+cat("\n Age <= 5 omitted");cat("\n Lung cancer data - senstivity analysis random effects: ");pred.statistics.cutoff
+
+# stomach cancer:
+pred.statistics.cutoff.s <- data.pred.s %>% 
+  filter(year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")) %>% 
+  filter(x > 5) %>%
+  group_by(method) %>%
+  summarise(MSE = mean(SE), MDSS = mean(DSS), contained = mean(contained))
+
+cat("\n Age <= 5 omitted");cat("\n Stomach cancer data - senstivity analysis random effects: ");pred.statistics.cutoff.s
+
 
 gg.p.s <- ggplot(data.pred.s %>%
                        filter(x > 5),
@@ -240,8 +271,11 @@ gg.p.l <- ggplot(data.pred.l %>%
                      values = palette.basis) +
   scale_fill_manual(name = "Prediction method",
                     values = palette.basis) +
-  labs(title = "LCC models - stomach cancer", x = "Age groups", y = "Mortality rate") + 
+  labs(title = "LCC models - lung cancer", x = "Age groups", y = "Mortality rate") + 
   theme(axis.text.x = element_text(angle = -30, hjust=0)) +
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) + 
   facet_wrap(~age)
 gg.p.l
+
+# save workspace image
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Workspaces/ws_sensitivity-random-effects.RData")
