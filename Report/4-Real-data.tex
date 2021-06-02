@@ -1,17 +1,9 @@
 \newpage
 \section{Application of LC and APC models to German cancer data}
-\textcolor{myDarkGreen}{Innledning - presenter hva som skal gjøres:
-\begin{itemize}
-    \item Prediksjon med APC og LC modeller
-    \item Først univariate, så multivariate
-\end{itemize}
-}
+
 In the second part of our investigation, we apply the Lee-Carter methods to real data and use \inlabru to make inference. We compare the results to the application of APC-models on the same data sets, also using \inlabru. Note that in the case of the APC model, inference with \inlabru will yield the same results as inference using only \inla. Since the random effects in the APC model are not uniquely identifible, we compare the two models by their predictive abilities. We test both univariate and multivariate versions of the Lee-Carter and APC models (the latter with sex as a covariate), and we begin with the univariate case. 
 \subsection{German cancer data}
 \label{sec:GermanCancerData}
-\textcolor{myDarkGreen}{
-Presenter datasettene. Si noe om hvor de kommer fra, hvordan de opprinnelig er aggregert og hvordan du har aggregert dem. Plott dataen aggregert over cohort, alder og period. Fortell hvordan du indekserer alder, cohort og period og si at denne indekseringen vil benyttes for alle modellene. Legg vekt på at kohort-indeksen skiller seg fra synthetic-data stadiet siden du har forskjellige intervaller. Referer til Andrea sin metode å løse det på. 
-}
 We use data of mortality for lung and stomach cancer in Germany in the years 1999-2016, obtained from \texcite{cancerData}. In these data sets, the observed mortality for the two cancer types are given by the number of cases for male and females, for each year, for five-year age intervals. The exception is for the ages above 85 year, which are collected in a single group. For the univariate part of our analysis, we add the male and female cases to obtain the total mortality for male and female. We find data for the total German population for the corresponding years and ages at \texcite{germanPopulation}. This population data contains observations for age groups of one year, and we aggregate this data to the same five-year age groups as for the cancer data. We then find the mortality rates for each cancer type, for each year, age group and sex by dividing the cases of mortality by the total population for each observation. 
 
 When formatting the data sets, it is easier to begin the indexing of age groups, period and cohorts at 0 rather than 1, so we update the indexing scheme accordingly:
@@ -21,7 +13,7 @@ When formatting the data sets, it is easier to begin the indexing of age groups,
     \item The cohort indices are now given by $k = 5(X - x) + t$, $K = 5X + T$.
 \end{itemize}
 
-A summary of the data sets are presented in Figures \ref{fig:data-total} and \ref{fig:data-age-rate}. Figure \ref{fig:data-total} give a representation of the distribution of the population and the distribution of mortality cases over different age groups and years. Note that the left-most plot in Figure \ref{fig:data-total} gives a relative, but not an accurate representation, of the German population, as the people who were alive for more than one year during 1999-2016 will have been counted more than once. We observe that most cancer mortalities occur at the ages around $x = 13$, both for male and females. From the right-most part of Figure \ref{fig:data-age-rate} we observe that the observed lung cancer cases seem to increase more with time for women than for men. 
+A summary of the data sets are presented in Figures \ref{fig:data-total} and \ref{fig:data-rate}. Figure \ref{fig:data-total} give a representation of the distribution of the population and the distribution of mortality cases over different age groups and years. Note that the left-most plot in Figure \ref{fig:data-total} gives a relative, but not an accurate representation, of the German population, as the people who were alive for more than one year during 1999-2016 will have been counted more than once. We observe that most cancer mortalities occur at the ages around $x = 13$, both for male and females. From the right-most part of Figure \ref{fig:data-total} we observe that the observed lung cancer cases seem to increase more with time for women than for men. \textcolor{myDarkGreen}{Note that there is a clear drop in the German population in year 2011. This is because of an estimation error in the census before the years 2011, when the German population was recounted. It does not seem to have an effect on the prediction results, how much and when should this be discussed? }
 
 \begin{figure}
     \centering
@@ -36,7 +28,7 @@ A summary of the data sets are presented in Figures \ref{fig:data-total} and \re
     \label{fig:data-total}
 \end{figure}
 
-Figure \ref{fig:data-rate} present the observed mortality rates for years 1999, 2005, 2011 and 2016, for each age group and each cohort. We observe that for younger ages, the mortality rates are close to zero for both lung and stomach cancer. For the years 2005, 2011 and 2016 we see that we do not have observations for the  mortality rates for older cohorts (lower cohort index $k$). \textcolort{myDarkGreen}{What more should be said at this stage}.
+Figure \ref{fig:data-rate} present the observed mortality rates for years 1999, 2005, 2011 and 2016, for each age group and each cohort. We observe that for younger ages, the mortality rates are close to zero for both lung and stomach cancer. For the years 2005, 2011 and 2016 we see that we do not have observations for the  mortality rates for older cohorts (lower cohort index $k$). \textcolor{myDarkGreen}{What more should be said at this stage?}.
 
 \begin{figure}
     \centering
@@ -52,12 +44,13 @@ Figure \ref{fig:data-rate} present the observed mortality rates for years 1999, 
 
 \subsection{LC and LCC on full dataset}
 \label{sec:LC-full-data}
+\textcolor{myDarkBlue}{Not finished! And not sure if I should include this section? It would contain just fitting the data to the LC- and LCC-models and look at the effects, without prediction. Does it add any value? The results from this part give rise to the inclusion of the linear LCC model in the nect Section. }
 To get an overview of the dataset and the performance of the LC model on these datasets, we begin by fitting the LC and the LCC model to the full datasets and compare it to plots of the data. 
 
 \newpar Figures \ref{fig:data-by-age}, \ref{fig:data-by-year} and \ref{fig:data-by-cohort} display percent-wise deaths by lung - and stomach cancer, by age groups, years and cohorts (birth years) respectively. Figure \ref{fig:LC-full-dataset} display the random effects obtained by fitting the LC-model to the two data sets, as well as the estimated predictor. Figure \ref{fig:LCC-full-dataset} displays the results from fitting the LCC-model to the stomach cancer data set. 
 
 \newpar From the Figure \ref{fig:LC-full-dataset} and Figure \ref{fig:LCC-full-dataset} we see that $\alphav$ is the random effect that is modeled with the highest precision for both the LC-model and the LCC-model. This indicates a clear tendency of change in the mortality rate for different age groups, with a higher mortality rate for older age groups. Figure \ref{fig:data-by-age} confirms this, as it shows a much higher mortality rate for older age groups, for both males and females. 
-\newpar We observe from Figures \ref{fig:LC-full-dataset} and \ref{fig:LCC-full-dataset} that there is much higher uncertainty related to the estimation of the period effects, $\kappav$ and $\phi\cdot t$. The estimated $\kappav$ seemes in both cases to be almost insignificant, with wide confidence bounds centered around zero. The $\phi \cdot t$ effect on the other hand, does show a clear tendency of a decreasing mortality rate for higher years. [TODO: TENK GJENNOM HVORFOR PHI ER NEGATIV NÅR DU HAR EN ØKENDE TIDSTREND!! HER KAN DU JO BEGYNNE Å SPEKULERE I AT DET KANSKJE ER SMART Å HA MED EN KOHORT-EFFEKT...] We also observe a clear tendency in the cohort-effects. [OGSÅ: LEGG TIL NYE PLOTT AV EFFEKT MED LC PÅ EKTE DATA, TROR DE DU HAR NÅ KAN VÆRE UTDATERTE..]
+\newpar We observe from Figures \ref{fig:LC-full-dataset} and \ref{fig:LCC-full-dataset} that there is much higher uncertainty related to the estimation of the period effects, $\kappav$ and $\phi\cdot t$. The estimated $\kappav$ seemes in both cases to be almost insignificant, with wide confidence bounds centered around zero. The $\phi \cdot t$ effect on the other hand, does show a clear tendency of a decreasing mortality rate for higher years.  We also observe a clear tendency in the cohort-effects. 
 
 \subsection{Prediction in the Univariate Case}
 We begin by comparing prediction results for the univariate LC- and LCC-models (see Equations \ref{eq:LC-rewritten} and \ref{eq:LCC-rewritten}) to prediction results for the APC1- and APC2-models (see Section \ref{sec:BayesianInferenceAPC}).
@@ -66,7 +59,7 @@ In the comparison of the the Lee-Carter models, we include an additional version
 \begin{equation}
     \eta_{x,t} = \mu + \alpha_x + \beta_x\cdot \phi \cdot t + \gamma_k + \epsilon_{x,t}.
 \end{equation}
-We refer to this model as the LCC-linear model, since it only has a linear period term $\phi \cdot t$. We include this model in the comparison, since we se from ... \textcolor{myDarkGreen}{You have to write this part} that the term $\kappa_t$ seem to be insignificant. Thus, we investigate if a reduced version of the model performs better. 
+We refer to this model as the LCC-linear model, since it only has a linear period term $\phi \cdot t$. We include this model in the comparison, since we see from the results in Section \ref{sec:LC-full-data} that the term $\kappa_t$ seem to be insignificant. Thus, we investigate if a reduced version of the model performs better. 
 
 In order to assess the prediction quality of the different models, we divide the data sets with cancer mortality observations in half, and use the first half (years 1999-2007) to predict the mortality rates in the second half (2008-2016), given the at-risk populations from the German population data. We find the forecasts for years 2008-2016 by using \inlabru to fit the different models to the data sets, as described in Section \ref{sec:implementationInlabru}, and setting the observed deaths to missing (\texttt{NA}) for the years that we want to predict. \inlabru then automatically calculates predictions for the missing values. 
 To assess the performance of the various predictions, we consider both the accuracy and the sharpness of the predictions, i.e. how close the mean predicted values are to the true mortality rates and how wide or narrow the prediction intervals are. Predictions with a higher accuracy are preferred to predictions with lower accuracy, and sharp predictions, with a narrow prediction interval, are preferred as long as the predictions are also fairly accurate. A score statistic that take all of this into consideration is the Dawid-Sebastiani Score (DSS), defined by 
@@ -229,16 +222,20 @@ Figures \ref{fig:uv-comparison-lung} and \ref{fig:uv-comparison-stomach} display
 \textcolor{myDarkGreen}{Include this section if time: show that your choice of random walk priors for kappa and alpha does not change the prediction results - in comparison with choosing AR1 gamma (as in \textcite{Wisniowski2015}) or iid alpha (as in \textcite{Wisniowski2015}). 
 You have the code, you just need to tidy it. 
 }
+In the Lee-Carter models, we have used random walk prior distributions for both the time effects $\alpha_x$ and the cohort effects. Other literature, e.g. \textcite{Wisniowski2015} have made other choices of prior distributions, and we investigate how our choice of prior affect the prediction results. We compare the prediction results for the LCC-model with choices of prior distributions as given in Section \ref{sec:BayesianInferenceLC} to two versions of the LCC-model with prior distributions for, respectively, $\alpha_x$ and $\gamma_k$ as in \textcite{Wisniowski2015}:
+\begin{equation*}
+    \begin{aligned}
+    \alpha_x & \sim \Normal(0, 1/\tau_alpha) \\
+    \gamma_k & \sim AR(1).
+    \end{aligned}
+\end{equation*}
+The score statistics for the different results are presented in Table 
+
 
 \newpage
 \subsection{Prediction in the Multivariate Case}
 \label{sec:pred-mv}
-
-\textcolor{myDarkGreen}{
-Intro: forskjell på multivariate og univariate. Referer til figuren av plottet data - tydelig forskjell på kjønnene, som kan tyde på at en multivariate modell vil fungere bedre. 
-}
-
-\textcolor{myDarkGreen}{Thought: For the multivariate version where all effects are kept common, you should also have a common intercept! If not it might be very different to adjust one random effect to two different overall mortality rates? Or, if this is difficult, should the male and female intercept just be the same? }
+\textcolor{myDarkGreen}{Thought: For the multivariate version where all effects are kept common, you should also have a common intercept! If not it might be very different to adjust one random effect to two different overall mortality rates? Or would this naturally occur if it is simpler to fit the data when male and female have the same intercept? }
 
 From the plots of the cancer mortality data in Section \ref{sec:GermanCancerData}, we observe a significant difference in male and female mortality rates, for both cancer types. The investigation of multivariate models with sex as a covariate, is then a natural next step in our analysis. We fit multivariate versions of Lee-Carter and APC models to the observed male and female cancer deaths, and use the male and female populations as the at-risk values. To avoid having to compare too many different models, we test only the Lee-Carter and APC models that displayed the best MDSS in the univariate case, namely the LCC-model and the APC2-model (for both lung and stomach cancer). We use the approach described in Section \ref{sec:multivariateAPC} to obtain multivariate versions of the LCC- and APC2-model, namely keeping some of the random effects common across the sexes. It is not clear from the plots of the data which, if any, of the effects that should be kept common for male and female populations. Therefore, we find predictions using models with all combinations of common and separate age, period and cohort effects, and compare the results. We test the following versions of the LCC-model:
 \begin{itemize}
