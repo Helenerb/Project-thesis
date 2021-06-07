@@ -42,10 +42,25 @@ The \inlabru method was run for multiple configurations of the true effects. Fig
 for $x\in [1,10]$ and $t \in [1,10]$. The code used to produce these results can be found at the \texttt{GitHub} repository under \texttt{synthetic-data/L-C-alpha-x.R}. 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.85\linewidth]{synthetic-data/Figures/effects-LC-synthetic.png}
-    \caption{The results from running \inlabru when the random effects are simulated from the model given in Expression \ref{eq:conf21}. \textit{Top:} The mean and the 95\% confidence bounds of the approximated posterior marginal distributions of $\alpha_x$ (Alpha), $\beta_x$ (Beta) and $\kappa_t$ (Kappa), together with their respective true random effects. \textit{Bottom, left:} The approximated marginal posterior distribution of $\phi$ with the mean value as a solid line, together with the true value of $\phi$. \textit{Bottom, right:} The mean of the approximated posterior marginal distribution for $\eta_{x,t}$ plotted against the true value for $\eta_{x,t}$. }
+    \begin{subfigure}[b]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{synthetic-data/Figures/effects-LC-synthetic.png}
+        \caption{\textit{Top:} The mean and the 95\% confidence bounds of the approximated posterior marginal distributions of $\alpha_x$ (Alpha), $\beta_x$ (Beta) and $\kappa_t$ (Kappa), together with their respective true random effects. \textit{Bottom, left:} The approximated marginal posterior distribution of $\phi$ with the mean value as a solid line, together with the true value of $\phi$. \textit{Bottom, right:} The mean of the approximated posterior marginal distribution for $\eta_{x,t}$ plotted against the true value for $\eta_{x,t}$. }
+        \label{fig:firstRun-top}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{0.6\textwidth}
+        \centering
+        \includegraphics[width=0.85\linewidth]{synthetic-data/Figures/hyperparameters-LC-synthetic-2-1.png}
+        \caption{The estimated precisions for the effects of $\alpha_x$ (Alpha), $\beta_x$ (Beta) and $\kappa_t$ (Kappa). In the plot of the precision for $\beta_x$ (middle), the value of the precision used to sample the underlying data is included as a comparison. }
+        \label{fig:firstRun-bottom}
+    \end{subfigure}
+    
+    \caption{The results from running \inlabru when the random effects are simulated from the model given in Expression \ref{eq:conf21}. }
     \label{fig:firstRun}
 \end{figure}
+
+
 From Figure \ref{fig:firstRun} it is clear that \inlabru is able to identify all random effects significantly, as well as displaying a good estimation for the predictor $\eta_{x,t}$ (A straight line with a slope of one in the plot of estimated and true values of $\eta_{x,t}$ correspond to equal values). Looking at the results from testing \inlabru with other models for the random effects, we observe that \inlabru is able to produce a good result for the predictor $\eta_{x,t}$ in all cases and good results for the random effects in most cases. In Section \ref{sec:IdentifiabilityKappa} we discuss why the combination of random effects that yield bad results from \inlabru are not considered realistic, and then not a hinder for using \inlabru to fit LC-models. These results provide the basis for for our paper, as it shows that \inlabru makes it possible to bypass the obstacle that \inla alone is not able to handle Lee-Carter type handle models with non-linear predictors.
 
 \subsection{Choice of Implementation of $\beta_x$}
@@ -102,7 +117,18 @@ A comparison between the results from the two runs with the different implementa
 For some combinations of underlying models for $\kappa_t$ and $\phi$ we observe that \inlabru is not able to correctly identify these effects, while the prediction of $\etav$ is still correct, as mentioned in Section \ref{sec:synthFirstInferenceLC}. This indicates that there are some identifiability issues between $\kappa_t$ and $\phi \cdot t$ that become apparent for some combinations of these effects. We test several different combinations of $\kappa_t$ and $\phi$ to try to isolate the types of combinations that \inlabru is not able to correctly identify.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.85\linewidth]{synthetic-data/Figures/effects-LC-synthetic-identifiability.png}
+    \begin{subfigure}[b]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{synthetic-data/Figures/effects-LC-synthetic-identifiability.png}
+        \caption{The estimated random effects, and the estimated predictor $\eta_{x,t}$}
+        \label{fig:unidentifiabilityKappa-top}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{synthetic-data/Figures/hyperparameters-LC-synthetic-2-2.png}
+        \caption{The estimated precisions, with the precision used to sample underlying values for $\beta_x$ in yellow}
+        \label{fig:unidentifiabilityKappa-top}
+    \end{subfigure}
+    
     \caption{An example of the results after running \inlabru with a configuration that yields identifiability issues with $\kappat$ and $\phi \cdot t$. The plot layout is similar to that of Figure \ref{fig:firstRun}.}
     \label{fig:unidentifiabilityKappa}
 \end{figure}
@@ -130,7 +156,7 @@ Figure \ref{fig:conf31} displays the results from running \inlabru with the foll
 \begin{equation}
     \begin{aligned}
         &\alpha_x = \cos(\frac{x-3}{6}\pi)\\
-        &\beta_x = \Normal(0,0.05^2)\\
+        &\beta_x = \Normal(0,0.1^2)\\
         &\phi = -0.5\\
         &\kappa_t = \frac{1}{2}\cos(\frac{t\cdot \pi}{3})\\
         &\gammax = -\frac{1}{2}\left( 0.1k + \cos(\frac{k-2}{4})\right)\\
