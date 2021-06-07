@@ -88,13 +88,13 @@ obs.2.1 = obs %>%
 
 obs.2.2 = obs %>% 
   mutate(beta = beta[as.vector(obs$x)],
-         kappa = kappa.2.2[as.vector(obs$t)],
+         kappa.o = kappa.2.2[as.vector(obs$t)],
          alpha = alpha[as.vector(obs$x)],
          phi.t = phi*obs$t,
          phi = phi,
          at.risk = at.risk,
          epsilon = rnorm(n = N, 0, sqrt(1/tau.epsilon))) %>%
-  mutate(eta = alpha + beta*phi.t + beta*kappa.2.2 + epsilon) %>% # linear predictor
+  mutate(eta = alpha + beta*phi.t + beta*kappa.o + epsilon) %>% # linear predictor
   mutate(y.o = rpois(N, at.risk*exp(eta))) %>%                 # simulate data
   mutate(t1 = t, x1 = x)  %>%                                # add extra t and x to the observations for the sake of inlabru:
   mutate(xt = seq_along(t))
@@ -215,28 +215,178 @@ p.eta.2.1 <- ggplot(data = data.eta.2.1) +
   labs(x="Estimated eta", y="True value for eta", title = "Eta")
 p.eta.2.1
 
-# configuration 2.1 --> basic LC model with alpha as an effect of x
-# p.alpha.x <- (p.alpha | p.beta | p.kappa)/(p.phi | p.eta) +
-#   plot_layout(guides = "collect") & 
-#   plot_annotation(title = "Estimated random effects for Lee-Carter model, with synthetic data")
-# p.alpha.x
-# 
-# ggsave('effects-LC-synthetic.png',
-#        plot = p.alpha.x,
-#        device = "png",
-#        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
-#        height = 5, width = 8, 
-#        dpi = "retina"
-# )
+#configuration 2.1 --> basic LC model with alpha as an effect of x
+p.alpha.x <- (p.alpha.2.1 | p.beta.2.1 | p.kappa.2.1)/(p.phi.2.1 | p.eta.2.1) +
+  plot_layout(guides = "collect") &
+  plot_annotation(title = "Estimated random effects for Lee-Carter model, with synthetic data")
+p.alpha.x
+
+ggsave('effects-LC-synthetic.png',
+       plot = p.alpha.x,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
+       height = 5, width = 8,
+       dpi = "retina"
+)
+
+# plots of distribution of hyperparameter: 2.1:
+p.prec.alpha.2.1 <- ggplot(data.frame(res.2.1$marginals.hyperpar) %>%
+                             filter(Precision.for.alpha.x < 200)) + 
+  geom_area(aes(x = Precision.for.alpha.x, y = Precision.for.alpha.y),fill = palette.basis[1], alpha = 0.4) + 
+  geom_vline(data = res.2.1$summary.hyperpar, aes(xintercept = mean[1]), color = palette.basis[1]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision for alpha")
+p.prec.alpha.2.1
+# two values above 200
+
+p.prec.beta.2.1 <- ggplot(data.frame(res.2.1$marginals.hyperpar) %>%
+                            filter(Precision.for.beta.x < 1000)) + 
+  geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Estimated"), alpha = 0.4) + 
+  geom_vline(data = res.2.1$summary.hyperpar, aes(xintercept = mean[2], color = "Estimated", fill = "Estimated")) + 
+  geom_vline(aes(xintercept = tau.iid, color = "True value", fill = "True value")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of precision", y = " ", title = "Precision for beta")
+p.prec.beta.2.1
+# two values above 1000
+
+p.prec.kappa.2.1 <- ggplot(data.frame(res.2.1$marginals.hyperpar) %>%
+                            filter(Precision.for.kappa.x < 1000)) + 
+  geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), alpha = 0.4, fill = palette.basis[1]) + 
+  geom_vline(data = res.2.1$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision for kappa")
+p.prec.kappa.2.1
+# two values above 1000
+
+#configuration 2.1 --> basic LC model with alpha as an effect of x
+p.hyperpars.2.1 <- (p.prec.alpha.2.1 | p.prec.beta.2.1 | p.prec.kappa.2.1) +
+  plot_layout(guides = "collect") & theme(legend.position = 'bottom') &
+  plot_annotation(title = "Estimated hyperparameters for Lee-Carter model, with synthetic data")
+p.hyperpars.2.1
+
+ggsave('hyperparameters-LC-synthetic-2-1.png',
+       plot = p.hyperpars.2.1,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
+       height = 5, width = 8,
+       dpi = "retina"
+)
+
+# 2.2 --> identifiability issues
+
+p.Int.2.2 <- ggplot(data.frame(res.2.2$marginals.fixed)) + 
+  geom_area(aes(x = Int.x, y = Int.y, fill = "Estimated"), alpha = 0.4) + 
+  geom_vline(data = res.2.2$summary.fixed, aes(xintercept = mean[1], color = "Estimated")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of intercept", y = " ", title = "Intercept")
+
+p.Int.2.2
+
+data.alpha.2.2 = cbind(res.2.2$summary.random$alpha, alpha.true = alpha[res.2.2$summary.random$alpha$ID])
+p.alpha.2.2 <- ggplot(data = data.alpha.2.2, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+  geom_point(aes(y = alpha.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(title="Alpha", x = "x", y='')
+
+p.alpha.2.2
+
+data.beta.2.2 = cbind(res.2.2$summary.random$beta, beta.true = beta[res.2.2$summary.random$beta$ID])
+p.beta.2.2 <- ggplot(data = data.beta.2.2, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+  geom_point(aes(y = beta.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(x = "x", y = "beta", title = "Beta")
+
+p.beta.2.2
+
+data.kappa.2.2 = cbind(res.2.2$summary.random$kappa, kappa.true = kappa.2.2[res.2.2$summary.random$kappa$ID])
+p.kappa.2.2 <- ggplot(data = data.kappa.2.2, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+  geom_point(aes(y = kappa.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(x = "t", y = "kappa", title = "Kappa")
+
+p.kappa.2.2
+
+p.phi.2.2 <- ggplot(data.frame(res.2.2$marginals.fixed)) + 
+  geom_area(aes(x = phi.x, y = phi.y, fill = "Estimated"), alpha = 0.4) + 
+  geom_vline(data = res.2.2$summary.fixed, aes(xintercept = mean[2], color = "Estimated", fill = "Estimated")) + 
+  geom_vline(data = obs, aes(xintercept = phi, color = "True value", fill = "True value")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of phi", y = " ", title = "Phi")
+p.phi.2.2
+
+data.eta.2.2 <- data.frame({eta.sim = res.2.2$summary.linear.predictor$mean[1:N]}) %>%
+  mutate(true.eta = obs.2.2$eta)
+p.eta.2.2 <- ggplot(data = data.eta.2.2) +
+  geom_point(aes(x = eta.sim, y = true.eta), color = palette.basis[1]) + 
+  labs(x="Estimated eta", y="True value for eta", title = "Eta")
+p.eta.2.2
 
 # configuration 2.2 --> LC model displaying identifiability issues:
-p.LC.identifiability <- (p.alpha | p.beta | p.kappa)/(p.phi | p.eta) +
+p.LC.identifiability <- (p.alpha.2.2 | p.beta.2.2 | p.kappa.2.2)/(p.phi.2.2 | p.eta.2.2) +
   plot_layout(guides = "collect") &
   plot_annotation(title = "Estimated random effects for Lee-Carter model, with synthetic data")
 p.LC.identifiability
 
 ggsave('effects-LC-synthetic-identifiability.png',
        plot = p.LC.identifiability,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
+       height = 5, width = 8,
+       dpi = "retina"
+)
+
+# plots of distribution of hyperparameter: 2.2:
+p.prec.alpha.2.2 <- ggplot(data.frame(res.2.2$marginals.hyperpar) %>%
+                             filter(Precision.for.alpha.x < 200)) + 
+  geom_area(aes(x = Precision.for.alpha.x, y = Precision.for.alpha.y),fill = palette.basis[1], alpha = 0.4) + 
+  geom_vline(data = res.2.2$summary.hyperpar, aes(xintercept = mean[1]), color = palette.basis[1]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision for alpha")
+p.prec.alpha.2.1
+# two values above 200
+
+p.prec.beta.2.2 <- ggplot(data.frame(res.2.2$marginals.hyperpar) %>%
+                            filter(Precision.for.beta.x < 1000)) + 
+  geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Estimated"), alpha = 0.4) + 
+  geom_vline(data = res.2.2$summary.hyperpar, aes(xintercept = mean[2], color = "Estimated", fill = "Estimated")) + 
+  geom_vline(aes(xintercept = tau.iid, color = "True value", fill = "True value")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of precision", y = " ", title = "Precision for beta")
+p.prec.beta.2.2
+# two values above 1000
+
+p.prec.kappa.2.2 <- ggplot(data.frame(res.2.2$marginals.hyperpar) %>%
+                             filter(Precision.for.kappa.x < 1000)) + 
+  geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), alpha = 0.4, fill = palette.basis[1]) + 
+  geom_vline(data = res.2.2$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision for kappa")
+p.prec.kappa.2.2
+# two values above 1000
+
+#configuration 2.2 --> basic LC model with alpha as an effect of x
+p.hyperpars.2.2 <- (p.prec.alpha.2.2 | p.prec.beta.2.2 | p.prec.kappa.2.2) +
+  plot_layout(guides = "collect") & theme(legend.position = 'bottom') &
+  plot_annotation(title = "Estimated hyperparameters for Lee-Carter model, with synthetic data")
+p.hyperpars.2.2
+
+ggsave('hyperparameters-LC-synthetic-2-1.png',
+       plot = p.hyperpars.2.1,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
        height = 5, width = 8,
