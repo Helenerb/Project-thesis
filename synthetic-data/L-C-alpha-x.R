@@ -360,6 +360,7 @@ p.prec.alpha.2.2 <- ggplot(data.frame(res.2.2$marginals.hyperpar) %>%
 p.prec.alpha.2.1
 # two values above 200
 
+
 p.prec.beta.2.2 <- ggplot(data.frame(res.2.2$marginals.hyperpar) %>%
                             filter(Precision.for.beta.x < 1000)) + 
   geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Estimated"), alpha = 0.4) + 
@@ -371,13 +372,14 @@ p.prec.beta.2.2 <- ggplot(data.frame(res.2.2$marginals.hyperpar) %>%
 p.prec.beta.2.2
 # two values above 1000
 
+
 p.prec.kappa.2.2 <- ggplot(data.frame(res.2.2$marginals.hyperpar) %>%
-                             filter(Precision.for.kappa.x < 1000)) + 
+                             filter(Precision.for.kappa.x < 20000)) + 
   geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), alpha = 0.4, fill = palette.basis[1]) + 
   geom_vline(data = res.2.2$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
   labs(x = "Value of precision", y = " ", title = "Precision for kappa")
 p.prec.kappa.2.2
-# two values above 1000
+# seven values above 20000
 
 #configuration 2.2 --> basic LC model with alpha as an effect of x
 p.hyperpars.2.2 <- (p.prec.alpha.2.2 | p.prec.beta.2.2 | p.prec.kappa.2.2) +
@@ -385,8 +387,8 @@ p.hyperpars.2.2 <- (p.prec.alpha.2.2 | p.prec.beta.2.2 | p.prec.kappa.2.2) +
   plot_annotation(title = "Estimated hyperparameters for Lee-Carter model, with synthetic data")
 p.hyperpars.2.2
 
-ggsave('hyperparameters-LC-synthetic-2-1.png',
-       plot = p.hyperpars.2.1,
+ggsave('hyperparameters-LC-synthetic-2-2.png',
+       plot = p.hyperpars.2.2,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
        height = 5, width = 8,
