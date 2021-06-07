@@ -6,6 +6,9 @@
 # some of the cohorts (t-x) will be negative. 
 # The mapping between the cohort value and its index in gamma is cohort.val - cohort.min + 1
 
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-cohort-v2-3-1.RData")
+
+
 library(INLA)
 library(inlabru)
 library(ggplot2)
@@ -41,9 +44,9 @@ obs = data.frame(x,t,cohort)
 
 #   model parameters for underlying models:
 
-#tau.iid = 1/0.1**2   #  Precision of iid beta: 100
+tau.iid = 1/0.1**2   #  Precision of iid beta: 100
 #tau.iid = 1/0.5**2  # attempt with lower precision - higher variance
-tau.iid = 1/0.05**2  # attempt with higher precision - lower variance
+#tau.iid = 1/0.05**2  # attempt with higher precision - lower variance
 tau.epsilon = 1/0.01**2   #  Precision of error term: 10000
 
 #kappa = 0.3*cos((1:nt)*pi/5)
@@ -52,15 +55,15 @@ kappa = 0.5*cos((1:nt)*pi/3)   # 25.02:14, conf 3.1, 3.3
 
 kappa = kappa - mean(kappa)
 
-#alpha = cos(((1:nx - 3)* pi)/6)  # conf 3.1
-alpha = cos(((1:nx)* pi)/8)  # conf 3.3
+alpha = cos(((1:nx - 3)* pi)/6)  # conf 3.1
+#alpha = cos(((1:nx)* pi)/8)  # conf 3.3
 alpha = alpha - mean(alpha)
 
 #gamma = 0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/2)
 #gamma = 0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max)
 #gamma = 0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/3)
-gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/3))  # conf 3.3
-#gamma = -0.5*(0.1*(cohort.min:cohort.max) + cos((cohort.min:cohort.max - 2)/4))  # conf 3.1
+#gamma = 0.5*(0.2*(cohort.min:cohort.max) + sin(cohort.min:cohort.max/3))  # conf 3.3
+gamma = -0.5*(0.1*(cohort.min:cohort.max) + cos((cohort.min:cohort.max - 2)/4))  # conf 3.1
 gamma = gamma - mean(gamma)  #center around zero
 
 phi = -0.5   # conf 3.1, 3.3
@@ -103,22 +106,25 @@ A.mat = matrix(1, nrow = 1, ncol = nx)  #  not sure if you did this correctly
 e.vec = 1
 
 # attempt with less informative priors: config 3.1 and config 3.3
-pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
-pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.5)))
-pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.05, 0.5)))
-pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.5)))
+# pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
+# pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.5)))
+# pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.05, 0.5)))
+# pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.5)))
+
+# common, uninformative prior: 
+pc.prior <- list(prec = list(prior = "pc.prec", param = c(1, 0.5)))
 
 # note: change names of components, to ensure no mix-up with global variables and 
 # variables in the observation.
 
 comp = ~ -1 + 
   Int(1) + 
-  alpha(x, model = "rw1", constr = TRUE, hyper = pc.prior.alpha) + 
+  alpha(x, model = "rw1", constr = TRUE, hyper = pc.prior) + 
   phi(t, model = "linear", mean.linear = -0.5, prec.linear = 0.25) +
-  beta(x1, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
-  kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior.kappa) +
-  gamma(cohort, model = "rw1", values = cohort.min:cohort.max, constr = TRUE, hyper = pc.prior.gamma) + 
-  epsilon(xt, model = "iid", hyper = pc.prior.epsilon)
+  beta(x1, model = "iid", extraconstr = list(A = A.mat, e = e.vec), hyper = pc.prior) + 
+  kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior) +
+  gamma(cohort, model = "rw1", values = cohort.min:cohort.max, constr = TRUE, hyper = pc.prior) + 
+  epsilon(xt, model = "iid", hyper = pc.prior)
 
 form.1 = y.o ~ -1 + Int + alpha + beta*phi + beta*kappa + gamma + epsilon
 
@@ -134,7 +140,7 @@ res = bru(components = comp,
                          control.compute = c.c
           )) 
 
-#res = bru_rerun(res)
+res = bru_rerun(res)
 
 data.alpha = cbind(res$summary.random$alpha, alpha.true = alpha[res$summary.random$alpha$ID])
 p.alpha <- ggplot(data = data.alpha, aes(x = ID)) + 
@@ -219,19 +225,59 @@ ggsave('effects-LCC-synthetic-3-1.png',
        dpi = "retina"
 )
 
-# configuration 3.3 --> LCC model:
-p.LCC.3.3 <- (p.alpha | p.beta | p.kappa)/(p.phi | p.gamma | p.eta) +
-  plot_layout(guides = "collect") &
-  plot_annotation(title = "Estimated random effects for LCC-model, with synthetic data")
-p.LCC.3.3
+# plot hyperparameters:
+p.prec.alpha <- ggplot(data.frame(res$marginals.hyperpar) %>%
+                         filter(Precision.for.alpha.x < 100)) + 
+  geom_area(aes(x = Precision.for.alpha.x, y = Precision.for.alpha.y),fill = palette.basis[1], alpha = 0.4) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[1]), color = palette.basis[1]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision for alpha")
+p.prec.alpha
+# one value above 100
 
-ggsave('effects-LCC-synthetic-3-3.png',
-       plot = p.LCC.3.3,
+p.prec.beta <- ggplot(data.frame(res$marginals.hyperpar) %>%
+                        filter(Precision.for.beta.x < 1000)) + 
+  geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Estimated"), alpha = 0.4) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[2], color = "Estimated", fill = "Estimated")) + 
+  geom_vline(aes(xintercept = tau.iid, color = "True value", fill = "True value")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of precision", y = " ", title = "Precision for beta")
+p.prec.beta
+# two values above 1000
+
+
+p.prec.kappa <- ggplot(data.frame(res$marginals.hyperpar) %>%
+                         filter(Precision.for.kappa.x < 100)) + 
+  geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), fill = palette.basis[1], alpha = 0.4) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision for kappa")
+p.prec.kappa
+# two values over 100
+
+p.prec.gamma <- ggplot(data.frame(res$marginals.hyperpar) %>%
+                         filter(Precision.for.gamma.x < 600)) + 
+  geom_area(aes(x = Precision.for.gamma.x, y = Precision.for.gamma.y), alpha = 0.4, fill = palette.basis[1]) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[4]), color = palette.basis[1]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision for gamma")
+p.prec.gamma
+# 2 values above 400
+
+#configuration 2.2 --> basic LC model with alpha as an effect of x
+p.hyperpars <- (p.prec.alpha | p.prec.beta)/( p.prec.kappa | p.prec.gamma) +
+  plot_layout(guides = "collect") &
+  plot_annotation(title = "Estimated hyperparameters for LCC-model, with synthetic data")
+p.hyperpars
+
+ggsave('hyperparameters-LCC-synthetic-3-1.png',
+       plot = p.hyperpars,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
        height = 5, width = 8,
        dpi = "retina"
 )
+
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-cohort-v2-3-1.RData")
+
 
 # old plotting scheme:
 
