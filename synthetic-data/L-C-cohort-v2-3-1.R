@@ -8,7 +8,6 @@
 
 load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-cohort-v2-3-1.RData")
 
-
 library(INLA)
 library(inlabru)
 library(ggplot2)
