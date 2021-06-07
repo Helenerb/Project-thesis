@@ -24,7 +24,7 @@ We use data of mortality for lung and stomach cancer in Germany in the years 199
     \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/data-year-total.png}
     \end{subfigure}
-    \caption{The observed population for Germany and the observed cases for lung and stomach cancer deaths. \textit{Left:} The data is summed over all years for each age group. \textit{Right:} The data is summed over all age groups for each year.}
+    \caption{The observed population for Germany and the observed cases for lung and stomach cancer deaths. \textit{Left:} The data is summed over all years for each age group. \textit{Right:} The data is summed over all age groups for each year. \texcolor{myDarkBlue}{TODO: Change axis labels.}}
     \label{fig:data-total}
 \end{figure}
 
@@ -32,10 +32,11 @@ Figure \ref{fig:data-rate} present the observed mortality rates for years 1999, 
 
 \begin{figure}
     \centering
-    \begin{subfigure}[b]{.45\linewidth}
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/data-age-rate.png}
     \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
+    
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/data-cohort-rate.png}
     \end{subfigure}
     \caption{The observed mortality rates for the German lung and stomach cancer data, for the years 1999, 2005, 2011 and 2016.}
@@ -44,14 +45,15 @@ Figure \ref{fig:data-rate} present the observed mortality rates for years 1999, 
 
 \subsection{Fitting the Lee-Carter models to the full datasets}
 \label{sec:LC-full-data}
-We begin by fitting the Lee-Carter models to the full data sets to investigate how estimation with \inlabru behaves when applied to real-life data. We use the same inference procedure as described in Section \ref{sec:implementationInlabru} and the script used to produce the results can be found at \texttt{real-data/real-data-univariate/uv-fit-full-data.R}.
+We begin by fitting the Lee-Carter models to the full data sets to investigate how estimation with \inlabru behaves when applied to real-life data. We use the same inference procedure as described in Section \ref{sec:implementationInlabru} and the script used to produce the results can be found at 
+\path{real-data/real-data-univariate/uv-fit-full-data.R}.
 
 \newpar The resulting estimated effects, as well as the estimated mortality rates, from fitting the LC-model to the lung cancer data are displayed in Figure \ref{fig:uv-full-data-LC-l}. Firstly, we observe, from the lower right plot, that the estimated mortality rates fit well with the observed mortality rates. The value of the intercept is $\approx -9$, corresponding to an overall mortality level at $e^{-9} \sim 10^{-4}$. $\alpha_x$, the age effect, has a clear increasing trend, as expected since we have seen, from e.g. Figure \ref{fig:data-rate}, that the lung cancer mortality rates increases with age. The estimated value of $\phi$ is negative, indicating an overall decreasing time trend. As discussed in \ref{sec:GermanCancerData}, this is in line with the observed male mortality rates, but not necessarily the female mortality rates. Furthermore, we observe that the estimated $\beta_x$ have quite wide confidence bounds for younger ages, but with a clear decreasing trend for older ages. Finally, we note that the confidence bounds of $\kappa_t$ are quite wide and centered mostly around zero. This could be an indication that the effect of $\kappa_t$ is not significant. 
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.85\linewidth]{real-data/real-data-univariate/Figures/uv-full-data-lc-l.png}
-    \caption{The estimated effects when fitting the LC-model to lung cancer data}
+    \caption{The estimated effects when fitting the LC-model to lung cancer data. \textcolor{myDarkBlue}{TODO: Add estimated precision for kappa}}
     \label{fig:uv-full-data-LC-l}
 \end{figure}
 
@@ -60,7 +62,7 @@ We begin by fitting the Lee-Carter models to the full data sets to investigate h
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.85\linewidth]{real-data/real-data-univariate/Figures/uv-full-data-lcc-l.png}
-    \caption{The estimated effects when fitting the LCC-model to lung cancer data}
+    \caption{The estimated effects when fitting the LCC-model to lung cancer data \textcolor{myDarkBlue}{TODO: Add estimated precision for kappa}}
     \label{fig:uv-full-data-LCC-l}
 \end{figure}
 
@@ -69,7 +71,7 @@ We begin by fitting the Lee-Carter models to the full data sets to investigate h
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.85\linewidth]{real-data/real-data-univariate/Figures/uv-full-data-lcc-s.png}
-    \caption{The estimated effects when fitting the LCC-model to stomach cancer data}
+    \caption{The estimated effects when fitting the LCC-model to stomach cancer data \textcolor{myDarkBlue}{TODO: Add estimated precision for kappa}}
     \label{fig:uv-full-data-LCC-s}
 \end{figure}
 
@@ -83,8 +85,9 @@ We begin by fitting the Lee-Carter models to the full data sets to investigate h
 % \newpar We observe from Figures \ref{fig:LC-full-dataset} and \ref{fig:LCC-full-dataset} that there is much higher uncertainty related to the estimation of the period effects, $\kappav$ and $\phi\cdot t$. The estimated $\kappav$ seemes in both cases to be almost insignificant, with wide confidence bounds centered around zero. The $\phi \cdot t$ effect on the other hand, does show a clear tendency of a decreasing mortality rate for higher years.  We also observe a clear tendency in the cohort-effects. 
 
 \subsection{Prediction in the Univariate Case}
+\label{sec:uv-pred}
 We now compare prediction results for the univariate LC- and LCC-models (see Equations \ref{eq:LC-rewritten} and \ref{eq:LCC-rewritten}) to prediction results for the APC1- and APC2-models (see Section \ref{sec:BayesianInferenceAPC}).
-\textcolor{myDarkGreen}{Say something of how we are now able to get a "fair" comparison - using similar priors, the same method of inference? Refer to previous papers on the same topic? }
+\textcolor{myDarkGreen}{if time: Say something of how we are now able to get a "fair" comparison - using similar priors, the same method of inference? Refer to previous papers on the same topic? }
 Due to the possible insignificance of the $\kappa_t$ effect observed in the previous section, we include an additional version of the LCC-model, where we omit the $\beta_x\cdot \kappa_t$ term, which gives the predictor
 \begin{equation}
     \eta_{x,t} = \mu + \alpha_x + \beta_x\cdot \phi \cdot t + \gamma_k + \epsilon_{x,t}.
@@ -106,10 +109,11 @@ for all precisions $\tau$ in our models. The code used to produce these results 
 
 \begin{figure}[h!]
     \centering
-    \begin{subfigure}[b]{.45\linewidth}
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-LCC-by-age-lung.png}
     \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
+    
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-LCC-by-period-lung.png}
     \end{subfigure}
     \caption{The mean values and the 95\% intervals of the prediction results from inference with the Lee-Carter types of models on the lung cancer data set, together with the observed mortality rates. }
@@ -118,10 +122,11 @@ for all precisions $\tau$ in our models. The code used to produce these results 
 
 \begin{figure}[h!]
     \centering
-    \begin{subfigure}[b]{.45\linewidth}
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-APC-by-age-lung.png}
     \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
+    
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-APC-by-period-lung.png}
     \end{subfigure}
     \caption{Prediction results from inference with the APC types of models on the lung cancer data set.}
@@ -185,10 +190,11 @@ However, we note that it seems like what age we set as the cut-off when calculat
 
 \begin{figure}[h!]
     \centering
-    \begin{subfigure}[b]{.45\linewidth}
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-comparison-by-age-lung.png}
     \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
+    
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-comparison-by-period-lung.png}
     \end{subfigure}
     \caption{The best-performing APC and LC-type models for lung cancer}
@@ -197,10 +203,11 @@ However, we note that it seems like what age we set as the cut-off when calculat
 
 \begin{figure}[h!]
     \centering
-    \begin{subfigure}[b]{.45\linewidth}
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-comparison-by-age-stomach.png}
     \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
+    
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-comparison-by-period-stomach.png}
     \end{subfigure}
     \caption{The best-performing APC and LC-type models for stomach cancer}
@@ -278,7 +285,7 @@ res.aPc = bru(components = comp.aPc,
 
 \newpage
 \subsection{Sensitivity analysis of hyperpriors}
-Throughout our analysis, we have used the same informative priors for all hyperparameters, for both the Lee-Carter models and the APC-models, without considering the effect this choice have on the prediction results. To investigate whether predictions with different hyperpriors would produce a different result, we run the analysis using the aPc-model with three different prior distributions, namely PC-priors with the parameters
+Throughout our analysis, we have used the same informative priors for all hyperparameters, for both the Lee-Carter models and the APC-models, without considering the effect this choice have on the prediction results. To investigate how predictions with different hyperpriors could change our results, we run the analysis using the aPc-model with three different prior distributions, namely PC-priors with the parameters
 \begin{equation}
     \begin{aligned}
         \mathbb{P}(1/\sqrt{\tau} > 1) & = 0.05 \\
@@ -326,16 +333,12 @@ The score statistics for the different runs are presented in Tables \ref{tbl:mv-
     \end{center}
 \end{table}
 
-\newpage 
-\subsection{Identifiability issues}
-\textcolor{myDarkBlue}{This is not finished, but I don´t know if we still need to include a separate section about this? Or if we should move all the discussion about the effects of the plots here? }
-\textcolor{myDarkGreen}{
-Here, you can mention apparent identifiability issues. Perhaps talk about periodicity in cohort effects? Mention that a linear kappa might have been sufficient. 
-
-\parencite{Wisniowski2015} states that the LCC model is identifiable as long as the betas are significantly different --> discuss if this is true in your case! (It does not seem like it is...)
-}
-
 \newpage
 \section{Closing remarks / further work}
 \label{sec:closingRemarks}
-Investigate periodicity in $\gamma_k$. Could it be avoided using random walk-2 priors? 
+\textcolor{myDarkBlue}{Not finished.}
+\begin{itemize}
+    \item Investigate periodicity in $\gamma_k$. Could it be avoided using random walk-2 priors? 
+    \item For some models, \inlabru does not converge - further investigation? 
+    \item Cohort effects - what are trends and what results from identifiability? 
+\end{itemize}
