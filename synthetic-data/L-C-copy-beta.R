@@ -189,5 +189,52 @@ ggsave('copy-beta.png',
        dpi = "retina"
 )
 
+# plots of distribution of hyperparameter:
+
+p.prec.beta <- ggplot() + 
+  geom_area(data = data.frame(res.single$marginals.hyperpar) %>%
+              filter(Precision.for.beta.x < 1000),
+            aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Single"), alpha = 0.4) + 
+  geom_vline(data = res.single$summary.hyperpar, aes(xintercept = mean[1], color = "Single", fill = "Single")) + 
+  geom_area(data = data.frame(res.copy$marginals.hyperpar) %>%
+              filter(Precision.for.beta1.x < 1000),
+            aes(x = Precision.for.beta1.x, y = Precision.for.beta1.y, fill = "Copied"), alpha = 0.4) + 
+  geom_vline(data = res.copy$summary.hyperpar, aes(xintercept = mean[1], color = "Copied", fill = "Copied")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of precision", y = " ", title = "Precision for beta")
+p.prec.beta
+# single, copy: 2 values above 1000
+
+
+p.prec.kappa <- ggplot() + 
+  geom_area(data = data.frame(res.single$marginals.hyperpar) %>%
+              filter(Precision.for.kappa.x < 200),
+            aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y, fill = "Single"), alpha = 0.4) + 
+  geom_vline(data = res.single$summary.hyperpar, aes(xintercept = mean[2], color = "Single", fill = "Single")) + 
+  geom_area(data = data.frame(res.copy$marginals.hyperpar) %>%
+              filter(Precision.for.kappa.x < 200),
+            aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y, fill = "Copied"), alpha = 0.4) + 
+  geom_vline(data = res.copy$summary.hyperpar, aes(xintercept = mean[2], color = "Copied", fill = "Copied")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of precision", y = " ", title = "Precision for kappa")
+p.prec.kappa
+# copy, single : 2 values above 200
+
+
+p.hyperpars <- (p.prec.beta | p.prec.kappa) +
+  plot_layout(guides = "collect") &
+  plot_annotation(title = "Estimated hyperparameters using the copied and the single beta implementation")
+p.hyperpars
+
+ggsave('hyperparameters-LC-copy.png',
+       plot = p.hyperpars,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
+       height = 5, width = 8,
+       dpi = "retina"
+)
+
 # save workspace image
 save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-copy-beta.RData")
