@@ -36,20 +36,23 @@ obs = data.frame(x,t)
 #   model parameters for underlying models:
 
 #  Standard deviation of 0.1 for the iid effects (beta)
-tau.iid = 1/0.1**2  # config 2.1
+tau.iid = 1/0.1**2  # config 2.1, 2.2
 
 #  Standard deviation of 0.01 for the noise 
-tau.epsilon = 1/0.01**2   # config 2.1
+tau.epsilon = 1/0.01**2   # config 2.1, 2.2
 
 # comment in and out different model choices to test:
 #kappa = cos((1:nt)*pi/8)
 
 #kappa = 2*cos((1:nt)*pi/20)
-kappa = cos((1:nt)*pi/20)  #  config 2.2
+kappa.2.2 = cos((1:nt)*pi/20)  #  config 2.2
 #kappa = sin((1:nt)*pi/20)  # 26.02:1117
-#kappa = 0.3*cos((1:nt)*pi/5)  # config 2.1
+kappa.2.1 = 0.3*cos((1:nt)*pi/5)  # config 2.1
 #kappa = 0.5*cos((1:nt)*pi/3)  # roughly the same sd as the above
-kappa = kappa - mean(kappa)
+
+# center around zero:
+kappa.2.1 = kappa.2.1 - mean(kappa.2.1)
+kappa.2.2 = kappa.2.2 - mean(kappa.2.2)
 
 # change this into an effect of x
 alpha = cos(((1:nx - 3)* pi)/6)  # config 2.1
@@ -62,7 +65,7 @@ alpha = alpha - mean(alpha)
 # alpha = alpha - mean(alpha)
 
 #phi = -0.25 
-phi = -0.5  # config 2.1
+phi = -0.5  # config 2.1, 2.2
 #phi = 0.025
 
 #  sample synthetic data:
@@ -70,15 +73,28 @@ beta = rnorm(nx, 0, sqrt(1/tau.iid))  # config 2.1
 beta = 1/nx + beta - mean(beta)   # sum to 1
 
 # note: name all 
-obs = obs %>% 
+obs.2.1 = obs %>% 
   mutate(beta = beta[as.vector(obs$x)],
-         kappa = kappa[as.vector(obs$t)],
+         kappa.o = kappa.2.1[as.vector(obs$t)],
          alpha = alpha[as.vector(obs$x)],
          phi.t = phi*obs$t,
          phi = phi,
          at.risk = at.risk,
          epsilon = rnorm(n = N, 0, sqrt(1/tau.epsilon))) %>%
-  mutate(eta = alpha + beta*phi.t + beta*kappa + epsilon) %>% # linear predictor
+  mutate(eta = alpha + beta*phi.t + beta*kappa.o + epsilon) %>% # linear predictor
+  mutate(y.o = rpois(N, at.risk*exp(eta))) %>%                 # simulate data
+  mutate(t1 = t, x1 = x)  %>%                                # add extra t and x to the observations for the sake of inlabru:
+  mutate(xt = seq_along(t))
+
+obs.2.2 = obs %>% 
+  mutate(beta = beta[as.vector(obs$x)],
+         kappa = kappa.2.2[as.vector(obs$t)],
+         alpha = alpha[as.vector(obs$x)],
+         phi.t = phi*obs$t,
+         phi = phi,
+         at.risk = at.risk,
+         epsilon = rnorm(n = N, 0, sqrt(1/tau.epsilon))) %>%
+  mutate(eta = alpha + beta*phi.t + beta*kappa.2.2 + epsilon) %>% # linear predictor
   mutate(y.o = rpois(N, at.risk*exp(eta))) %>%                 # simulate data
   mutate(t1 = t, x1 = x)  %>%                                # add extra t and x to the observations for the sake of inlabru:
   mutate(xt = seq_along(t))
@@ -105,36 +121,47 @@ comp = ~ -1 +
 
 form.1 = y.o ~ -1 + Int + alpha + beta*phi + beta*kappa + epsilon
 
-likelihood.1 = like(formula = form.1, family = "poisson", data = obs, E = at.risk)
+likelihood.2.1 = like(formula = form.1, family = "poisson", data = obs.2.1, E = at.risk)
+likelihood.2.2 = like(formula = form.1, family = "poisson", data = obs.2.2, E = at.risk)
 
 # the same control compute as in Sara's first example 
 c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
 
 #initial.values = list(alpha = alpha, beta = beta, kappa = kappa, phi.t = phi*(1:nt))
 
-res = bru(components = comp,
-          likelihood.1, 
+res.2.1 = bru(components = comp,
+          likelihood.2.1, 
           options = list(verbose = F,
                          bru_verbose = 1, 
                          num.threads = "1:1",
                          control.compute = c.c
                          )) 
 
+res.2.2 = bru(components = comp,
+              likelihood.2.2, 
+              options = list(verbose = F,
+                             bru_verbose = 1, 
+                             num.threads = "1:1",
+                             control.compute = c.c
+              )) 
+
 #res = bru_rerun(res)
 
 # new plot set-up:
 
-p.Int <- ggplot(data.frame(res$marginals.fixed)) + 
+# 2.1 --> good example
+
+p.Int.2.1 <- ggplot(data.frame(res.2.1$marginals.fixed)) + 
   geom_area(aes(x = Int.x, y = Int.y, fill = "Estimated"), alpha = 0.4) + 
-  geom_vline(data = res$summary.fixed, aes(xintercept = mean[1], color = "Estimated")) + 
+  geom_vline(data = res.2.1$summary.fixed, aes(xintercept = mean[1], color = "Estimated")) + 
   scale_color_manual(name = " ", values = palette.basis) + 
   scale_fill_manual(name = " ", values = palette.basis) +
   labs(x = "Value of intercept", y = " ", title = "Intercept")
 
-p.Int
+p.Int.2.1
 
-data.alpha = cbind(res$summary.random$alpha, alpha.true = alpha[res$summary.random$alpha$ID])
-p.alpha <- ggplot(data = data.alpha, aes(x = ID)) + 
+data.alpha.2.1 = cbind(res.2.1$summary.random$alpha, alpha.true = alpha[res.2.1$summary.random$alpha$ID])
+p.alpha.2.1 <- ggplot(data = data.alpha.2.1, aes(x = ID)) + 
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
   geom_point(aes(y = alpha.true, color = "True value", fill = "True value")) + 
   geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
@@ -144,10 +171,10 @@ p.alpha <- ggplot(data = data.alpha, aes(x = ID)) +
                     values = palette.basis ) +
   labs(title="Alpha", x = "x", y='')
 
-p.alpha
+p.alpha.2.1
 
-data.beta = cbind(res$summary.random$beta, beta.true = beta[res$summary.random$beta$ID])
-p.beta <- ggplot(data = data.beta, aes(x = ID)) + 
+data.beta.2.1 = cbind(res.2.1$summary.random$beta, beta.true = beta[res.2.1$summary.random$beta$ID])
+p.beta.2.1 <- ggplot(data = data.beta.2.1, aes(x = ID)) + 
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
   geom_point(aes(y = beta.true, color = "True value", fill = "True value")) + 
   geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
@@ -157,10 +184,10 @@ p.beta <- ggplot(data = data.beta, aes(x = ID)) +
                     values = palette.basis ) +
   labs(x = "x", y = "beta", title = "Beta")
 
-p.beta
+p.beta.2.1
 
-data.kappa = cbind(res$summary.random$kappa, kappa.true = kappa[res$summary.random$kappa$ID])
-p.kappa <- ggplot(data = data.kappa, aes(x = ID)) + 
+data.kappa.2.1 = cbind(res.2.1$summary.random$kappa, kappa.true = kappa.2.1[res.2.1$summary.random$kappa$ID])
+p.kappa.2.1 <- ggplot(data = data.kappa.2.1, aes(x = ID)) + 
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
   geom_point(aes(y = kappa.true, color = "True value", fill = "True value")) + 
   geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
@@ -170,23 +197,23 @@ p.kappa <- ggplot(data = data.kappa, aes(x = ID)) +
                     values = palette.basis ) +
   labs(x = "t", y = "kappa", title = "Kappa")
 
-p.kappa
+p.kappa.2.1
 
-p.phi <- ggplot(data.frame(res$marginals.fixed)) + 
+p.phi.2.1 <- ggplot(data.frame(res.2.1$marginals.fixed)) + 
   geom_area(aes(x = phi.x, y = phi.y, fill = "Estimated"), alpha = 0.4) + 
-  geom_vline(data = res$summary.fixed, aes(xintercept = mean[2], color = "Estimated", fill = "Estimated")) + 
+  geom_vline(data = res.2.1$summary.fixed, aes(xintercept = mean[2], color = "Estimated", fill = "Estimated")) + 
   geom_vline(data = obs, aes(xintercept = phi, color = "True value", fill = "True value")) + 
   scale_color_manual(name = " ", values = palette.basis) + 
   scale_fill_manual(name = " ", values = palette.basis) +
   labs(x = "Value of phi", y = " ", title = "Phi")
-p.phi
+p.phi.2.1
 
-data.eta <- data.frame({eta.sim = res$summary.linear.predictor$mean[1:N]}) %>%
-  mutate(true.eta = obs$eta)
-p.eta <- ggplot(data = data.eta) +
+data.eta.2.1 <- data.frame({eta.sim = res.2.1$summary.linear.predictor$mean[1:N]}) %>%
+  mutate(true.eta = obs.2.1$eta)
+p.eta.2.1 <- ggplot(data = data.eta.2.1) +
   geom_point(aes(x = eta.sim, y = true.eta), color = palette.basis[1]) + 
   labs(x="Estimated eta", y="True value for eta", title = "Eta")
-p.eta
+p.eta.2.1
 
 # configuration 2.1 --> basic LC model with alpha as an effect of x
 # p.alpha.x <- (p.alpha | p.beta | p.kappa)/(p.phi | p.eta) +
