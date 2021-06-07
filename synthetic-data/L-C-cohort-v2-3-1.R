@@ -6,11 +6,6 @@
 # some of the cohorts (t-x) will be negative. 
 # The mapping between the cohort value and its index in gamma is cohort.val - cohort.min + 1
 
-# this script plots configuraton 3.3
-
-load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-cohort-v2.RData")
-
-
 library(INLA)
 library(inlabru)
 library(ggplot2)
@@ -29,8 +24,8 @@ palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
 N = 1000
 general.title = paste("N = ", N, "seed = ", seed)
 
-nx = 10 # 3.3
-nt = 10 # 3.3
+nx = 20 # 3.1
+nt = 20 # 3.1
 
 n.cohort = (nt - 1) + abs(1-nx) + 1
 cohort.min = 1-nx
@@ -71,7 +66,7 @@ gamma = gamma - mean(gamma)  #center around zero
 phi = -0.5   # conf 3.1, 3.3
 
 #  sample synthetic data:
-beta = rnorm(nx, 0, sqrt(1/tau.iid))  # conf 3.1, 3.3
+beta = rnorm(nx, 0, sqrt(1/tau.iid))  # conf 3.1
 beta = 1/nx + beta - mean(beta)   # sum to 1
 
 # note: name all 
@@ -108,25 +103,22 @@ A.mat = matrix(1, nrow = 1, ncol = nx)  #  not sure if you did this correctly
 e.vec = 1
 
 # attempt with less informative priors: config 3.1 and config 3.3
-#pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
-#pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.5)))
-#pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.05, 0.5)))
-#pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.5)))
-
-# common, uninformative priors:
-pc.prior <- list(prec = list(prior = "pc.prec", param = c(1, 0.5)))
+pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
+pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.5)))
+pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.05, 0.5)))
+pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.5)))
 
 # note: change names of components, to ensure no mix-up with global variables and 
 # variables in the observation.
 
 comp = ~ -1 + 
   Int(1) + 
-  alpha(x, model = "rw1", constr = TRUE, hyper = pc.prior) + 
+  alpha(x, model = "rw1", constr = TRUE, hyper = pc.prior.alpha) + 
   phi(t, model = "linear", mean.linear = -0.5, prec.linear = 0.25) +
-  beta(x1, model = "iid", extraconstr = list(A = A.mat, e = e.vec), hyper = pc.prior) + 
-  kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior) +
-  gamma(cohort, model = "rw1", values = cohort.min:cohort.max, constr = TRUE, hyper = pc.prior) + 
-  epsilon(xt, model = "iid", hyper = pc.prior)
+  beta(x1, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
+  kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior.kappa) +
+  gamma(cohort, model = "rw1", values = cohort.min:cohort.max, constr = TRUE, hyper = pc.prior.gamma) + 
+  epsilon(xt, model = "iid", hyper = pc.prior.epsilon)
 
 form.1 = y.o ~ -1 + Int + alpha + beta*phi + beta*kappa + gamma + epsilon
 
@@ -212,6 +204,21 @@ p.eta <- ggplot(data = data.eta) +
   labs(x="Estimated eta", y="True value for eta", title = "Eta")
 p.eta
 
+
+# configuration 3.1 --> LCC model:
+p.LCC.3.1 <- (p.alpha | p.beta | p.kappa)/(p.phi | p.gamma | p.eta) +
+  plot_layout(guides = "collect") &
+  plot_annotation(title = "Estimated random effects for LCC-model, with synthetic data")
+p.LCC.3.1
+
+ggsave('effects-LCC-synthetic-3-1.png',
+       plot = p.LCC.3.1,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
+       height = 5, width = 8,
+       dpi = "retina"
+)
+
 # configuration 3.3 --> LCC model:
 p.LCC.3.3 <- (p.alpha | p.beta | p.kappa)/(p.phi | p.gamma | p.eta) +
   plot_layout(guides = "collect") &
@@ -225,60 +232,6 @@ ggsave('effects-LCC-synthetic-3-3.png',
        height = 5, width = 8,
        dpi = "retina"
 )
-
-# plot hyperparameters:
-p.prec.alpha <- ggplot(data.frame(res$marginals.hyperpar) %>%
-                         filter(Precision.for.alpha.x < 200)) + 
-  geom_area(aes(x = Precision.for.alpha.x, y = Precision.for.alpha.y),fill = palette.basis[1], alpha = 0.4) + 
-  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[1]), color = palette.basis[1]) + 
-  labs(x = "Value of precision", y = " ", title = "Precision for alpha")
-p.prec.alpha
-# two values above 200
-
-p.prec.beta <- ggplot(data.frame(res$marginals.hyperpar) %>%
-                        filter(Precision.for.beta.x < 1000)) + 
-  geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Estimated"), alpha = 0.4) + 
-  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[2], color = "Estimated", fill = "Estimated")) + 
-  geom_vline(aes(xintercept = tau.iid, color = "True value", fill = "True value")) + 
-  scale_color_manual(name = " ", values = palette.basis) + 
-  scale_fill_manual(name = " ", values = palette.basis) +
-  labs(x = "Value of precision", y = " ", title = "Precision for beta")
-p.prec.beta
-# two values above 1000
-
-
-p.prec.kappa <- ggplot(data.frame(res$marginals.hyperpar) %>%
-                         filter(Precision.for.kappa.x < 200)) + 
-  geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), fill = palette.basis[1], alpha = 0.4) + 
-  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
-  labs(x = "Value of precision", y = " ", title = "Precision for kappa")
-p.prec.kappa
-# two values over 200
-
-p.prec.gamma <- ggplot(data.frame(res$marginals.hyperpar) %>%
-                         filter(Precision.for.gamma.x < 100)) + 
-  geom_area(aes(x = Precision.for.gamma.x, y = Precision.for.gamma.y), alpha = 0.4, fill = palette.basis[1]) + 
-  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[4]), color = palette.basis[1]) + 
-  labs(x = "Value of precision", y = " ", title = "Precision for gamma")
-p.prec.gamma
-# 2 values above 400
-
-#configuration 2.2 --> basic LC model with alpha as an effect of x
-p.hyperpars <- (p.prec.alpha | p.prec.beta)/( p.prec.kappa | p.prec.gamma) +
-  plot_layout(guides = "collect") &
-  plot_annotation(title = "Estimated hyperparameters for LCC-model, with synthetic data")
-p.hyperpars
-
-ggsave('hyperparameters-LCC-synthetic-3-3.png',
-       plot = p.hyperpars,
-       device = "png",
-       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
-       height = 5, width = 8,
-       dpi = "retina"
-)
-
-save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-cohort-v2.RData")
-
 
 # old plotting scheme:
 
