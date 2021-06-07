@@ -42,7 +42,7 @@ The \inlabru method was run for multiple configurations of the true effects. Fig
 for $x\in [1,10]$ and $t \in [1,10]$. The code used to produce these results can be found at the \texttt{GitHub} repository under \texttt{synthetic-data/L-C-alpha-x.R}. 
 \begin{figure}[h!]
     \centering
-    \begin{subfigure}[b]{0.6\textwidth}
+    \begin{subfigure}[b]{0.85\textwidth}
         \centering
         \includegraphics[width=\textwidth]{synthetic-data/Figures/effects-LC-synthetic.png}
         \caption{\textit{Top:} The mean and the 95\% confidence bounds of the approximated posterior marginal distributions of $\alpha_x$ (Alpha), $\beta_x$ (Beta) and $\kappa_t$ (Kappa), together with their respective true random effects. \textit{Bottom, left:} The approximated marginal posterior distribution of $\phi$ with the mean value as a solid line, together with the true value of $\phi$. \textit{Bottom, right:} The mean of the approximated posterior marginal distribution for $\eta_{x,t}$ plotted against the true value for $\eta_{x,t}$. }
@@ -51,7 +51,7 @@ for $x\in [1,10]$ and $t \in [1,10]$. The code used to produce these results can
     
     \begin{subfigure}[b]{0.6\textwidth}
         \centering
-        \includegraphics[width=0.85\linewidth]{synthetic-data/Figures/hyperparameters-LC-synthetic-2-1.png}
+        \includegraphics[width=\textwidth]{synthetic-data/Figures/hyperparameters-LC-synthetic-2-1.png}
         \caption{The estimated precisions for the effects of $\alpha_x$ (Alpha), $\beta_x$ (Beta) and $\kappa_t$ (Kappa). In the plot of the precision for $\beta_x$ (middle), the value of the precision used to sample the underlying data is included as a comparison. }
         \label{fig:firstRun-bottom}
     \end{subfigure}
@@ -91,8 +91,18 @@ We investigate whether both approaches can be used to fit our model, and if so, 
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.85\linewidth]{synthetic-data/Figures/copy-beta.png}
-    \caption{\textit{Top:} The posterior marginal distributions for $\alpha_x$, and the 95\% confidence bounds for the marginal posteriors of $\beta_x$ and $\kappa_t$, with and without the \texttt{copy} feature. \textit{Bottom, left:} The approximated marginal posterior distribution of $\phi$ with the mean value as a solid line, with and without the \texttt{copy} feature. \textit{Bottom, right:} The mean of the approximated posterior marginal distribution for $\eta_{x,t}$ from the implementation with the \texttt{copy} feature plotted against the true value for $\eta_{x,t}$ from the implementation without the \texttt{copy} feature. }
+    \begin{subfigure}[b]{0.85\textwidth}
+        \includegraphics[width=\textwidth]{synthetic-data/Figures/copy-beta.png}
+        \caption{\textit{Top:} The posterior marginal distributions for $\alpha_x$, and the 95\% confidence bounds for the marginal posteriors of $\beta_x$ and $\kappa_t$, with and without the \texttt{copy} feature. \textit{Bottom, left:} The approximated marginal posterior distribution of $\phi$ with the mean value as a solid line, with and without the \texttt{copy} feature. \textit{Bottom, right:} The mean of the approximated posterior marginal distribution for $\eta_{x,t}$ from the implementation with the \texttt{copy} feature plotted against the value for $\eta_{x,t}$ from the implementation without the \texttt{copy} feature. }
+        \label{fig:copyBetaComparison-top}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{synthetic-data/Figures/hyperparameters-LC-copy.png}
+        \caption{The estimated hyperparameters by using the \texttt{copy} feature and without using the \texttt{copy} feature}
+        \label{fig:copyBetaComparison-bottom}
+    \end{subfigure}
+    
     \label{fig:copyBetaComparison}
 \end{figure}
 
@@ -117,7 +127,7 @@ A comparison between the results from the two runs with the different implementa
 For some combinations of underlying models for $\kappa_t$ and $\phi$ we observe that \inlabru is not able to correctly identify these effects, while the prediction of $\etav$ is still correct, as mentioned in Section \ref{sec:synthFirstInferenceLC}. This indicates that there are some identifiability issues between $\kappa_t$ and $\phi \cdot t$ that become apparent for some combinations of these effects. We test several different combinations of $\kappa_t$ and $\phi$ to try to isolate the types of combinations that \inlabru is not able to correctly identify.
 \begin{figure}[h!]
     \centering
-    \begin{subfigure}[b]{0.6\textwidth}
+    \begin{subfigure}[b]{0.85\textwidth}
         \includegraphics[width=\textwidth]{synthetic-data/Figures/effects-LC-synthetic-identifiability.png}
         \caption{The estimated random effects, and the estimated predictor $\eta_{x,t}$}
         \label{fig:unidentifiabilityKappa-top}
@@ -145,13 +155,24 @@ Figure \ref{fig:unidentifiabilityKappa} displays the results from running \inlab
 for $x\in[1,10]$ and $t\in[1,10]$. The code used to produce these results can be found at the \texttt{GitHub} repository under \texttt{synthetic-data/L-C-alpha-x.R}. From Figure \ref{fig:unidentifiabilityKappa} we clearly see errors in the approximations of $\kappav$ and $\phi\cdot t$ while the approximations of $\etav$ (and $\betav$ and $\alphav$) are close to the true values. We observe, from these and other similar results, that \inlabru produces incorrect models for $\kappa_t$ and $\phi$ when the underlying model for $\kappa_t$ show too clear drift tendencies. This indicates that \inlabru places all drift along the period axis in the linear term $\phi$. We can accept this "misplacement", since we have explicitly defined our model as the sum of a random walk without drift and and some linear effect. Even though the realization of a drift-less random walk could easily display drift-like tendencies, we accept the apparent assumption of \inlabru that all drift along the $t$ axis originates from the linear effect $\phi \cdot t$, since we still get good results for the predictor $\eta_{x,t}$ and the remaining random effects.
 \newline
 \subsection{Inference with \inlabru on the LCC-model. }
-The next step in our preliminary analysis is to test the performance of \inlabru on the LCC-model, as defined in \ref{eq:LCC-rewritten}. The cohort effect is included in the \texttt{R} script in the same manner as the other effects. As in the previous phase, \inlabru was tested on several different realizations of the true model. All code used in this phase can be found at \url{https://github.com/Helenerb/Project-thesis/synthetic-data} in the scripts \texttt{L-C-cohort-rw.R} and \texttt{L-C-cohort-v2.R}.
+The next step in our preliminary analysis is to test the performance of \inlabru on the LCC-model, as defined in \ref{eq:LCC-rewritten}. The cohort effect is included in the \texttt{R} script in the same manner as the other effects. As in the previous phase, \inlabru was tested on several different realizations of the true model. All code used in this phase can be found at \url{https://github.com/Helenerb/Project-thesis/synthetic-data} in the scripts \texttt{L-C-cohort-v2-3-1.R}, \texttt{L-C-cohort-rw.R} and \texttt{L-C-cohort-v2.R}.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.85\linewidth]{synthetic-data/Figures/effects-LCC-synthetic-3-1.png}
+    \begin{subfigure}[b]{0.85\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{synthetic-data/Figures/effects-LCC-synthetic-3-1.png}
+        \caption{The estimated random effects and the estimated $\eta_{x,t}$.}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{synthetic-data/Figures/hyperparameters-LCC-synthetic-3-1.png}
+        \caption{The estimated random effects and the estimated $\eta_{x,t}$.}
+    \end{subfigure}
     \caption{Results from running \inlabru with the configuration of random effects given in Expression \ref{eq:conf31}. The plot layout is similar to that of Figure \ref{fig:firstRun}.}
     \label{fig:conf31}
 \end{figure}
+
 Figure \ref{fig:conf31} displays the results from running \inlabru with the following configuration of random effects:
 \begin{equation}
     \begin{aligned}
@@ -168,7 +189,17 @@ for $x\in[1,20]$, $t \in [1,20]$ and $k \in [1,39]$.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.85\linewidth]{synthetic-data/Figures/effects-LCC-synthetic-3-2.png}
+    \begin{subfigure}[b]{0.85\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{synthetic-data/Figures/effects-LCC-synthetic-3-2.png}
+        \caption{The estimated random effects and the estimated $\eta_{x,t}$.}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{synthetic-data/Figures/hyperparameters-LCC-synthetic-3-2.png}
+        \caption{The estimated random effects and the estimated $\eta_{x,t}$.}
+    \end{subfigure}
     \caption{Results from running \inlabru with the configuration of random effects given in Expression \ref{eq:conf32}. The plot layout is similar to that of Figure \ref{fig:firstRun}.}
     \label{fig:conf32}
 \end{figure}
@@ -188,7 +219,17 @@ for $x\in[1,10]$, $t \in [1,10]$ and $k \in [1,19]$.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.85\linewidth]{synthetic-data/Figures/effects-LCC-synthetic-3-3.png}
+    \begin{subfigure}[b]{0.85\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{synthetic-data/Figures/effects-LCC-synthetic-3-3.png}
+        \caption{The estimated random effects and the estimated $\eta_{x,t}$.}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{synthetic-data/Figures/hyperparameters-LCC-synthetic-3-3.png}
+        \caption{The estimated random effects and the estimated $\eta_{x,t}$.}
+    \end{subfigure}
     \caption{Results from running \inlabru with the configuration of random effects given in Expression \ref{eq:conf33}. The plot layout is similar to that of Figure \ref{fig:firstRun}.}
     \label{fig:conf33}
 \end{figure}
