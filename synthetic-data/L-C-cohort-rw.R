@@ -8,7 +8,7 @@
 # The mapping between the cohort value and its index in gamma is cohort.val - cohort.min + 1
 
 # load workspace image
-load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-cohort.rw.RData")
+load("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-cohort-rw.RData")
 
 library(INLA)
 library(inlabru)
@@ -199,7 +199,7 @@ p.gamma <- ggplot(data = data.gamma, aes(x = ID - cohort.min + 1)) +
                      values = palette.basis ) +
   scale_fill_manual(name = "",
                     values = palette.basis ) +
-  labs(x = "t", y = "kappa", title = "Kappa")
+  labs(x = "k", y = "gamma", title = "Gamma")
 
 p.gamma
 
@@ -228,6 +228,60 @@ p.LCC.3.2
 
 ggsave('effects-LCC-synthetic-3-2.png',
        plot = p.LCC.3.2,
+       device = "png",
+       path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
+       height = 5, width = 8,
+       dpi = "retina"
+)
+
+# plot of hyperparameters:
+p.prec.alpha <- ggplot(data.frame(res$marginals.hyperpar) %>%
+                             filter(Precision.for.alpha.x < 200)) + 
+  geom_area(aes(x = Precision.for.alpha.x, y = Precision.for.alpha.y),fill = palette.basis[1], alpha = 0.4) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[1]), color = palette.basis[1]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision for alpha")
+p.prec.alpha
+# two values above 200
+
+p.prec.beta <- ggplot(data.frame(res$marginals.hyperpar) %>%
+                            filter(Precision.for.beta.x < 1000)) + 
+  geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Estimated"), alpha = 0.4) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[2], color = "Estimated", fill = "Estimated")) + 
+  geom_vline(aes(xintercept = tau.iid, color = "True value", fill = "True value")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of precision", y = " ", title = "Precision for beta")
+p.prec.beta
+# two values above 1000
+
+
+p.prec.kappa <- ggplot(data.frame(res$marginals.hyperpar) %>%
+                             filter(Precision.for.kappa.x < 4000)) + 
+  geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y, fill = "Estimated"), alpha = 0.4) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[3], color = "Estimated", fill = "Estimated")) + 
+  geom_vline(aes(xintercept = tau.rw, color = "True value", fill = "True value")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of precision", y = " ", title = "Precision for kappa")
+p.prec.kappa
+# seven values above 4000
+
+p.prec.gamma <- ggplot(data.frame(res$marginals.hyperpar) %>%
+                             filter(Precision.for.gamma.x < 100)) + 
+  geom_area(aes(x = Precision.for.gamma.x, y = Precision.for.gamma.y), alpha = 0.4, fill = palette.basis[1]) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[4]), color = palette.basis[1]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision for gamma")
+p.prec.gamma
+# 2 values above 100
+
+#configuration 2.2 --> basic LC model with alpha as an effect of x
+p.hyperpars <- (p.prec.alpha | p.prec.beta)/( p.prec.kappa | p.prec.gamma) +
+  plot_layout(guides = "collect") &
+  plot_annotation(title = "Estimated hyperparameters for the LCC-model, with synthetic data")
+p.hyperpars
+
+ggsave('hyperparameters-LCC-synthetic-3-2.png',
+       plot = p.hyperpars,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Figures',
        height = 5, width = 8,
@@ -304,6 +358,6 @@ gg.eta <- ggplot(data.eta) + geom_point(aes(x = eta.sim, y = true.eta)) +
   plot_layout(guides = "collect") & theme(legend.position = 'bottom')
 
 # save workspace image
-save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-cohort.rw.RData")
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-cohort-rw.RData")
 
 
