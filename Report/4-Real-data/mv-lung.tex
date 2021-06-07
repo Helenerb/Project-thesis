@@ -1,10 +1,8 @@
 \subsubsection{Lung cancer data}
 \label{sec:mv-lung}
-We apply the LCC- and APC2-models that are described in Section \ref{sec:pred-mv} to the lung cancer data. The score statistics for the prediction results are displayed in Tables \ref{tbl:mv-LCC-lung} and \ref{tbl:mv-APC-lung}. 
+We apply the LCC- and APC2-models that are described in Section \ref{sec:pred-mv} to the lung cancer data. The score statistics for the prediction results are displayed in Tables \ref{tbl:mv-LCC-lung} and \ref{tbl:mv-APC-lung}. We observe from the score statistics in Table \ref{tbl:mv-LCC-lung} that the LCC-models with the lowest MDSS are the models with no common effects ("No common") and with a shared period effect ("Common period"). Out of these, the "Common period"-model has a slightly lower MDSS. We observe the same trend for the different APC-models, from Table \ref{tbl:mv-APC-lung} we see that the apc- and aPc-models have the lowest MDSS. We also note that there seems to be a general trend that models with fewer shared effects out-perform models with more shared effects. We interpret this as an indication that the male and female lung cancer mortality rates have a low degree of correlation, which is a result that is in alignment with the clear difference between male and female mortality rates. 
 
-\newpar We observe from the score statistics in Table \ref{tbl:mv-LCC-lung} that the LCC-models with the lowest MDSS are the model with no common effects ("No common") and the model with a shared period effect ("Common period"). Out of these, the "Common period"-model has a slightly lower MDSS. We observe the same trend for the different APC-models, from Table \ref{tbl:mv-APC-lung} we see that the apc- and aPc-models have the lowest MDSS. We also note the general trend of models with fewer shared effects generally out-performing models with more shared effects. This can be interpreted as an indication that the male and female lung cancer mortality rates have a low degree of correlation, which is a result that is in alignment with the clear difference between male and female mortality rates. 
-
-\newpar We note that for some of the LCC-models with many common effects, \inlabru need more than 50 iterations to find a linearization. These models are the LCC-model with all effects common ("All common"), the model with common period and cohort effects ("Common period, cohort") and the model with common age and cohort effects ("Common age, cohort"). For these models, we then present the prediction results obtained by \inlarbu after 50 iterations of the linearization, which are not necessarily the optimal predictions. Comparing these results to the converged results from the other models does then not give a completely correct image of the difference in predictive performance. However, from Table \ref{tbl:mv-APC-lung} we observe that the two corresponding APC2-models (the APC, ApC and aPC models) display a clearly higher MDSS than the APC models with fewer shared effects. We then see no reason to suspect that the LCC-model with all effects common and common period and cohort effects could have outperformed the LCC-models with fewer common effects. \textcolor{myDarkGreen}{The difference is not exactly that big. Perhaps you need to change the argumentation? Or not argument for it, just state that it did not converge..}
+\newpar We note that for some of the LCC-models with many common effects, \inlabru need more than 50 iterations to find a linearization. These models are the LCC-model with all effects common ("All common"), the model with common period and cohort effects ("Common period, cohort") and the model with common age and cohort effects ("Common age, cohort"). For these models, we then present the prediction results obtained by \inlarbu after 50 iterations of the linearization, which are not necessarily the optimal predictions. Comparing these results to the converged results from the other models does then not give a completely correct image of the difference in predictive performance. However, from Table \ref{tbl:mv-APC-lung} we observe that the two corresponding APC2-models (the APC, ApC and aPC models) display a clearly higher MDSS than the APC models with fewer shared effects. Thus, we do not suspect that either of the "All common"-, "Common period, cohort"- or "Common age, cohort" LCC-models could have outperformed the LCC-models with fewer common effects.
 
 \begin{table}
     \begin{center}
@@ -42,57 +40,37 @@ We apply the LCC- and APC2-models that are described in Section \ref{sec:pred-mv
     \end{center}
 \end{table}
 
-\begin{figure}
-    \centering
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-LCC-by-age-lung.png}
-    \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-LCC-by-period-lung.png}
-    \end{subfigure}
-    \caption{The two LCC-models with the lowest MDSS - by age (left) and period (right) for the lung cancer data set}
-    \label{fig:mv-LCC-lung}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-APC-by-age-lung.png}
-    \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-APC-by-period-lung.png}
-    \end{subfigure}
-    \caption{The two APC2-models with the lowest MDSS - by age (left) and period (right) for the lung cancer data set}
-    \label{fig:mv-APC-lung}
-\end{figure}
-
-\newpar In Figures \ref{fig:mv-LCC-lung} and \ref{fig:mv-APC-lung} the prediction results produced with the two LCC-models and the two APC2-models, respectively, with the lowest MDSS score are displayed. For the two LCC-models, we observe very little difference between the two predictions. For the two APC2-models, the predictions from the apc-model seem to have a slightly wider 95\% prediction intervals than the predictions from the aPc-model. \textcolor{myDarkBlue}{Should I include this result with these figures?}
+\newpar A comparison of the prediction results produced with the two LCC-models and the two APC2-models with the lowest MDSS score are included in the appendix, in Figures \ref{fig:mv-LCC-lung} and \ref{fig:mv-APC-lung}.
+For the two LCC-models, we observe very little difference between the two predictions. For the two APC2-models, the predictions from the apc-model seem to have slightly wider prediction intervals than the predictions from the aPc-model.
 
 \begin{figure}[h!]
     \centering
-    \begin{subfigure}[b]{.45\linewidth}
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-common-period-lung.png}
     \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
+    
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-no-common-lung.png}
     \end{subfigure}
-    \caption{Plots of the effects for the two LCC-models with the lowest MDSS - common period effects (left) and no common effects (right) for the lung cancer data. The solid red line indicate the division between observed and predicted periods. }
+    \caption{Plots of the effects for the two LCC-models with the lowest MDSS - common period effects (top) and no common effects (bottom) for the lung cancer data. The solid red line indicate the division between observed and predicted periods. }
     \label{fig:effects-LCC-lung}
 \end{figure}
 
-\textcolor{myDarkBlue}{The following paragraph is not finished! }
-\newpar Figure \ref{fig:effects-LCC-lung} displays the estimated random effects from the "No common" and the "Common period" LCC-models. For both models, the intercepts $\mu_s$, the random effects $\alpha_x$ and the linear term $\phi$ seem to be clearly identified, with rather narrow confidence bounds. The estimated $\beta_x$ effects have clearly wider confidence bounds, especially for younger ages (low $x$). We note that LCC-models with very similar values for $\beta_x$, i.e. all $\beta_x = 1/X$, reduce to APC-models \parencite{Wisniowski2015}. Still, for the ages above 30 years ($x > 5$), the estimated values for $\beta_x$ are sufficiently variable and with narrower confidence bound, so we do not suspect this to be the case here. For both models, the estimated mean values of $\kappa_t$ are close to zero with wide confidence bounds. This is an indication that a linear version of the LCC-models, including only the term $\phi \cdot t$ to describe the period effect might be just as good or better. Finally, we note that while the the estimated cohort effects $\gamma_k$ have rather wide confidence bounds, we do observe clear trends in the cohort effect. For the cohorts where $k > 50$, corresponding to birth years at around year 1960 and younger, there is little variation in the cohort effect. We attribute this stabilization to the fact that these cohorts are the population that have not reached the age where they have the highest risk of getting lung cancer by 2016, so we do not have enough information to see how these cohorts will be affected differently. There is a clear difference in the estimated $\gamma_k$ for the models. In particular, we note that for the "Common period"-model, the estimated values for the female $\gamma_k$ are higher than the estimated male $\gamma_k$, while it is the other way around for the "No common"-model. In addition, we observe that the values of $\gamma_k$ for the "Common period"-model cover a larger range. An explanation for this might be that the "No period" model represents the period-specific differences in male and female mortality through the cohort effect $\gamma_k$ rather than through the period effect $\phi \cdot t$, such as in the "No common"-model. Finally, we observe that the $\gamma_k$ for both models display a dip for the cohort $k \approx 25$, corresponding to birth years around 1935. This dip occurs for both male and females, but is more prominent for the male cohort effect. \textcolor{myDarkGreen}{How does this make sense? Intuitively, these cohorts should have a higher risk of lung cancer, since they were young in the 1950s? Something to do with the war? Or some identifiability issue? Or very few people alive from this cohort? }
+\newpar Figure \ref{fig:effects-LCC-lung} displays the estimated random effects from the "No common" and the "Common period" LCC-models. For both models, the intercepts $\mu_s$, the random effects $\alpha_x$ and the linear term $\phi$ seem to be clearly identified, with narrow confidence bounds. The estimated $\beta_x$ effects have clearly wider confidence bounds, especially for younger ages (low values of $x$). We note that LCC-models with very similar values for $\beta_x$, i.e. all $\beta_x = 1/X$, reduce to APC-models \parencite{Wisniowski2015}. Still, for the ages above 30 years ($x > 5$), the estimated values for $\beta_x$ are sufficiently variable and with narrower confidence bound, so we do not conclude that this is the case. For the "common period"-model, the period term $\phi$ is negative, indicating that the mortality rate decreases with time. As previously discussed, this is in line with the observed male mortality rate, but not with the female mortality rate. We observe, however, that the values of $\beta_x$ are negative for most values of $x$. This means that the sign of the slope changes for female mortality rate. We then do not interpret the good performance of the "Common period"-model as an indication of similar male and female period effects, but rather that the differences in period-specific male and female mortality rates are easily compensated by the $\beta_x$ term. 
+
+\newpar For both models, the estimated mean values of $\kappa_t$ are close to zero with wide confidence bounds. This is an indication that a linear version of the LCC-models, including only the term $\phi \cdot t$ (as described in Section \ref{sec:uv-pred}) to describe the period effect might be just as good or better. Finally, we note that while the the estimated cohort effects $\gamma_k$ have wide confidence bounds, there are clearly observable trends in the cohort effect. For the cohorts where $k > 50$, corresponding to birth years at around year 1960 and younger, there is little variation in the cohort effect. We attribute this stabilization to the fact that these cohorts are the population that have not reached the age where they have the highest risk of getting lung cancer by 2016, so we do not have enough information to see how these cohorts will be affected differently. We also observe some of the same periodicity as discussed in Section \ref{sec:LC-full-data}. There is a clear difference in the estimated $\gamma_k$ for the models. In particular, we note that for the "Common period"-model, the estimated values for the female $\gamma_k$ are higher than the estimated male $\gamma_k$, while it is the other way around for the "No common"-model. In addition, we observe that the values of $\gamma_k$ for the "Common period"-model cover a larger range. An explanation for this might be that the "No period" model represents the period-specific differences in male and female mortality through the cohort effect $\gamma_k$ rather than through the period effect $\phi \cdot t$, such as in the "No common"-model. Finally, we observe that the $\gamma_k$ for both models display a dip for the cohort $k \approx 25$, corresponding to birth years around 1935. This dip occurs for both male and females, but is more prominent for the male cohort effect. We recall that a similar is observable for the fitted effects of the univariate LCC-model, displayed in Section \ref{sec:LC-full-data}. 
 
 \begin{figure}
     \centering
-    \begin{subfigure}[b]{.45\linewidth}
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-age-lung.png}
     \end{subfigure}
-    \begin{subfigure}[b]{.45\linewidth}
+    
+    \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-period-lung.png}
     \end{subfigure}
     \caption{The prediction results for the aPc-model and the "Common period"-model.}
     \label{fig:mv-APC-LCC-lung}
 \end{figure}
 
-Figure \ref{fig:mv-APC-LCC-lung} displays the prediction results from the LCC- and the APC2-models with the lowest MDSS, which are the "Common period"-model and the aPc-model, respectively. Out of these two, the aPc-model has the lowest MDSS score. From Figure \ref{fig:mv-APC-LCC-lung} we observe the same tendency as for the univariate case, that the LCC-model has slightly narrower confidence bounds. Furthermore, we see that both models predict the mortality rates for all age-groups quite well for all years, with one exception. This is the prediction of the mortality rate for males older than 85 years for the period 2010-2016, where the predictions from both models are clearly worse than for the rest. \textcolor{myDarkGreen}{TODO: find out why!!! }
+Figure \ref{fig:mv-APC-LCC-lung} displays the prediction results from the LCC- and the APC2-models with the lowest MDSS, which are the "Common period"-model and the aPc-model, respectively. Out of these two, the aPc-model has the lowest MDSS score. From Figure \ref{fig:mv-APC-LCC-lung} we observe the same tendency as for the univariate case, that the LCC-model has slightly narrower confidence bounds. Furthermore, we see that both models predict the mortality rates for all age-groups quite well for all years, with one exception. This is the prediction of the mortality rate for males older than 85 years for the period 2010-2016, where the predictions from both models are clearly worse than for the rest.

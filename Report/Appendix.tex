@@ -51,3 +51,39 @@
         \caption{Score statistics for different models applied to the stomach cancer data, calculated for predictions where $x > 8$.}\label{tbl:uv-stomach-8}
     \end{center}
 \end{table}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-LCC-by-age-lung.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-LCC-by-period-lung.png}
+    \end{subfigure}
+    \caption{The two LCC-models with the lowest MDSS - by age (left) and period (right) for the lung cancer data set}
+    \label{fig:mv-LCC-lung}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-APC-by-age-lung.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-APC-by-period-lung.png}
+    \end{subfigure}
+    \caption{The two APC2-models with the lowest MDSS - by age (left) and period (right) for the lung cancer data set}
+    \label{fig:mv-APC-lung}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-common-period-stomach.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-no-common-stomach.png}
+    \end{subfigure}
+    \caption{Plots of the effects for the two best LCC models - LCC with common period effects (left) and LCC with no common effects (right) for the stomach cancer data. The solid red line indicate the division between observed and predicted periods. }
+    \label{fig:effects-LCC-stomach}
+\end{figure}
