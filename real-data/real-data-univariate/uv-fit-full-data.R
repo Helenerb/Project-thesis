@@ -187,8 +187,16 @@ p.fitted.lc.l <- ggplot(res.lc.l$summary.fitted.values %>%
   scale_x_continuous(breaks = c(0.000, 0.001, 0.002))
 p.fitted.lc.l
 
+p.prec.kappa.lc.l <- ggplot(data.frame(res.lc.l$marginals.hyperpar) %>%
+                         filter(Precision.for.kappa.x < 200)) + 
+  geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), fill = palette.basis[1], alpha = 0.4) + 
+  geom_vline(data = res.lc.l$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision, kappa")
+p.prec.kappa.lc.l
+# 11 values over 200
 
-p.lc.l <- (p.mu.lc.l | p.alpha.lc.l | p.beta.lc.l)/(p.phi.lc.l | p.kappa.lc.l | p.fitted.lc.l) +
+
+p.lc.l <- (p.mu.lc.l | p.alpha.lc.l | p.beta.lc.l)/(p.phi.lc.l | p.kappa.lc.l | p.prec.kappa.lc.l | p.fitted.lc.l ) +
   plot_layout(guides = "collect") & 
   plot_annotation(title = "Estimated random effects for LC-model",
                   subtitle = "Lung cancer")
@@ -245,8 +253,16 @@ p.fitted.lc.s <- ggplot(res.lc.s$summary.fitted.values %>%
   scale_x_continuous(breaks = c(0.000, 0.0015, 0.003))
 p.fitted.lc.s
 
+p.prec.kappa.lc.s <- ggplot(data.frame(res.lc.s$marginals.hyperpar) %>%
+                              filter(Precision.for.kappa.x < 400)) + 
+  geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), fill = palette.basis[1], alpha = 0.4) + 
+  geom_vline(data = res.lc.s$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision, kappa")
+p.prec.kappa.lc.s
+# 11 values over 400
 
-p.lc.s <- (p.mu.lc.s | p.alpha.lc.s | p.beta.lc.s)/(p.phi.lc.s | p.kappa.lc.s | p.fitted.lc.s) +
+
+p.lc.s <- (p.mu.lc.s | p.alpha.lc.s | p.beta.lc.s)/(p.phi.lc.s | p.kappa.lc.s | p.prec.kappa.lc.s | p.fitted.lc.s ) +
   plot_layout(guides = "collect") & 
   plot_annotation(title = "Estimated random effects for LC-model",
                   subtitle = "Stomach cancer")
@@ -303,6 +319,14 @@ p.gamma.lcc.l <- ggplot(res.lcc.l$summary.random$gamma) +
   labs(x = "k", y = "gamma", title = "Gamma")
 p.gamma.lcc.l
 
+p.prec.kappa.lcc.l <- ggplot(data.frame(res.lcc.l$marginals.hyperpar) %>%
+                              filter(Precision.for.kappa.x < 1000)) + 
+  geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), fill = palette.basis[1], alpha = 0.4) + 
+  geom_vline(data = res.lcc.l$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision, kappa")
+p.prec.kappa.lcc.l
+# 14 values above 1000
+
 p.fitted.lcc.l <- ggplot(res.lcc.l$summary.fitted.values %>%
                           slice(1:324) %>% bind_cols(lung.cancer)) +
   geom_point(aes(x = `mortality rate`, y = mean), color = palette.basis[1]) +
@@ -311,7 +335,7 @@ p.fitted.lcc.l <- ggplot(res.lcc.l$summary.fitted.values %>%
 p.fitted.lcc.l
 
 
-p.lcc.l <- (p.mu.lcc.l | p.alpha.lcc.l | p.beta.lcc.l | p.phi.lcc.l)/(p.kappa.lcc.l | p.gamma.lcc.l | p.fitted.lcc.l) +
+p.lcc.l <- (p.mu.lcc.l | p.alpha.lcc.l | p.beta.lcc.l | p.phi.lcc.l)/(p.kappa.lcc.l | p.gamma.lcc.l | p.prec.kappa.lcc.l | p.fitted.lcc.l ) +
   plot_layout(guides = "collect") & 
   plot_annotation(title = "Estimated random effects for LLC-model",
                   subtitle = "Stomach cancer")
@@ -375,7 +399,16 @@ p.gamma.lcc.s <- ggplot(res.lcc.s$summary.random$gamma) +
   labs(x = "k", y = "gamma", title = "Gamma")
 p.gamma.lcc.s
 
-p.lcc.s <- (p.mu.lcc.s | p.alpha.lcc.s | p.beta.lcc.s  | p.phi.lcc.s)/( p.kappa.lcc.s | p.gamma.lcc.s | p.fitted.lcc.s) +
+p.prec.kappa.lcc.s <- ggplot(data.frame(res.lcc.s$marginals.hyperpar) %>%
+                               filter(Precision.for.kappa.x < 200)) + 
+  geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), fill = palette.basis[1], alpha = 0.4) + 
+  geom_vline(data = res.lcc.s$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision, kappa")
+p.prec.kappa.lcc.s
+# 11 values above 200
+
+
+p.lcc.s <- (p.mu.lcc.s | p.alpha.lcc.s | p.beta.lcc.s  | p.phi.lcc.s)/( p.kappa.lcc.s | p.gamma.lcc.s | p.prec.kappa.lcc.s | p.fitted.lcc.s) +
   plot_layout(guides = "collect") & 
   plot_annotation(title = "Estimated random effects for LLC-model",
                   subtitle = "Stomach cancer")
