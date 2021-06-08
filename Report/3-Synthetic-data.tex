@@ -23,23 +23,27 @@ A data frame with the results from the approximation will be stored in the \text
 \newline
 \subsection{First Test of Inference with \inlabru on LC-model}
 \label{sec:synthFirstInferenceLC}
-\noindent To produce the synthetic data, we choose functions for $\alpha_x$, $\beta_x$ and $\kappa_t$ and a $\phi$ that we believe to be somewhat realistic: $\alpha_x$ is modeled both as a constant (i.e. included in the intercept $\mu$) and as different functions and realizations of random walks, $\kappa_t$ are modeled as different functions and realizations of random walks and $\beta_x$ is modeled as 
-\begin{equation*}
-    \beta_x \sim \Normal(0,1/\tau)
-\end{equation*} 
-for some precisions $\tau$. We sample the random terms $\epsilon_{x,t}$ from an iid normal distribution with zero mean and precision $\tau_\epsilon$. $\alpha_x$, $\beta_x$ and $\kappa_t$ are then scaled to their respective constraints, given in \ref{eq:LCconstraintsFinal}. As we expect \inlabru to handle any sufficiently smooth and close-to-realistic effects to accept it as a suitable inference tool for the LC and LCC model, we do not attach a lot of importance to the choices for the synthetic models for the random effects. 
-The \inlabru method was run for multiple configurations of the true effects. Figure \ref{fig:firstRun} displays the results from the run when the random effects were modelled as
+We recall that the LC-model is given by
+\begin{equation}
+    Y_{x,t} \sim \Poisson(E_{x,t}\cdot e^{\eta_{x,t}}), \quad \eta_{x,t} = \mu + \alpha_x + \beta_x(\phi \cdot t + \kappa_t) + \epsilon_{x,t},
+    \label{eq:LC-rewritten-rep1}
+\end{equation}
+where $x = 1,\ldots,X$, $t = 1,\ldots,T$, $Y_{x,t}$ is the number of observed cases (deaths) and $E_{x,t}$ is the at-risk population.
+
+\newpar To produce the synthetic data, we simulate the random effects as
 \begin{equation}
     \begin{aligned}
-    \alpha_x &= \cos(\frac{x-3}{6}\pi)\\
-    \beta_x &= \Normal(0,0.1^2)\\
-    \phi &= -0.5\\
-    \kappa_t &= 0.3\cos(\frac{t\cdot \pi}{5})\\
-    \tau_{\epsilon} &= 1/0.01^2.
+    &\alpha_x = \cos(\frac{x-3}{6}\pi), \quad \text{adjusted to } \sum_x\alpha_x = 0\\
+    &\beta_x = \Normal(0,0.1^2), \quad \text{adjusted to } \sum_x\beta_x = 1\\
+    &\phi = -0.5\\
+    &\kappa_t = 0.3\cos(\frac{t\cdot \pi}{5}), \quad \text{adjusted to } \sum_t\kappa_t = 0\\
+    &\tau_{\epsilon} = 1/0.01^2.
     \end{aligned}
     \label{eq:conf21}
 \end{equation}
-for $x\in [1,10]$ and $t \in [1,10]$. The code used to produce these results can be found at the \texttt{GitHub} repository under \texttt{synthetic-data/L-C-alpha-x.R}. 
+for $x\in [1,10]$ and $t \in [1,10]$. We use these values for the random effects to produce values of $\eta_{x,t}$ by the model in Expression \ref{eq:LC-rewritten-rep1}. The values of $\eta_{x,t}$ are then used, together with arbitrarily chosen values for the at-risk population (we use $E_{x,t} = 1000$ for all $x,t$), to sample synthetic values for the observed cases $Y_{x,t}$, by Expression \ref{eq:LC-rewritten-rep1}. We use \inlabru to fit the LC-model to these values of the observed cases, and compare the estimated random effects to the known random effects in Expression \ref{eq:conf21}. As we expect \inlabru to handle any sufficiently smooth and close-to-realistic effects to accept it as a suitable inference tool for the LC- and LCC-model, we do not attach a lot of importance to the choices for the synthetic models for the random effects. The results are presented in Figure \ref{fig:firstRun}, and the code used to produce these results can be found at the \texttt{GitHub} repository under \texttt{synthetic-data/L-C-alpha-x.R}.
+
+
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.85\textwidth}
@@ -52,16 +56,39 @@ for $x\in [1,10]$ and $t \in [1,10]$. The code used to produce these results can
     \begin{subfigure}[b]{0.6\textwidth}
         \centering
         \includegraphics[width=\textwidth]{synthetic-data/Figures/hyperparameters-LC-synthetic-2-1.png}
-        \caption{The estimated precisions for the effects of $\alpha_x$ (Alpha), $\beta_x$ (Beta) and $\kappa_t$ (Kappa). In the plot of the precision for $\beta_x$ (middle), the value of the precision used to sample the underlying data is included as a comparison. }
+        \caption{The estimated marginal distributions and the means of the precisions for the effects of $\alpha_x$ ($\tau_\alpha$), $\beta_x$ ($\tau_\beta$) and $\kappa_t$ ($\tau_\kappa$). In the plot of $\tau_\beta$ (middle), the value of the precision from Expression \ref{eq:conf21} is included. }
         \label{fig:firstRun-bottom}
     \end{subfigure}
     
     \caption{The results from running \inlabru when the random effects are simulated from the model given in Expression \ref{eq:conf21}. }
     \label{fig:firstRun}
 \end{figure}
+\newpar From Figure \ref{fig:firstRun-top} it is clear that \inlabru is able to identify all random effects significantly, as well as displaying a good estimation for the predictor $\eta_{x,t}$ (A straight line with a slope of one in the plot of estimated and true values of $\eta_{x,t}$ correspond to equal values). From Figure \ref{fig:firstRun-bottom}, we see that that the estimated and the real value of $\tau_\beta$ is of the same order of magnitude, which indicates a good fit. Since we do not sample the values of $\alpha_x$ and $\kappa_t$ using $\tau_\alpha$ or $\tau_\kappa$ explicitly, we do not conclude on the correctness of these values. 
+
+\newpar We perform this procedure for several other combinations of functions for the random effects as well. We observe that \inlabru is able to produce a good result for the predictor $\eta_{x,t}$ in all cases and good results for the random effects in most cases. In Section \ref{sec:IdentifiabilityKappa} we discuss why the combination of random effects that yield bad results from \inlabru are not considered realistic, and then not a hinder for using \inlabru to fit LC-models. These results provide the basis for for our paper, as it shows that \inlabru makes it possible to bypass the obstacle that \inla alone is not able to handle Lee-Carter type handle models with non-linear predictors.
+
+% old version:
+
+% \noindent To produce the synthetic data, we choose functions for $\alpha_x$, $\beta_x$ and $\kappa_t$ and a $\phi$ that we believe to be somewhat realistic: $\alpha_x$ is modeled both as a constant (i.e. included in the intercept $\mu$) and as different functions and realizations of random walks, $\kappa_t$ are modeled as different functions and realizations of random walks and $\beta_x$ is modeled as 
+% \begin{equation*}
+%     \beta_x \sim \Normal(0,1/\tau)
+% \end{equation*} 
+% for some precisions $\tau$. We sample the random terms $\epsilon_{x,t}$ from an iid normal distribution with zero mean and precision $\tau_\epsilon$. $\alpha_x$, $\beta_x$ and $\kappa_t$ are then scaled to their respective constraints, given in \ref{eq:LCconstraintsFinal}. As we expect \inlabru to handle any sufficiently smooth and close-to-realistic effects to accept it as a suitable inference tool for the LC and LCC model, we do not attach a lot of importance to the choices for the synthetic models for the random effects. 
+% The \inlabru method was run for multiple configurations of the true effects. Figure \ref{fig:firstRun} displays the results from the run when the random effects were modelled as
+% \begin{equation}
+%     \begin{aligned}
+%     \alpha_x &= \cos(\frac{x-3}{6}\pi)\\
+%     \beta_x &= \Normal(0,0.1^2)\\
+%     \phi &= -0.5\\
+%     \kappa_t &= 0.3\cos(\frac{t\cdot \pi}{5})\\
+%     \tau_{\epsilon} &= 1/0.01^2.
+%     \end{aligned}
+%     \label{eq:conf21}
+% \end{equation}
+% for $x\in [1,10]$ and $t \in [1,10]$. The code used to produce these results can be found at the \texttt{GitHub} repository under \texttt{synthetic-data/L-C-alpha-x.R}. 
 
 
-From Figure \ref{fig:firstRun} it is clear that \inlabru is able to identify all random effects significantly, as well as displaying a good estimation for the predictor $\eta_{x,t}$ (A straight line with a slope of one in the plot of estimated and true values of $\eta_{x,t}$ correspond to equal values). Looking at the results from testing \inlabru with other models for the random effects, we observe that \inlabru is able to produce a good result for the predictor $\eta_{x,t}$ in all cases and good results for the random effects in most cases. In Section \ref{sec:IdentifiabilityKappa} we discuss why the combination of random effects that yield bad results from \inlabru are not considered realistic, and then not a hinder for using \inlabru to fit LC-models. These results provide the basis for for our paper, as it shows that \inlabru makes it possible to bypass the obstacle that \inla alone is not able to handle Lee-Carter type handle models with non-linear predictors.
+% From Figure \ref{fig:firstRun-top} it is clear that \inlabru is able to identify all random effects significantly, as well as displaying a good estimation for the predictor $\eta_{x,t}$ (A straight line with a slope of one in the plot of estimated and true values of $\eta_{x,t}$ correspond to equal values). Looking at the results from testing \inlabru with other models for the random effects, we observe that \inlabru is able to produce a good result for the predictor $\eta_{x,t}$ in all cases and good results for the random effects in most cases. In Section \ref{sec:IdentifiabilityKappa} we discuss why the combination of random effects that yield bad results from \inlabru are not considered realistic, and then not a hinder for using \inlabru to fit LC-models. These results provide the basis for for our paper, as it shows that \inlabru makes it possible to bypass the obstacle that \inla alone is not able to handle Lee-Carter type handle models with non-linear predictors.
 
 \subsection{Choice of Implementation of $\beta_x$}
 In the implementation of the LC-model (\ref{eq:LC-rewritten}) in \texttt{R}, the multiplicative term of the predictor $\etax$ is entered as
