@@ -6,27 +6,47 @@ We consider both the Lee-Carter models and the APC model in a Bayesian setting, 
 
 \subsection{Bayesian Inference on the APC Model}
 \label{sec:BayesianInferenceAPC}
-When we consider the APC model as a Bayesian model, we treat the age, period and cohort effects as unknown, with a likelihood model given by Expression \ref{eq:APClikelihood}. Our goal is to find a posterior distribution of these effects, given some observed mortality rates $Y_{x,t}$, and thus we need to assign prior distributions to the random effects. Inspired by \parencite{RieblerThesis2010}, we consider two different choices of prior distributions for the random effects. The first is an RW1, given by
+When we consider the APC model as a Bayesian model, we treat the age, period and cohort effects as unknown, with a likelihood model given by Expressions \ref{eq:APClikelihood} and \ref{eq:APCmodel}. Our goal is to find a posterior distribution of these effects, given some observed mortality rates $Y_{x,t}$, and thus we need to assign prior distributions to the random effects. Inspired by \parencite{RieblerThesis2010}, we consider two different choices of prior distributions for the random effects $\rho_x, \phi_t$ and $\psi_k$. The first is a random walk of order one (RW1), given by
 \begin{equation}
-    \rho_x = \rho_{x-1} + \epsilon_x, \quad \epsilon_x \sim \Normal(0,1/\tau_{\rho1}),
+    z_i = z_{i-1} + \epsilon_i, \quad \epsilon_i \sim \Normal(0,1/\tau_{z1}),
     \label{eq:APCrw1}
 \end{equation}
-with equivalent expressions for $\phi_t$ and $\psi_k$.
-The second is an RW2, which assumes an iid gaussian distribution on the second order differences of the increments in the effects, and is given by
+for some indices $i = 0,\ldots,I$, where $\tau_{z1}$ is some precision. The second choice is a random walk of order two (RW2), which assumes independent gaussian second order increments, and is given by
 \begin{equation}
-    \rho_x = 2\rho_{x-1} - \rho_{x-2} + \epsilon_x, \quad \epsilon_x \sim \Normal(0, 1/\tau_{\rho2}),
+    z_i = 2z_{i-1} - z_{i-2} + \epsilon_i, \quad \epsilon_i \sim \Normal(0, 1/\tau_{z2}),
     \label{eq:APCrw2}
 \end{equation}
-with equivalent expressions for $\phi_t$ and $\psi_k$. Following e.g. \textcite{Besag1995} we assign an iid gaussian prior to the effect $\epsilon_{x,t}$:
+for some indices $i = 9,\ldots,I$ and some precision $\tau_{z2}$. We then consider two versions of the APC model, one where all random effects are given RW1 prior distributions, which we name the APC1-model and one where all random effects are given RW2 priors, which we name the APC2-model. For both models, we assign the random term $\epsilon_{x,t}$ (see Expression \ref{eq:APCmodel}) an independent gaussian prior distribution,
 \begin{equation}
-    \epsilon_{x,t} \sim \Normal(0,1/\tau_\epsilon).
+    \epsilon_{x,t} \sim \Normal(0,1/\tau_\epsilon),
 \end{equation}
-For the hyperparameters $\tau_{\rho 1}, \tau_{\rho 2}, \tau_{\phi 1}, \tau_{\phi 2}, \tau_{\psi 1}, \tau_{\psi 2}, \tau_\epsilon$ we assign a type of prior called Penalized complexity (PC) priors, which was proposed by \textcite{SimpsonRueRiebler2017} to by well-suited for random walk models \parencite{Rubio2020}. The PC priors penalize deviation from a base model, and by that rewarding less complex models. For the precisions $\tau$, the PC-priors are defined by the statement \begin{equation}
+where $\tau_\epsilon$ is the precision, following e.g. \textcite{Besag1995}. We denote the precisions in the prior distributions for the random effects $\rho_x$, $\phi_t$, $\psi_k$ for the APC1- and APC2-models as $\tau_{\rho 1}, \tau_{\rho 2}, \tau_{\phi 1}, \tau_{\phi 2}, \tau_{\psi 1}, \tau_{\psi 2}$. These precisions, together with the precision $\tau_\epsilon$ for the random term, make up the hyperparameters of the models. We assign these a type of prior called Penalized complexity (PC) priors, which was proposed by \textcite{SimpsonRueRiebler2017} to by well-suited for random walk models \parencite{Rubio2020}. The PC priors penalize deviation from a base model, and by that rewards less complex models. For a precision $\tau$, the PC-prior is defined by the statement \begin{equation}
     \mathbb{P}(\sigma > \sigma_0) = \alpha,
 \end{equation}
-where $\sigma = 1/\sqrt{\tau}$ is the standard deviation, and $\sigma_0$ and $\alpha$ are parameters that we may decide. 
+where $\sigma = 1/\sqrt{\tau}$ is the standard deviation, and $\sigma_0$ and $\alpha$ are parameters that we may decide. As described in Section \ref{sec:InlaRestrictions}, we can easily use the \inla method to perform the inference on the APC models. 
 
-From this point, we denote the APC model with RW1 priors (Equation \ref{eq:APCrw1}) as the APC1-model and the APC model with RW2 priors (Equation \ref{eq:APCrw2}) as the APC2-model. As described in Section \ref{sec:InlaRestrictions}, we can easily use the \inla method to perform the inference. 
+% old part: 
+% The first is an RW1, given by
+% \begin{equation}
+%     \rho_x = \rho_{x-1} + \epsilon_x, \quad \epsilon_x \sim \Normal(0,1/\tau_{\rho1}),
+%     \label{eq:APCrw1}
+% \end{equation}
+% with equivalent expressions for $\phi_t$ and $\psi_k$.
+% The second is an RW2, which assumes an iid gaussian distribution on the second order differences of the increments in the effects, and is given by
+% \begin{equation}
+%     \rho_x = 2\rho_{x-1} - \rho_{x-2} + \epsilon_x, \quad \epsilon_x \sim \Normal(0, 1/\tau_{\rho2}),
+%     \label{eq:APCrw2}
+% \end{equation}
+% with equivalent expressions for $\phi_t$ and $\psi_k$. Following e.g. \textcite{Besag1995} we assign an iid gaussian prior to the effect $\epsilon_{x,t}$:
+% \begin{equation}
+%     \epsilon_{x,t} \sim \Normal(0,1/\tau_\epsilon).
+% \end{equation}
+% For the precision hyperparameters $\tau_{\rho 1}, \tau_{\rho 2}, \tau_{\phi 1}, \tau_{\phi 2}, \tau_{\psi 1}, \tau_{\psi 2}, \tau_\epsilon$ we assign a type of prior called Penalized complexity (PC) priors, which was proposed by \textcite{SimpsonRueRiebler2017} to by well-suited for random walk models \parencite{Rubio2020}. The PC priors penalize deviation from a base model, and by that rewarding less complex models. For the precisions $\tau$, the PC-priors are defined by the statement \begin{equation}
+%     \mathbb{P}(\sigma > \sigma_0) = \alpha,
+% \end{equation}
+% where $\sigma = 1/\sqrt{\tau}$ is the standard deviation, and $\sigma_0$ and $\alpha$ are parameters that we may decide. 
+
+% From this point, we denote the APC model with RW1 priors (Equation \ref{eq:APCrw1}) as the APC1-model and the APC model with RW2 priors (Equation \ref{eq:APCrw2}) as the APC2-model. As described in Section \ref{sec:InlaRestrictions}, we can easily use the \inla method to perform the inference. 
 
 \subsection{Bayesian Inference with the Lee-Carter Models}
 \label{sec:BayesianInferenceLC}
@@ -101,13 +121,12 @@ or equivalently
 \end{equation}
 when $x\in \{1,\ldots,X\}$, $t\in\{1,\ldots,T\}$ and $N=X\times T$. Furthermore, we can now say that the latent field $\Vector{x}$ follows a normal distribution given $\Vector{\theta}$:
 \begin{equation}
-        \Vector{x}\mid \Vector{\theta} \sim \Normal(\Vector{\mu}(\Vector{\theta}), \Matrix{Q}^{-1}(\Vector{\theta})),
+        \Vector{x}\mid \Vector{\theta} \sim \Normal(\Vector{0}, \Matrix{Q}^{-1}(\Vector{\theta})),
         \label{eq:XNormalDist}
 \end{equation}
-where $\Vector{\mu}(\Vector{\theta})$ is the mean and $\Matrix{Q}^{-1}(\Vector{\theta})$ is the precision matrix. We have already assigned gaussian priors for $\beta_x$ and $\epsilon_{x,t}$ (and then implicitly for $\eta_{x,t}$) and since the increments in the random walk priors for $\alpha_x$, $\kappa_t$ and $\gamma_k$ are assumed gaussian, the assumption hold for these effects as well. 
+where $\Matrix{Q}^{-1}(\Vector{\theta})$ is the precision matrix. We have already assigned gaussian priors for $\beta_x$ and $\epsilon_{x,t}$ (and then implicitly for $\eta_{x,t}$) and since the increments in the random walk priors for $\alpha_x$, $\kappa_t$ and $\gamma_k$ are assumed gaussian, the assumption hold for these effects as well. 
 \newline
-We see that the first criterion is fulfilled, the Lee-Carter models can be written as an LGMs. We also see from Expressions \ref{eq:LC-model} and \ref{eq:LCC-model-orig} that each $y_i$ only depends on the latent random field $\Vector{x}$ through $\eta_i$, so that the second criterion is also fulfilled. This means that the non-linearity of the predictior $\eta_{x,t}$, as discussed in Section \ref{sec:InlaRestrictions} is the only part of the Lee-Carter models that is not compatible with the \inla method. The methodology of the \inlabru framework (see Section \ref{sec:inlabru}) proposes a solution to this, by linearizing non-linear predictors in order to successfully run \inla. We investigate if applying this method to the Lee-Carter models enables us to use the \inla method to make fast Bayesian inference \textcolor{myDarkGreen}{on the Lee-Carter models. }
-
+We see that the first criterion is fulfilled, the Lee-Carter models can be written as an LGMs. We also see from Expressions \ref{eq:LC-model} and \ref{eq:LCC-model-orig} that each $y_i$ only depends on the latent random field $\Vector{x}$ through $\eta_i$, so that the second criterion is also fulfilled. This means that the non-linearity of the predictior $\eta_{x,t}$, as discussed in Section \ref{sec:InlaRestrictions} is the only part of the Lee-Carter models that is not compatible with the \inla method. The methodology of the \inlabru framework (see Section \ref{sec:inlabru}) proposes a solution to this, by linearizing non-linear predictors in order to successfully run \inla. In the following sections, we apply the \inlabru method to the rewritten Lee-Carter models and assess the results of the inference. 
 
 \subsection{Indexing of age $x$, period $t$ and cohort $k$}
 To identify the different age groups, periods and cohorts that is considered by the models, we apply the following indexing scheme:
