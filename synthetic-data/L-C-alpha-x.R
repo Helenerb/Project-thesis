@@ -228,7 +228,7 @@ p.prec.alpha.2.1 <- ggplot(data.frame(res.2.1$marginals.hyperpar) %>%
                              filter(Precision.for.alpha.x < 35)) + 
   geom_area(aes(x = Precision.for.alpha.x, y = Precision.for.alpha.y),fill = palette.basis[1], alpha = 0.4) + 
   geom_vline(data = res.2.1$summary.hyperpar, aes(xintercept = mean[1]), color = palette.basis[1]) + 
-  geom_vline(data = res.2.1$summary.hyperpar, aes(xintercept = mode[1]), color = palette.basis[3]) + 
+  geom_vline(data = res.2.1$summary.hyperpar, aes(xintercept = mode[1]), color = palette.basis[2]) + 
   labs(x = "Value of precision", y = " ", title = "Precision for alpha")
 p.prec.alpha.2.1
 # two values above 200
@@ -249,7 +249,7 @@ p.prec.kappa.2.1 <- ggplot(data.frame(res.2.1$marginals.hyperpar) %>%
                             filter(Precision.for.kappa.x < 175)) + 
   geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), alpha = 0.4, fill = palette.basis[1]) + 
   geom_vline(data = res.2.1$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
-  geom_vline(data = res.2.1$summary.hyperpar, aes(xintercept = mode[3]), color = palette.basis[3]) + 
+  geom_vline(data = res.2.1$summary.hyperpar, aes(xintercept = mode[3]), color = palette.basis[2]) + 
   labs(x = "Value of precision", y = " ", title = "Precision for kappa")
 p.prec.kappa.2.1
 # two values above 1000
@@ -365,7 +365,7 @@ p.prec.alpha.2.2 <- ggplot(data.frame(res.2.2$marginals.hyperpar) %>%
                              filter(Precision.for.alpha.x < 40)) + 
   geom_area(aes(x = Precision.for.alpha.x, y = Precision.for.alpha.y),fill = palette.basis[1], alpha = 0.4) + 
   geom_vline(data = res.2.2$summary.hyperpar, aes(xintercept = mean[1]), color = palette.basis[1]) + 
-  geom_vline(data = res.2.2$summary.hyperpar, aes(xintercept = mode[1]), color = palette.basis[3]) + 
+  geom_vline(data = res.2.2$summary.hyperpar, aes(xintercept = mode[1]), color = palette.basis[2]) + 
   labs(x = "Value of precision", y = " ", title = "Precision for alpha")
 p.prec.alpha.2.2
 # two values above 200
@@ -388,7 +388,7 @@ p.prec.kappa.2.2 <- ggplot(data.frame(res.2.2$marginals.hyperpar) %>%
                              filter(Precision.for.kappa.x < 1500)) + 
   geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), alpha = 0.4, fill = palette.basis[1]) + 
   geom_vline(data = res.2.2$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
-  geom_vline(data = res.2.2$summary.hyperpar, aes(xintercept = mode[3]), color = palette.basis[3]) + 
+  geom_vline(data = res.2.2$summary.hyperpar, aes(xintercept = mode[3]), color = palette.basis[2]) + 
   labs(x = "Value of precision", y = " ", title = "Precision for kappa")
 p.prec.kappa.2.2
 # seven values above 20000

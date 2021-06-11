@@ -107,12 +107,6 @@ ggplot(data = obs, aes(x=t, y=x, fill = y.o)) + geom_tile()
 A.mat = matrix(1, nrow = 1, ncol = nx)  #  not sure if you did this correctly
 e.vec = 1
 
-# attempt with less informative priors: config 3.1 and config 3.3
-#pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
-#pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.5)))
-#pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.05, 0.5)))
-#pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.5)))
-
 # common, uninformative priors:
 pc.prior <- list(prec = list(prior = "pc.prec", param = c(1, 0.5)))
 
@@ -192,7 +186,7 @@ p.gamma <- ggplot(data = data.gamma, aes(x = ID - cohort.min + 1)) +
                      values = palette.basis ) +
   scale_fill_manual(name = "",
                     values = palette.basis ) +
-  labs(x = "t", y = "kappa", title = "Kappa")
+  labs(x = "k", y = "gamma", title = "Gamma")
 
 p.gamma
 
@@ -228,17 +222,19 @@ ggsave('effects-LCC-synthetic-3-3.png',
 
 # plot hyperparameters:
 p.prec.alpha <- ggplot(data.frame(res$marginals.hyperpar) %>%
-                         filter(Precision.for.alpha.x < 200)) + 
+                         filter(Precision.for.alpha.x < 40)) + 
   geom_area(aes(x = Precision.for.alpha.x, y = Precision.for.alpha.y),fill = palette.basis[1], alpha = 0.4) + 
   geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[1]), color = palette.basis[1]) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mode[1]), color = palette.basis[2]) + 
   labs(x = "Value of precision", y = " ", title = "Precision for alpha")
 p.prec.alpha
 # two values above 200
 
 p.prec.beta <- ggplot(data.frame(res$marginals.hyperpar) %>%
-                        filter(Precision.for.beta.x < 1000)) + 
-  geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Estimated"), alpha = 0.4) + 
-  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[2], color = "Estimated", fill = "Estimated")) + 
+                        filter(Precision.for.beta.x < 500)) + 
+  geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Mean"), alpha = 0.4) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[2], color = "Mean", fill = "Mean")) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mode[2], color = "Mode", fill = "Mode")) + 
   geom_vline(aes(xintercept = tau.iid, color = "True value", fill = "True value")) + 
   scale_color_manual(name = " ", values = palette.basis) + 
   scale_fill_manual(name = " ", values = palette.basis) +
@@ -248,9 +244,10 @@ p.prec.beta
 
 
 p.prec.kappa <- ggplot(data.frame(res$marginals.hyperpar) %>%
-                         filter(Precision.for.kappa.x < 200)) + 
+                         filter(Precision.for.kappa.x < 30)) + 
   geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), fill = palette.basis[1], alpha = 0.4) + 
   geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mode[3]), color = palette.basis[2]) + 
   labs(x = "Value of precision", y = " ", title = "Precision for kappa")
 p.prec.kappa
 # two values over 200
@@ -259,12 +256,24 @@ p.prec.gamma <- ggplot(data.frame(res$marginals.hyperpar) %>%
                          filter(Precision.for.gamma.x < 100)) + 
   geom_area(aes(x = Precision.for.gamma.x, y = Precision.for.gamma.y), alpha = 0.4, fill = palette.basis[1]) + 
   geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[4]), color = palette.basis[1]) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mode[4]), color = palette.basis[2]) + 
   labs(x = "Value of precision", y = " ", title = "Precision for gamma")
 p.prec.gamma
 # 2 values above 400
 
+p.prec.epsilon <- ggplot(data.frame(res$marginals.hyperpar) %>%
+                        filter(Precision.for.epsilon.x < 30000)) + 
+  geom_area(aes(x = Precision.for.epsilon.x, y = Precision.for.epsilon.y, fill = "Mean"), alpha = 0.4) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[5], color = "Mean", fill = "Mean")) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mode[5], color = "Mode", fill = "Mode")) + 
+  geom_vline(aes(xintercept = tau.epsilon, color = "True value", fill = "True value")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of precision", y = " ", title = "Precision for epsilon")
+p.prec.epsilon
+
 #configuration 2.2 --> basic LC model with alpha as an effect of x
-p.hyperpars <- (p.prec.alpha | p.prec.beta)/( p.prec.kappa | p.prec.gamma) +
+p.hyperpars <- (p.prec.alpha | p.prec.beta)/( p.prec.kappa | p.prec.gamma | p.prec.epsilon) +
   plot_layout(guides = "collect") &
   plot_annotation(title = "Estimated hyperparameters for LCC-model, with synthetic data")
 p.hyperpars

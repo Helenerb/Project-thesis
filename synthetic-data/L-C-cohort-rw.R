@@ -130,12 +130,12 @@ pc.prior <- list(prec = list(prior = "pc.prec", param = c(1, 0.5)))
 
 comp = ~ -1 + 
   Int(1) + 
-  alpha(x, model = "rw1", constr = TRUE, hyper = pc.prior.alpha) + 
+  alpha(x, model = "rw1", constr = TRUE, hyper = pc.prior) + 
   phi(t, model = "linear", mean.linear = -0.5, prec.linear = 0.25) +
-  beta(x1, model = "iid", extraconstr = list(A = A.mat, e = e.vec)) + 
-  kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior.kappa) +
-  gamma(cohort, model = "rw1", values = cohort.min:cohort.max, constr = TRUE, hyper = pc.prior.gamma) + 
-  epsilon(xt, model = "iid", hyper = pc.prior.epsilon)
+  beta(x1, model = "iid", extraconstr = list(A = A.mat, e = e.vec), hyper = pc.prior) + 
+  kappa(t1, model = "rw1", values = 1:nt, constr = TRUE, hyper = pc.prior) +
+  gamma(cohort, model = "rw1", values = cohort.min:cohort.max, constr = TRUE, hyper = pc.prior) + 
+  epsilon(xt, model = "iid", hyper = pc.prior)
 
 form.1 = y.o ~ -1 + Int + alpha + beta*phi + beta*kappa + gamma + epsilon
 
@@ -239,46 +239,61 @@ ggsave('effects-LCC-synthetic-3-2.png',
 
 # plot of hyperparameters:
 p.prec.alpha <- ggplot(data.frame(res$marginals.hyperpar) %>%
-                             filter(Precision.for.alpha.x < 200)) + 
+                             filter(Precision.for.alpha.x < 30)) + 
   geom_area(aes(x = Precision.for.alpha.x, y = Precision.for.alpha.y),fill = palette.basis[1], alpha = 0.4) + 
   geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[1]), color = palette.basis[1]) + 
-  labs(x = "Value of precision", y = " ", title = "Precision for alpha")
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mode[1]), color = palette.basis[2]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision, alpha")
 p.prec.alpha
 # two values above 200
 
 p.prec.beta <- ggplot(data.frame(res$marginals.hyperpar) %>%
-                            filter(Precision.for.beta.x < 1000)) + 
-  geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Estimated"), alpha = 0.4) + 
-  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[2], color = "Estimated", fill = "Estimated")) + 
+                            filter(Precision.for.beta.x < 200)) + 
+  geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Mean"), alpha = 0.4) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[2], color = "Mean", fill = "Mean")) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mode[2], color = "Mode", fill = "Mode")) + 
   geom_vline(aes(xintercept = tau.iid, color = "True value", fill = "True value")) + 
   scale_color_manual(name = " ", values = palette.basis) + 
   scale_fill_manual(name = " ", values = palette.basis) +
-  labs(x = "Value of precision", y = " ", title = "Precision for beta")
+  labs(x = "Value of precision", y = " ", title = "Precision, beta")
 p.prec.beta
 # two values above 1000
 
 
 p.prec.kappa <- ggplot(data.frame(res$marginals.hyperpar) %>%
-                             filter(Precision.for.kappa.x < 4000)) + 
-  geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y, fill = "Estimated"), alpha = 0.4) + 
-  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[3], color = "Estimated", fill = "Estimated")) + 
+                             filter(Precision.for.kappa.x < 300)) + 
+  geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y, fill = "Mean"), alpha = 0.4) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[3], color = "Mean", fill = "Mean")) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mode[3], color = "Mode", fill = "Mode")) + 
   geom_vline(aes(xintercept = tau.rw, color = "True value", fill = "True value")) + 
   scale_color_manual(name = " ", values = palette.basis) + 
   scale_fill_manual(name = " ", values = palette.basis) +
-  labs(x = "Value of precision", y = " ", title = "Precision for kappa")
+  labs(x = "Value of precision", y = " ", title = "Precision, kappa")
 p.prec.kappa
 # seven values above 4000
 
 p.prec.gamma <- ggplot(data.frame(res$marginals.hyperpar) %>%
-                             filter(Precision.for.gamma.x < 100)) + 
+                             filter(Precision.for.gamma.x < 30)) + 
   geom_area(aes(x = Precision.for.gamma.x, y = Precision.for.gamma.y), alpha = 0.4, fill = palette.basis[1]) + 
   geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[4]), color = palette.basis[1]) + 
-  labs(x = "Value of precision", y = " ", title = "Precision for gamma")
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mode[4]), color = palette.basis[2]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision, gamma")
 p.prec.gamma
 # 2 values above 100
 
+p.prec.epsilon <- ggplot(data.frame(res$marginals.hyperpar) %>%
+                         filter(Precision.for.epsilon.x < 30000)) + 
+  geom_area(aes(x = Precision.for.epsilon.x, y = Precision.for.epsilon.y, fill = "Mean"), alpha = 0.4) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mean[5], color = "Mean", fill = "Mean")) + 
+  geom_vline(data = res$summary.hyperpar, aes(xintercept = mode[5], color = "Mode", fill = "Mode")) + 
+  geom_vline(aes(xintercept = tau.epsilon, color = "True value", fill = "True value")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of precision", y = " ", title = "Precision, epsilon")
+p.prec.epsilon
+
 #configuration 2.2 --> basic LC model with alpha as an effect of x
-p.hyperpars <- (p.prec.alpha | p.prec.beta)/( p.prec.kappa | p.prec.gamma) +
+p.hyperpars <- (p.prec.alpha | p.prec.beta)/( p.prec.kappa | p.prec.gamma | p.prec.epsilon) +
   plot_layout(guides = "collect") &
   plot_annotation(title = "Estimated hyperparameters for the LCC-model, with synthetic data")
 p.hyperpars
@@ -290,6 +305,10 @@ ggsave('hyperparameters-LCC-synthetic-3-2.png',
        height = 5, width = 8,
        dpi = "retina"
 )
+
+# save workspace image
+save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-cohort-rw.RData")
+
 
 # old plot scheme:
 cat(general.title)
@@ -360,7 +379,5 @@ gg.eta <- ggplot(data.eta) + geom_point(aes(x = eta.sim, y = true.eta)) +
 (gg.alpha | gg.beta | gg.kappa)/(gg.phi | gg.gamma | gg.eta) + 
   plot_layout(guides = "collect") & theme(legend.position = 'bottom')
 
-# save workspace image
-save.image("/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/synthetic-data/Workspaces/L-C-cohort-rw.RData")
 
 
