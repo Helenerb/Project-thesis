@@ -37,33 +37,40 @@ or $Y_{x,t,k}^{\text{type}} = C_{x,t,k}^{\text{type}}/P_{x,t,k}$ in the univaria
     \item The cohort indices are now given by $k = 5(X - x) + t$, $K = 5X + T$.
 \end{itemize}
 
-\newpar A summary of the data sets are presented in Figures \ref{fig:data-total} and \ref{fig:data-rate}. Figure \ref{fig:data-total} gives a representation of the distribution of the population and the distribution of mortality cases over different age groups and years. We see that there are most observed cancer deaths at around age group 70-75 ($x = 14$), for both male and females. From the bottom plots in Figure \ref{fig:data-total} we observe that the observed lung and stomach cancer cases seem to increase with time for women, but stay rather stable for men. Note that there is a clear drop in the German population in year 2011. This is because Germany held a population census in 2011, which showed that the estimated population numbers from the previous years were off by 1.5 million people \parencite{germanCensus}.
+\newpar A summary of the data sets are presented in Figures \ref{fig:data-total} and \ref{fig:data-rate}. Figure \ref{fig:data-total} gives a representation of the distribution of the population and the distribution of mortality cases over different age groups and years. From Figure \ref{fig:data-total-top}, we see that there are most observed cancer deaths at around age group 70-75 ($x = 14$), for both male and females. From Figure \ref{fig:data-total-bottom} we observe that the observed lung and stomach cancer cases seem to increase with time for women, but stay rather stable for men. Note that there is a clear drop in the German population in year 2011. This is because Germany held a population census in 2011, which showed that the estimated population numbers from the previous years were off by 1.5 million people \parencite{germanCensus}.
 
 \begin{figure}
     \centering
-    \begin{subfigure}[b]{.6\linewidth}
+    \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/data-age-total.png}
+        \caption{The total number of people (left) and stomach and lung cancer deaths (middle and right) are displayed by the different age groups, for the years 1999, 2007 and 2016.}
+        \label{fig:data-total-top}
     \end{subfigure}
     
-    \begin{subfigure}[b]{.6\linewidth}
+    \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/data-year-total.png}
+        \caption{The total number of people (left) and stomach and lung cancer deaths (middle and right) are summed over all age groups, and displayed by the calendar years. }
     \end{subfigure}
-    \caption{The observed population for Germany and the observed cases for lung and stomach cancer deaths. \textit{Left:} The data is summed over all years for each age group. \textit{Right:} The data is summed over all age groups for each year. \texcolor{myDarkBlue}{TODO: Change axis labels.}}
+    \caption{The total number of people in the German population and the total observed cases for lung and stomach cancer deaths.}
     \label{fig:data-total}
 \end{figure}
 
-\newpar Figure \ref{fig:data-rate} present the observed mortality rates for years 1999, 2005, 2011 and 2016, for each age group and cohort. We observe that for younger ages, the mortality rates are close to zero for both lung and stomach cancer. For the years 2005, 2011 and 2016 we see that we do not have observations for the  mortality rates for older cohorts (lower cohort index $k$). On the other side, we see that younger cohorts, at around $k > 60$, have mortality rates that are close to zero for all years. From the left-most part of Figure \ref{fig:data-rate} we see that the male and female mortality rates behave differently over the periods, for both lung ans stomach cancer. As previously indicated, the female mortality rates are in general higher in 2016 compared to 1999, while the opposite is the case for male mortality. This difference is especially apparent for the lung cancer mortality. 
+\newpar Figure \ref{fig:data-rate} present the observed mortality rates for years 1999, 2005, 2011 and 2016, for each age group and cohort. We observe that for younger ages, the mortality rates are close to zero for both lung and stomach cancer. For the years 2005, 2011 and 2016 we see, from Figure \ref{fig:data-rate-bottom} that we do not have observations for the  mortality rates for older cohorts (lower cohort index $k$). On the other side, we see that younger cohorts, at around $k > 60$, have mortality rates that are close to zero for all years. From Figure \ref{fig:data-rate-top} we see that the male and female mortality rates behave differently over the periods, for both lung and stomach cancer. As previously indicated, the female mortality rates are in general higher in 2016 compared to 1999, while the opposite is the case for male mortality. This difference is especially apparent for the lung cancer mortality. 
 
 \begin{figure}
     \centering
     \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/data-age-rate.png}
+        \caption{The observed mortality rates, displayed by the age groups.}
+        \label{fig:data-rate-top}
     \end{subfigure}
     
     \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/data-cohort-rate.png}
+        \caption{The observed mortality rates, displayed by the cohorts.}
+        \label{fig:data-rate-bottom}
     \end{subfigure}
-    \caption{The observed mortality rates for the German lung and stomach cancer data, for the years 1999, 2005, 2011 and 2016.}
+    \caption{The observed mortality rates for the German lung (left) and stomach (right) cancer data, in the years 1999, 2005, 2011 and 2016.}
     \label{fig:data-rate}
 \end{figure}
 
