@@ -84,20 +84,20 @@ lung.cancer  <- read_excel("lungCancer-germany.xls") %>%
 
 p.lung.age.rate = ggplot(data = lung.cancer %>%
                            filter(year %in% c("1999", "2005", "2011" ,"2016"))) +
-  geom_line(aes(x = age.int, y = male.p, color = year)) + 
-  geom_line(aes(x = age.int, y = female.p, color = year)) + 
-  geom_point(aes(x = age.int, y = male.p, shape = "Male", color = year)) + 
-  geom_point(aes(x = age.int, y = female.p, shape = "Female", color = year)) + 
+  geom_line(aes(x = x, y = male.p, color = year)) + 
+  geom_line(aes(x = x, y = female.p, color = year)) + 
+  geom_point(aes(x = x, y = male.p, shape = "Male", color = year)) + 
+  geom_point(aes(x = x, y = female.p, shape = "Female", color = year)) + 
   scale_color_manual(name = "Year", values = palette.basis) +
   scale_shape_manual(name = "Sex", values  = c(3,2)) + 
   labs(x = "Age group", y = "Mortality rate", title = "Lung cancer")
 
 p.stomach.age.rate = ggplot(data = stomach.cancer %>%
                            filter(year %in% c("1999", "2005", "2011" ,"2016"))) +
-  geom_line(aes(x = age.int, y = male.p, color = year)) + 
-  geom_line(aes(x = age.int, y = female.p, color = year)) + 
-  geom_point(aes(x = age.int, y = male.p, shape = "Male", color = year)) + 
-  geom_point(aes(x = age.int, y = female.p, shape = "Female", color = year)) + 
+  geom_line(aes(x = x, y = male.p, color = year)) + 
+  geom_line(aes(x = x, y = female.p, color = year)) + 
+  geom_point(aes(x = x, y = male.p, shape = "Male", color = year)) + 
+  geom_point(aes(x = x, y = female.p, shape = "Female", color = year)) + 
   scale_color_manual(name = "Year", values = palette.basis) +
   scale_shape_manual(name = "Sex", values  = c(3,2)) + 
   labs(x = "Age group", y = "Mortality rate", title = "Stomach cancer")
