@@ -171,26 +171,43 @@ lung.cancer.age = lung.cancer %>%
 
 # plot total occurrances:
 
-p.stomach.age <- ggplot(stomach.cancer.age %>% filter(sex == "male" | sex == "female")) + 
-  geom_point(aes(x = x, y = occurrances, color = sex)) + 
-  scale_color_manual(name = "Sex", values = palette.basis) +
-  labs(title="Stomach cancer", x = "Age group", y = "Total occurrances")
+p.stomach.age = ggplot(data = stomach.cancer %>%
+                           filter(year %in% c("1999", "2007","2016"))) +
+  geom_line(aes(x = x, y = male, color = year)) + 
+  geom_line(aes(x = x, y = female, color = year)) + 
+  geom_point(aes(x = x, y = male, shape = "Male", color = year)) + 
+  geom_point(aes(x = x, y = female, shape = "Female", color = year)) + 
+  scale_color_manual(name = "Year", values = palette.basis) +
+  scale_shape_manual(name = "Sex", values  = c(3,2)) + 
+  labs(x = "Age group", y = "Total occurrances", title = "Stomach cancer")
+p.stomach.age
 
-p.lung.age <- ggplot(lung.cancer.age %>% filter(sex == "male" | sex == "female")) + 
-  geom_point(aes(x = x, y = occurrances, color = sex)) + 
-  scale_color_manual(name = "Sex", values = palette.basis) +
-  labs(title="Lung cancer", x = "Age group", y = "Total occurrances")
+p.lung.age = ggplot(data = lung.cancer %>%
+                         filter(year %in% c("1999", "2007","2016"))) +
+  geom_line(aes(x = x, y = male, color = year)) + 
+  geom_line(aes(x = x, y = female, color = year)) + 
+  geom_point(aes(x = x, y = male, shape = "Male", color = year)) + 
+  geom_point(aes(x = x, y = female, shape = "Female", color = year)) + 
+  scale_color_manual(name = "Year", values = palette.basis) +
+  scale_shape_manual(name = "Sex", values  = c(3,2)) + 
+  labs(x = "Age group", y = "Total occurrances", title = "Lung cancer")
+p.lung.age
 
 # use the values of the total population from the lung cancer data set, could have been from the stomach cancer data set as well
-p.total.age <- ggplot(lung.cancer.age %>% filter(sex == "male.t" | sex == "female.t") %>%
-                        mutate(sex = replace(sex, sex == "male.t", "male")) %>%
-                        mutate(sex = replace(sex, sex == "female.t", "female"))) + 
-  geom_point(aes(x = x, y = occurrances, color = sex)) + 
-  scale_color_manual(name = "Sex", values = palette.basis) +
-  labs(title="German population", x = "Age group", y = "Total occurrances")
+
+p.total.age = ggplot(data = lung.cancer %>%
+                      filter(year %in% c("1999", "2007","2016"))) +
+  geom_line(aes(x = x, y = male.t, color = year)) + 
+  geom_line(aes(x = x, y = female.t, color = year)) + 
+  geom_point(aes(x = x, y = male.t, shape = "Male", color = year)) + 
+  geom_point(aes(x = x, y = female.t, shape = "Female", color = year)) + 
+  scale_color_manual(name = "Year", values = palette.basis) +
+  scale_shape_manual(name = "Sex", values  = c(3,2)) + 
+  labs(x = "Age group", y = "Total number of people", title = "German population")
+p.total.age
 
 p.age.total <- (p.total.age | p.stomach.age | p.lung.age) + 
-  plot_annotation(title = "Total occurrances of cases by age group") +
+  plot_annotation(title = "Total occurrances of cases and number of people by age group") +
   plot_layout(guides = "collect") & theme(legend.position = 'bottom')
 p.age.total
 
@@ -238,13 +255,13 @@ lung.cancer.year = lung.cancer %>%
 p.stomach.year <- ggplot(stomach.cancer.year %>% filter(sex == "male" | sex == "female")) + 
   geom_point(aes(x = year, y = occurrances, color = sex)) + 
   scale_color_manual(name = "Sex", values = palette.basis) +
-  scale_x_discrete(guide = guide_axis(n.dodge=3)) +
+  scale_x_discrete(breaks = c(2000, 2004, 2011, 2015)) +
   labs(title="Stomach cancer", x = "Calendar year", y = "Total occurrances")
 
 p.lung.year <- ggplot(lung.cancer.year %>% filter(sex == "male" | sex == "female")) + 
   geom_point(aes(x = year, y = occurrances, color = sex)) + 
   scale_color_manual(name = "Sex", values = palette.basis) +
-  scale_x_discrete(guide = guide_axis(n.dodge=3)) +
+  scale_x_discrete(breaks = c(2000, 2004, 2011, 2015)) +
   labs(title="Lung cancer", x = "Calendar year", y = "Total occurrances")
 
 p.total.year <- ggplot(stomach.cancer.year %>% filter(sex == "male.t" | sex == "female.t") %>%
@@ -252,8 +269,9 @@ p.total.year <- ggplot(stomach.cancer.year %>% filter(sex == "male.t" | sex == "
                         mutate(sex = replace(sex, sex == "female.t", "female"))) + 
   geom_point(aes(x = year, y = occurrances, color = sex)) + 
   scale_color_manual(name = "Sex", values = palette.basis) +
-  scale_x_discrete(guide = guide_axis(n.dodge=3)) +
-  labs(title="German population", x = "Calendar year", y = "Total occurrances")
+  scale_x_discrete(breaks = c(2000, 2004, 2011, 2015)) +
+  labs(title="German population", x = "Calendar year", y = "Total number of people")
+p.total.year
 
 p.year.total <- (p.total.year | p.stomach.year | p.lung.year) + 
   plot_annotation(title = "Total occurrances of cases by calendar year") + 
