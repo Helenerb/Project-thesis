@@ -45,14 +45,18 @@ For the two LCC-models, we observe very little difference between the two predic
 
 \begin{figure}[h!]
     \centering
-    \begin{subfigure}[b]{.6\linewidth}
+    \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-common-period-lung.png}
+        \caption{The estimated overall mortality level $\mu^{\text{sex}}$ and the estimated random effects $\alpha_x^{\text{sex}}$, $\beta_x^{\text{sex}}$, $\phi$, $\kappa_t$ and $\gamma_k^{\text{sex}}$ produced with inference with the "Common period"-model.}
+        \label{fig:effects-LCC-lung-top}
     \end{subfigure}
     
-    \begin{subfigure}[b]{.6\linewidth}
+    \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/effects-LCC-no-common-lung.png}
+        \caption{The estimated overall mortality level $\mu^{\text{sex}}$ and the estimated random effects $\alpha_x^{\text{sex}}$, $\beta_x^{\text{sex}}$, $\phi^{\text{sex}}$, $\kappa_t^{\text{sex}}$ and $\gamma_k^{\text{sex}}$ produced with inference with the "No common"-model.}
+        \label{fig:effects-LCC-lung-bottom}
     \end{subfigure}
-    \caption{Plots of the effects for the two LCC-models with the lowest MDSS - common period effects (top) and no common effects (bottom) for the lung cancer data. The solid red line indicate the division between observed and predicted periods. }
+    \caption{The mean values and the 95\% confidence bounds of the estimated random effects produced by inference with the "Common period" and the "No common" LCC-models on lung cancer data. The layout of the plot is similar to that of e.g. Figure \ref{fig:uv-full-data-LC-l}. The effects that are modelled as common for male and female are plotted in green, and the effects that are modelled as specific to males and females are plotted in yellow and blue, respectively. The red line marks the beginning of the predicted period. }
     \label{fig:effects-LCC-lung}
 \end{figure}
 
@@ -62,14 +66,14 @@ For the two LCC-models, we observe very little difference between the two predic
 
 \begin{figure}
     \centering
-    \begin{subfigure}[b]{.6\linewidth}
+    \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-age-lung.png}
     \end{subfigure}
     
-    \begin{subfigure}[b]{.6\linewidth}
+    \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-period-lung.png}
     \end{subfigure}
-    \caption{The prediction results for the aPc-model and the "Common period"-model.}
+    \caption{The mean values and the 95\% confidence bounds of the predicted expected lung cancer mortality rates produced by inference with the aPc-model and the "Common period"-model on data of German lung cancer (circles), together with the corresponding observed male mortality rates $Y_{x,y}^{\text{lung, male}}$ (triangles) and female mortality rates $Y_{x,y}^{\text{lung, female}}$ (crosses). The layout of the plots is similar to that of Figure \ref{fig:uv-LCC-lung}}
     \label{fig:mv-APC-LCC-lung}
 \end{figure}
 

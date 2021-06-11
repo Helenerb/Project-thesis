@@ -64,7 +64,7 @@ for $x\in [1,10]$ and $t \in [1,10]$, where $\alpha_x, \beta_x$ and $\kappa_t$ a
     \begin{subfigure}[b]{0.6\textwidth}
         \centering
         \includegraphics[width=\textwidth]{synthetic-data/Figures/hyperparameters-LC-synthetic-2-1.png}
-        \caption{The estimated marginal distributions and the means of the precisions for the effects of $\alpha_x$ ($\tau_\alpha$), $\beta_x$ ($\tau_\beta$) and $\kappa_t$ ($\tau_\kappa$). In the plot of $\tau_\beta$ (middle), the value of the precision from Expression \ref{eq:conf21} is included. }
+        \caption{The estimated marginal distributions with their means and modes, for the precisions $\tau_\alpha$, $\tau_\beta$ and $\tau_\kappa$ of the random effects $\alpha_x$, $\beta_x$ and $\kappa_t$, as well as $\tau_\epsilon$ for the random term $\epsilon_{x,t}$. The precisions used to sample underlying values for $\beta_x$ and $\epsilon_{x,t}$in yellow}
         \label{fig:firstRun-bottom}
     \end{subfigure}
     
@@ -134,7 +134,7 @@ We investigate whether both approaches can be used to fit our model, and if so, 
     
     \begin{subfigure}[b]{0.6\textwidth}
         \includegraphics[width=\textwidth]{synthetic-data/Figures/hyperparameters-LC-copy.png}
-        \caption{The estimated hyperparameters, $\tau_\beta$ and $\tau_\kappa$ when using the $\texttt{copy}$-feature and when not using the $\texttt{copy}$-feature}
+        \caption{The estimated hyperparameters, $\tau_\beta$, $\tau_\kappa$ and $\tau_\epsilon$ when using the $\texttt{copy}$-feature and when not using the $\texttt{copy}$-feature}
         \label{fig:copyBetaComparison-bottom}
     \end{subfigure}
     \caption{Comparison of estimation results from running \inlabru on the same underlying model with two versions of the implementation, with and without the $\texttt{copy}$-feature.}
@@ -164,13 +164,13 @@ For some combinations of underlying models for $\kappa_t$ and $\phi$ we observe 
     \centering
     \begin{subfigure}[b]{0.85\textwidth}
         \includegraphics[width=\textwidth]{synthetic-data/Figures/effects-LC-synthetic-identifiability.png}
-        \caption{The estimated random effects, and the estimated predictor $\eta_{x,t}$}
+        \caption{The estimated random effects $\alpha_x$, $\beta_x$, $\phi$ and $\kappa_t$, and the estimated predictor $\eta_{x,t}$}
         \label{fig:unidentifiabilityKappa-top}
     \end{subfigure}
     
     \begin{subfigure}[b]{0.6\textwidth}
         \includegraphics[width=\textwidth]{synthetic-data/Figures/hyperparameters-LC-synthetic-2-2.png}
-        \caption{The estimated precisions $\tau_\alpha$, $\tau_\beta$ and $\tau_\kappa$ for the random effects, with the precision used to sample underlying values for $\beta_x$ in yellow}
+        \caption{The estimated precisions $\tau_\alpha$, $\tau_\beta$ and $\tau_\kappa$ and $\tau_\epsilon$.}
         \label{fig:unidentifiabilityKappa-bottom}
     \end{subfigure}
     
@@ -201,14 +201,14 @@ where $x = 1,\ldots,X$, $t = 1,\ldots,T$, $k = 1,\ldots,K$, $Y_{x,t}$ is the num
     \begin{subfigure}[b]{0.85\textwidth}
         \centering
         \includegraphics[width=\textwidth]{synthetic-data/Figures/effects-LCC-synthetic-3-1.png}
-        \caption{The estimated random effects and the estimated $\eta_{x,t}$.}
+        \caption{The estimated random effects $\alpha_x$, $\beta_x$, $\phi$, $\kappa_t$ and $\gamma_k$, and the estimated predictor $\eta_{x,t}$}
         \label{fig:conf31-top}
     \end{subfigure}
     
     \begin{subfigure}[b]{0.6\textwidth}
         \centering
         \includegraphics[width=\textwidth]{synthetic-data/Figures/hyperparameters-LCC-synthetic-3-1.png}
-        \caption{The estimated random effects and the estimated $\eta_{x,t}$.}
+        \caption{The estimated precisions $\tau_\alpha$, $\tau_\beta$, $\tau_\kappa$, $\tau_\gamma$ and $\tau_\epsilon$.}
         \label{fig:conf31-bottom}
     \end{subfigure}
     \caption{Results from running \inlabru with the configuration of random effects given in Expression \ref{eq:conf31}. The plot layout is similar to that of Figure \ref{fig:firstRun}.}
@@ -241,7 +241,7 @@ for $x\in[1,20]$, $t \in [1,20]$ and $k \in [1,39]$, where $\alpha_x$, $\beta_x$
     \begin{subfigure}[b]{0.6\textwidth}
         \centering
         \includegraphics[width=\textwidth]{synthetic-data/Figures/hyperparameters-LCC-synthetic-3-2.png}
-        \caption{The estimated random effects and the estimated $\eta_{x,t}$.}
+        \caption{The estimated precisions $\tau_\alpha$, $\tau_\beta$ and $\tau_\kappa$, $\tau_\gamma$ and $\tau_\epsilon$.}
         \label{fig:conf32-bottom}
     \end{subfigure}
     \caption{Results from running \inlabru with the configuration of random effects given in Expression \ref{eq:conf32}. The plot layout is similar to that of Figure \ref{fig:firstRun}.}
@@ -273,7 +273,7 @@ for $x\in[1,10]$, $t \in [1,10]$ and $k \in [1,19]$, where $\alpha_x$, $\beta_x$
     \begin{subfigure}[b]{0.6\textwidth}
         \centering
         \includegraphics[width=\textwidth]{synthetic-data/Figures/hyperparameters-LCC-synthetic-3-3.png}
-        \caption{The estimated random effects and the estimated $\eta_{x,t}$.}
+        \caption{The estimated precisions $\tau_\alpha$, $\tau_\beta$ and $\tau_\kappa$, $\tau_\gamma$ and $\tau_\epsilon$.}
         \label{fig:conf33-bottom}
     \end{subfigure}
     \caption{Results from running \inlabru with the configuration of random effects given in Expression \ref{eq:conf33}. The plot layout is similar to that of Figure \ref{fig:firstRun}.}

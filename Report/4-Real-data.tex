@@ -77,7 +77,7 @@ We begin by fitting the Lee-Carter models to the whole population to investigate
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.85\linewidth]{real-data/real-data-univariate/Figures/uv-full-data-lc-l.png}
-    \caption{The estimated effects when fitting the LC-model to lung cancer data. \textcolor{myDarkBlue}{TODO: Add estimated precision for kappa}}
+    \caption{The estimation results from fitting the LC-model to the lung cancer data. The lower right plot show the estimated mean values of the mortality rates plotted against the observed mortality rates $Y_{x,t}^{\text{lung}}$. The "Precision, kappa" plot the estimated marginal distribution of the precision $\tau_\kappa$ for the period effect $\kappa_t$. The remaining plots display the mean and 95\% confidence bounds of the estimations of the intercept $\mu$ and the random effects $\alpha_x$, $\beta_x$, $\phi$ and $\kappa_t$.}
     \label{fig:uv-full-data-LC-l}
 \end{figure}
 
@@ -86,7 +86,7 @@ We begin by fitting the Lee-Carter models to the whole population to investigate
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.85\linewidth]{real-data/real-data-univariate/Figures/uv-full-data-lcc-l.png}
-    \caption{The estimated effects when fitting the LCC-model to lung cancer data \textcolor{myDarkBlue}{TODO: Add estimated precision for kappa}}
+    \caption{The estimation results from fitting the LCC-model to the lung cancer data. The layout of the plots is similar to that of Figure \ref{fig:uv-full-data-LC-l}, with an inclusion of the estimated cohort effect $\gamma_k$.}
     \label{fig:uv-full-data-LCC-l}
 \end{figure}
 
@@ -95,7 +95,7 @@ We begin by fitting the Lee-Carter models to the whole population to investigate
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.85\linewidth]{real-data/real-data-univariate/Figures/uv-full-data-lcc-s.png}
-    \caption{The estimated effects when fitting the LCC-model to stomach cancer data \textcolor{myDarkBlue}{TODO: Add estimated precision for kappa}}
+    \caption{The estimation results from fitting the LCC-model to the stomach cancer data. The layout of the plots is similar to that of Figure \ref{fig:uv-full-data-LC-l}, with an inclusion of the estimated cohort effect $\gamma_k$.}
     \label{fig:uv-full-data-LCC-s}
 \end{figure}
 
@@ -118,27 +118,34 @@ We refer to this model as the LCC-linear model, since it only has a linear perio
 
 \begin{figure}[h!]
     \centering
-    \begin{subfigure}[b]{.6\linewidth}
+    \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-LCC-by-age-lung.png}
+        \caption{The prediction results plotted for each of the years that were predicted, with the age groups along the horizontal axis.}
+        \label{fig:uv-LCC-lung-top}
     \end{subfigure}
     
-    \begin{subfigure}[b]{.6\linewidth}
+    \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-LCC-by-period-lung.png}
+        \caption{The prediction results plotted for each age group that are 30 years and older, with the calendar years along the horizontal axis. The red line marks the beginning of the predicted periods. }
+        \label{fig:uv-LCC-lung-bottom}
     \end{subfigure}
-    \caption{The mean values and the 95\% intervals of the prediction results from inference with the Lee-Carter types of models on the lung cancer data set, together with the observed mortality rates. }
+    \caption{The mean values and the 95\% confidence bounds of the predicted expected lung cancer mortality rates produced by inference with three Lee-Carter types of models on data of German lung cancer (circles), together with the corresponding observed mortality rates $Y_{x,y}^{\text{lung}}$ (crosses).
+    }
     \label{fig:uv-LCC-lung}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
-    \begin{subfigure}[b]{.6\linewidth}
+    \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-APC-by-age-lung.png}
+        \label{fig:uv-APC-lung}
     \end{subfigure}
     
-    \begin{subfigure}[b]{.6\linewidth}
+    \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-APC-by-period-lung.png}
+        \label{fig:uv-APC-lung-bottom}
     \end{subfigure}
-    \caption{Prediction results from inference with the APC types of models on the lung cancer data set.}
+    \caption{The mean values and the 95\% confidence bounds of the predicted expected lung cancer mortality rates produced by inference with the APC1- and the APC2-model on data of German lung cancer (circles), together with the corresponding observed mortality rates $Y_{x,y}^{\text{lung}}$ (crosses). The layout of the plots is similar to that of Figure \ref{fig:uv-LCC-lung}}
     \label{fig:uv-APC-lung}
 \end{figure}
 
@@ -199,14 +206,16 @@ However, we note that it seems like what age we set as the cut-off when calculat
 
 \begin{figure}[h!]
     \centering
-    \begin{subfigure}[b]{.6\linewidth}
+    \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-comparison-by-age-lung.png}
+        \label{fig:uv-comparison-lung-top}
     \end{subfigure}
     
-    \begin{subfigure}[b]{.6\linewidth}
+    \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-comparison-by-period-lung.png}
+        \label{fig:uv-comparison-lung-bottom}
     \end{subfigure}
-    \caption{The best-performing APC and LC-type models for lung cancer}
+    \caption{The mean values and the 95\% confidence bounds of the predicted expected lung cancer mortality rates produced by inference with the APC2- and the LCC-model on data of German lung cancer (circles), together with the corresponding observed mortality rates $Y_{x,y}^{\text{lung}}$ (crosses). The layout of the plots is similar to that of Figure \ref{fig:uv-LCC-lung}}
     \label{fig:uv-comparison-lung}
 \end{figure}
 
@@ -214,12 +223,14 @@ However, we note that it seems like what age we set as the cut-off when calculat
     \centering
     \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-comparison-by-age-stomach.png}
+        \label{fig:uv-comparison-stomach-top}
     \end{subfigure}
     
     \begin{subfigure}[b]{.6\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-comparison-by-period-stomach.png}
+        \label{fig:uv-comparison-stomach-bottom}
     \end{subfigure}
-    \caption{The best-performing APC and LC-type models for stomach cancer}
+    \caption{The mean values and the 95\% confidence bounds of the predicted expected stomach cancer mortality rates produced by inference with the APC2- and the LCC-model on data of German stomach cancer (circles), together with the corresponding observed mortality rates $Y_{x,y}^{\text{stomach}}$ (crosses). The layout of the plots is similar to that of Figure \ref{fig:uv-LCC-lung}}
     \label{fig:uv-comparison-stomach}
 \end{figure}
 
@@ -251,42 +262,42 @@ where $s \in \{0 = male, 1 = female\}$. Note that the "No common" version of the
     \item apc: $\eta_{x,t,s}= \mu_{s} + \rho_{x,s} + \phi_{t, s} + \psi_{k, s} + \epsilon_{x,t,s}$,
 \end{itemize}
 where $s \in \{0 = male, 1 = female\}$. Following \textcite{rieblerHeld2010}, we name the different versions of the APC2-model by capital letter for the common effects and shared letters for the male- and female-specific effects.  
-\newpar To fit these multivariate models with \inlabru, we need to change the implementation of the prediction compared to the implementation of the univariate models. To implement the multivariate models, we use two likelihoods, one for each sex. For the effects that will not be common for male and females, we include two identical model components, but named differently. These are included in one likelihood each. For the effects that are kept common, we only include one model component, which is used in both likelihoods. We only include male data in the male likelihood and female data in the female likelihood. Below, the part of the code used to produce predictions for the aPc-model is shown:
+% \newpar To fit these multivariate models with \inlabru, we need to change the implementation of the prediction compared to the implementation of the univariate models. To implement the multivariate models, we use two likelihoods, one for each sex. For the effects that will not be common for male and females, we include two identical model components, but named differently. These are included in one likelihood each. For the effects that are kept common, we only include one model component, which is used in both likelihoods. We only include male data in the male likelihood and female data in the female likelihood. Below, the part of the code used to produce predictions for the aPc-model is shown:
 
-\begin{verbatim}
-comp.aPc = ~ -1 + 
-  mu(s, model = "iid", hyper = list(prec = list(fixed = TRUE,
-    initial = log(0.001)))) +
-  rho0(x, model = "rw2", values = unique(stomach.cancer$x), constr = TRUE,
-    hyper = pc.prior, scale.model = TRUE) + 
-  rho1(x, model = "rw2", values = unique(stomach.cancer$x), constr = TRUE,
-    hyper = pc.prior, scale.model = TRUE) + 
-  phi(t, model = "rw2", values = unique(stomach.cancer$t), constr = TRUE,
-    hyper = pc.prior, scale.model = TRUE) + 
-  psi0(k, model = "rw2", values = unique(stomach.cancer$k), constr = TRUE,
-    hyper = pc.prior, scale.model = TRUE) + 
-  psi1(k, model = "rw2", values = unique(stomach.cancer$k), constr = TRUE,
-    hyper = pc.prior, scale.model = TRUE) + 
-  epsilon(xts, model = "iid", hyper = pc.prior)
+% \begin{verbatim}
+% comp.aPc = ~ -1 + 
+%   mu(s, model = "iid", hyper = list(prec = list(fixed = TRUE,
+%     initial = log(0.001)))) +
+%   rho0(x, model = "rw2", values = unique(stomach.cancer$x), constr = TRUE,
+%     hyper = pc.prior, scale.model = TRUE) + 
+%   rho1(x, model = "rw2", values = unique(stomach.cancer$x), constr = TRUE,
+%     hyper = pc.prior, scale.model = TRUE) + 
+%   phi(t, model = "rw2", values = unique(stomach.cancer$t), constr = TRUE,
+%     hyper = pc.prior, scale.model = TRUE) + 
+%   psi0(k, model = "rw2", values = unique(stomach.cancer$k), constr = TRUE,
+%     hyper = pc.prior, scale.model = TRUE) + 
+%   psi1(k, model = "rw2", values = unique(stomach.cancer$k), constr = TRUE,
+%     hyper = pc.prior, scale.model = TRUE) + 
+%   epsilon(xts, model = "iid", hyper = pc.prior)
 
-# define two different likelihoods and formulas, for male (0) and female (1):
-form.aPc.0 = cases ~ -1 + mu + rho0 + phi + psi0 + epsilon
-likelihood.aPc.0 = like(formula = form.aPc.0, family = "poisson",
-    data = /*data frame containing male mortality cases*/,
-    E = /*data frame containing male population*/)
+% # define two different likelihoods and formulas, for male (0) and female (1):
+% form.aPc.0 = cases ~ -1 + mu + rho0 + phi + psi0 + epsilon
+% likelihood.aPc.0 = like(formula = form.aPc.0, family = "poisson",
+%     data = /*data frame containing male mortality cases*/,
+%     E = /*data frame containing male population*/)
 
-form.aPc.1 = cases ~ -1 + mu + rho1 + phi + psi1 + epsilon
-likelihood.aPc.1 = like(formula = form.aPc.1, family = "poisson",
-    data = /*data frame containing female mortality cases*/,
-    E = /*data frame containing female population*/)
+% form.aPc.1 = cases ~ -1 + mu + rho1 + phi + psi1 + epsilon
+% likelihood.aPc.1 = like(formula = form.aPc.1, family = "poisson",
+%     data = /*data frame containing female mortality cases*/,
+%     E = /*data frame containing female population*/)
 
-res.aPc = bru(components = comp.aPc,
-              likelihood.aPc.0,
-              likelihood.aPc.1,
-              options = list(/*Desired options*/
-              )) 
-\end{verbatim}
-\newpar We perform the preciction analysis in the same way as for the univariate case, using the years 1999-2007 to fit the models and then predict the mortality for years 2008-2016. We use the same hyperpriors as for the univariate analysis, namely PC priors with parameters $\mathbb{P}(1/\sqrt{\tau} > 1) = 0.05$, and we again exclude the predictions for ages younger than 30 years old ($x \leq 5$) when we calculate the score statistics. We present the results for lung and stomach cancer, respectively, in the following two sections.
+% res.aPc = bru(components = comp.aPc,
+%               likelihood.aPc.0,
+%               likelihood.aPc.1,
+%               options = list(/*Desired options*/
+%               )) 
+% \end{verbatim}
+\newpar We perform the preciction analysis in the same way as for the univariate case, using the years 1999-2007 to fit the models and then predict the mortality for years 2008-2016. We again exclude the predictions for ages younger than 30 years old ($x \leq 5$) when we calculate the score statistics. The code used to produce the results in this section can be found at the \texttt{Github} repository under \path{/real-data/real-data-multivariate/Lung_cancer} and \path{/real-data/real-data-multivariate/Stomach_cancer}. We present the results for lung and stomach cancer, respectively, in the following two sections.
 
 \import{}{Report/4-Real-data/mv-lung.tex}
 
