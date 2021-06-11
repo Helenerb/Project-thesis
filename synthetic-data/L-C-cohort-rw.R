@@ -117,10 +117,13 @@ A.mat = matrix(1, nrow = 1, ncol = nx)  #  not sure if you did this correctly
 e.vec = 1
 
 # attempt with less informative priors: config 3.2
-pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
-pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.5)))
-pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.05, 0.5)))
-pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.5)))
+# pc.prior.alpha <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.4)))
+# pc.prior.kappa <- list(prec = list(prior = "pc.prec", param = c(0.1, 0.5)))
+# pc.prior.epsilon <- list(prec = list(prior = "pc.prec", param = c(0.05, 0.5)))
+# pc.prior.gamma <- list(prec = list(prior = "pc.prec", param = c(0.3, 0.5)))
+
+# common uninformative prior:
+pc.prior <- list(prec = list(prior = "pc.prec", param = c(1, 0.5)))
 
 # note: change names of components, to ensure no mix-up with global variables and 
 # variables in the observation.

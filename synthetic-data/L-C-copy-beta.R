@@ -72,7 +72,8 @@ ggplot(data = obs, aes(x=t, y=x, fill = y)) + geom_tile()
 A.mat = matrix(1, nrow = 1, ncol = nx)  #  not sure if you did this correctly
 e.vec = 1
 
-pc.prior <- list(prec = list(prior = "pc.prec", param = c(0.2,0.8)))
+#pc.prior <- list(prec = list(prior = "pc.prec", param = c(0.2,0.8)))
+pc.prior <- list(prec = list(prior = "pc.prec", param = c(1,0.5)))
 
 # the same control compute as in Sara's first example 
 c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
@@ -193,11 +194,11 @@ ggsave('copy-beta.png',
 
 p.prec.beta <- ggplot() + 
   geom_area(data = data.frame(res.single$marginals.hyperpar) %>%
-              filter(Precision.for.beta.x < 1000),
+              filter(Precision.for.beta.x < 200),
             aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Single"), alpha = 0.4) + 
   geom_vline(data = res.single$summary.hyperpar, aes(xintercept = mean[1], color = "Single", fill = "Single")) + 
   geom_area(data = data.frame(res.copy$marginals.hyperpar) %>%
-              filter(Precision.for.beta1.x < 1000),
+              filter(Precision.for.beta1.x < 200),
             aes(x = Precision.for.beta1.x, y = Precision.for.beta1.y, fill = "Copied"), alpha = 0.4) + 
   geom_vline(data = res.copy$summary.hyperpar, aes(xintercept = mean[1], color = "Copied", fill = "Copied")) + 
   scale_color_manual(name = " ", values = palette.basis) + 
@@ -209,11 +210,11 @@ p.prec.beta
 
 p.prec.kappa <- ggplot() + 
   geom_area(data = data.frame(res.single$marginals.hyperpar) %>%
-              filter(Precision.for.kappa.x < 200),
+              filter(Precision.for.kappa.x < 30),
             aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y, fill = "Single"), alpha = 0.4) + 
   geom_vline(data = res.single$summary.hyperpar, aes(xintercept = mean[2], color = "Single", fill = "Single")) + 
   geom_area(data = data.frame(res.copy$marginals.hyperpar) %>%
-              filter(Precision.for.kappa.x < 200),
+              filter(Precision.for.kappa.x < 30),
             aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y, fill = "Copied"), alpha = 0.4) + 
   geom_vline(data = res.copy$summary.hyperpar, aes(xintercept = mean[2], color = "Copied", fill = "Copied")) + 
   scale_color_manual(name = " ", values = palette.basis) + 
@@ -222,9 +223,23 @@ p.prec.kappa <- ggplot() +
 p.prec.kappa
 # copy, single : 2 values above 200
 
+p.prec.epsilon <- ggplot() + 
+  geom_area(data = data.frame(res.single$marginals.hyperpar) %>%
+              filter(Precision.for.epsilon.x < 100000),
+            aes(x = Precision.for.epsilon.x, y = Precision.for.epsilon.y, fill = "Single"), alpha = 0.4) + 
+  geom_vline(data = res.single$summary.hyperpar, aes(xintercept = mean[3], color = "Single", fill = "Single")) + 
+  geom_area(data = data.frame(res.copy$marginals.hyperpar) %>%
+              filter(Precision.for.epsilon.x < 100000),
+            aes(x = Precision.for.epsilon.x, y = Precision.for.epsilon.y, fill = "Copied"), alpha = 0.4) + 
+  geom_vline(data = res.copy$summary.hyperpar, aes(xintercept = mean[3], color = "Copied", fill = "Copied")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of precision", y = " ", title = "Precision for epsilon")
+p.prec.epsilon
 
-p.hyperpars <- (p.prec.beta | p.prec.kappa) +
-  plot_layout(guides = "collect") &
+
+p.hyperpars <- (p.prec.beta | p.prec.kappa | p.prec.epsilon) +
+  plot_layout(guides = "collect") & theme(legend.position = 'bottom') &
   plot_annotation(title = "Estimated hyperparameters using the copied and the single beta implementation")
 p.hyperpars
 
