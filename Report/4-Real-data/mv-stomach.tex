@@ -1,6 +1,6 @@
 \newpage
-\subsubsection{Stomach cancer data}
-We apply the APC2- and LCC-models to the stomach cancer data set and analyse the prediction results in the same manner as for the lung cancer data. Overall, we observe that the two models perform similarly on the stomach cancer data set as for the lung cancer data. The score statistics for the predictions are presented in Tables \ref{tbl:mv-LCC-stomach} and \ref{tbl:mv-APC-stomach}. For the stomach cancer data, we only observe convergence issues similar to those described in Section \ref{fig:mv-lung} for the "Common age, cohort"-model, and for this model we present the results obtained after 50 runs. Again, we see that the models with no shared effects and shared period effects have the lowest MDSS, both for the LCC-models and the APC2-models. Out of these, the models with a shared period have a slightly lower MDSS.  
+\subsubsection{Stomach Cancer Data}
+We apply the APC2- and LCC-models to the stomach cancer data set and analyse the prediction results in the same manner as for the lung cancer data. Overall, we observe that the two models perform similarly on the stomach cancer data set as for the lung cancer data. The score statistics for the predictions are presented in Tables \ref{tbl:mv-LCC-stomach} and \ref{tbl:mv-APC-stomach}. For the stomach cancer data, we only observe convergence issues similar to those described in Section \ref{sec:mv-lung} for the "Common age, cohort"-model, and for this model we present the results obtained after 50 runs. Again, we see that the models with no shared effects and shared period effects have the lowest MDSS, both for the LCC-models and the APC2-models. Out of these, the models with a shared period have a slightly lower MDSS.  
 
 \begin{table}
     \begin{center}
@@ -9,7 +9,7 @@ We apply the APC2- and LCC-models to the stomach cancer data set and analyse the
             \hline
             All common            & 1.019e-7  & -17.04    & 0.9769 \\
             Common age            &  9.69e-8 & -17.92    & 0.7454 \\
-            Common age, cohort    & 8.969e-8 & -16.93    & 0.7546 \\
+            Common age & cohort   & 1.047e-7 & -16.71   & 0.7454 \\
             Common age, period    & 5.991e-8 & -18.04    & 0.8565 \\
             Common cohort         &  3.544e-8 & -18.13   & 0.8333 \\
             Common period         &  4.962e-8 & \textbf{-18.78}   & 0.875  \\

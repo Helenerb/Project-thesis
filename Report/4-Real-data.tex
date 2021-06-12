@@ -325,7 +325,7 @@ where $\text{sex} \in \{0 = male, 1 = female\}$. Following \textcite{rieblerHeld
 
 \newpage
 \subsection{Sensitivity analysis of hyperpriors}
-Throughout our analysis, we have used the same informative priors for all hyperparameters, for both the Lee-Carter models and the APC-models, without considering the effect this choice have on the prediction results. To investigate how predictions with different hyperpriors could change our results, we run the analysis using the aPc-model with three different prior distributions, namely PC-priors with the parameters
+Throughout our analysis, we have used the same informative priors for all hyperparameters, for both the Lee-Carter models and the APC-models, without considering the effect this choice has on the prediction results. To investigate how predictions with different hyperpriors could change our results, we run the analysis using the aPc-model with three different prior distributions, namely PC-priors with the parameters
 \begin{equation}
     \begin{aligned}
         \mathbb{P}(1/\sqrt{\tau} > 1) & = 0.05 \\
@@ -352,19 +352,6 @@ The score statistics for the different runs are presented in Tables \ref{tbl:mv-
         \begin{tabular}{l |c c c }
         Model & MSE &   MDSS & Contained 95\%-interval\\
         \hline
-        P(sd > 1) = 0.05 & 2.535e-8 & -19.36    & 0.9120\\
-        P(sd > 1) = 0.95 & 2.518e-8 & -19.37    & 0.9120\\
-        P(sd > 3) = 0.05 & 2.519e-8 & -19.37    & 0.9120\\
-        \end{tabular}
-    \caption{Results from sensitivity analysis, stomach cancer data.}\label{tbl:mv-sensitivity-stomach}
-    \end{center}
-\end{table}
-
-\begin{table}
-    \begin{center}
-        \begin{tabular}{l |c c c }
-        Model & MSE &   MDSS & Contained 95\%-interval\\
-        \hline
         P(sd > 1) = 0.05 & 1.238e-8 & -19.83    & 0.9028 \\
         P(sd > 1) = 0.95 & 1.189e-8 & -19.74    & 0.9028 \\
         P(sd > 3) = 0.05 & 1.182e-8 & -19.73    & 0.9028 \\
@@ -373,9 +360,22 @@ The score statistics for the different runs are presented in Tables \ref{tbl:mv-
     \end{center}
 \end{table}
 
+\begin{table}
+    \begin{center}
+        \begin{tabular}{l |c c c }
+        Model & MSE &   MDSS & Contained 95\%-interval\\
+        \hline
+        P(sd > 1) = 0.05 & 2.535e-8 & -19.36    & 0.9120\\
+        P(sd > 1) = 0.95 & 2.518e-8 & -19.37    & 0.9120\\
+        P(sd > 3) = 0.05 & 2.519e-8 & -19.37    & 0.9120\\
+        \end{tabular}
+    \caption{Results from sensitivity analysis, stomach cancer data.}\label{tbl:mv-sensitivity-stomach}
+    \end{center}
+\end{table}
+
 \newpage
 \section{Closing Remarks}
 \label{sec:closingRemarks}
-We have shown that Bayesian inference using the \INLA methodology through the \inlabru method is feasible for a Poisson extension of the Lee-Carter model as well as for a Possion extension of the Lee-Carter model with a cohort effect. Until the introduction of the \inlabru method by \textcite{BachlLindgren2019}, this had not been possible. We first showed this for the general case, using synthetic data. In that phase of the study, described in Section \ref{sec:SyntheticData}, we showed that the \inlabru method, with some exceptions, enabled correct estimation of both the simulated predictor and the simulated random effects in the extended Lee-Carter models. We also displayed the ability of \inlabru to make Bayesian inference in the specific case of German lung and stomach cancer mortality rates. In that phase of the research, described in Section \ref{sec:real-data}, we showed that we could use the \inlabru method to correctly estimate lung and stomach cancer mortality rates with the extended Lee-Carter methods. We obtained and assessed predictions of cancer mortality for both models, and observed that the prediction quality of the cohort-extended Lee-Carter model was better for both cancer types. Finally, we fit multivariate versions of the cohort-extended Lee-Carter model to obtain predictions of male and female cancer mortality, and we compared the prediction quality of the different models. Throughout the part of the research involving real cancer data, we compared the prediction results of the Lee-Carter models to prediction results of different versions of the Age-Period-Cohort (APC) model. We showed that the predictive qualities of the cohort-extended Lee-Carter models and the APC models were quite similar for the cases of German lung and stomach cancer mortality, but that the APC-models overall received slightly better prediction scores and that the Lee-Carter models seemed to display narrower prediction intervals.     
+We have shown that Bayesian inference using the \INLA methodology through the \inlabru method is feasible for a Poisson extension of the Lee-Carter model as well as for a Possion extension of the Lee-Carter model with a cohort effect. Until the introduction of the \inlabru method by \textcite{BachlLindgren2019}, this had not been possible. We first showed this for the general case, using synthetic data. In this phase of the study, described in Section \ref{sec:SyntheticData}, we showed that the \inlabru method, with some exceptions, enabled correct estimation of both the simulated predictor and the simulated random effects in the extended Lee-Carter models. We also displayed the ability of \inlabru to make Bayesian inference in the specific case of German lung and stomach cancer mortality rates. In this phase of the research, described in Section \ref{sec:real-data}, we showed that we could use the \inlabru method to correctly estimate lung and stomach cancer mortality rates with the extended Lee-Carter methods. We obtained and assessed predictions of cancer mortality for both models, and observed that the prediction quality of the cohort-extended Lee-Carter model was better for both cancer types. Finally, we fit multivariate versions of the cohort-extended Lee-Carter model to obtain predictions of male and female cancer mortality, and we compared the prediction quality of the different models. Throughout the part of the research involving real cancer data, we compared the prediction results of the Lee-Carter models to prediction results of different versions of the Age-Period-Cohort (APC) model. We showed that the predictive qualities of the cohort-extended Lee-Carter models and the APC models were quite similar for the cases of German lung and stomach cancer mortality, but that the APC-models overall received slightly better prediction scores and that the Lee-Carter models seemed to display narrower prediction intervals.     
 \newpar Our research may be extended in several ways. In Sections \ref{sec:LC-full-data} and \ref{sec:pred-mv}, we described how the estimated cohort effects for the Lee-Carter models displayed periodical tendencies similar to those observed for cohort-related identifiability issues in APC-models (described by e.g. \textcite{RieblerThesis2010}). We did not investigate this and its potential effects on the predictive results, and further research on this periodicity in the cohort effects of cohort-extended Lee-Carter models could be interesting further work. Another result that we have left unexplored in this work is the inability of \inlabru to converge for some versions of the Lee-Carter models. A further investigation of what characterizes these models and the data for which they do not converge could be another interesting next step. 
 
