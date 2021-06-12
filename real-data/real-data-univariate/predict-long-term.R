@@ -554,7 +554,7 @@ gg.APC.a.l <- ggplot(data.pred.l %>%
 gg.APC.a.l
 
 ggsave('univariate-APC-by-age-lung.png',
-       plot = gg.APC.a.s,
+       plot = gg.APC.a.l,
        device = "png",
        path = '/Users/helen/OneDrive - NTNU/Vår 2021/Project-thesis/real-data/real-data-univariate/Figures',
        height = 5, width = 8, 

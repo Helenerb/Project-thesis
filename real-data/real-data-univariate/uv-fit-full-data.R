@@ -338,7 +338,7 @@ p.fitted.lcc.l
 p.lcc.l <- (p.mu.lcc.l | p.alpha.lcc.l | p.beta.lcc.l | p.phi.lcc.l)/(p.kappa.lcc.l | p.gamma.lcc.l | p.prec.kappa.lcc.l | p.fitted.lcc.l ) +
   plot_layout(guides = "collect") & 
   plot_annotation(title = "Estimated random effects for LLC-model",
-                  subtitle = "Stomach cancer")
+                  subtitle = "Lung cancer")
 p.lcc.l
 
 ggsave('uv-full-data-lcc-l.png',

@@ -586,7 +586,7 @@ p.gamma.abkg <- ggplot() +
   geom_point(data = res.abkg$summary.random$gamma1, aes(x = ID, y = mean, color = "Female")) + 
   scale_color_manual(name = " ", values = palette.basis) + 
   scale_fill_manual(name = " ", values = palette.basis) +
-  labs(x = "t", y = "gamma", title = "Gamma")
+  labs(x = "k", y = "gamma", title = "Gamma")
 
 p.gamma.abkg
 
@@ -670,7 +670,7 @@ p.gamma.abKg <- ggplot() +
   geom_point(data = res.abKg$summary.random$gamma1, aes(x = ID, y = mean, color = "Female")) + 
   scale_color_manual(name = " ", values = palette.basis) + 
   scale_fill_manual(name = " ", values = palette.basis) +
-  labs(x = "t", y = "gamma", title = "Gamma")
+  labs(x = "k", y = "gamma", title = "Gamma")
 
 p.gamma.abKg
 
