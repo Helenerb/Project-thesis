@@ -393,7 +393,7 @@ res.ABkG = bru(components = comp.ABkG,
                               num.threads = "1:1",
                               control.compute = c.c,
                               control.predictor = list(link = 1),
-                              bru_max_iter = 100
+                              bru_max_iter = 50
                )) 
 
 # combine predictions and observations into one dataframe. 
