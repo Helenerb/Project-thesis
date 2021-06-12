@@ -2,24 +2,24 @@
 \section{Linearization of Non-Linear Predictors within the \inla Framework}
 \label{sec:inlabru}
 
-Recently, a new methodology was proposed that enables the usage of the \inla methodology on LGMs that include some non-linear terms in the predictor $\eta_{x,t}$. The method was first proposed by \textcite{BachlLindgren2019} in the setting of ecological surveys, but it is widely applicable to several other fields. We call this method \inlabru after the associated \texttt{R} library that implements it. The \inlabru method involves finding a linearization of the non-linear predictor through a fixed-point iteration using \inla, and then setting this linearization as the predictor in the final \inla run. Information about the installation and usage of the \inlabru \texttt{R} library can be found at \textcite{Inlabru}. Here, we outline the approach of \textcite{BachlLindgren2019} for the linearization and following model approximations of LGMs with non-linear predictors. For a more thorough explanation of the method, and the application to ecological data, we refer to their original paper \parencite{BachlLindgren2019} and \textcite{Inlabru}.
+Recently, a new methodology was proposed that enables the usage of the \inla methodology on LGMs that include some non-linear terms in the predictor $\eta_{x,t}$. The method was first proposed by \textcite{BachlLindgren2019} in the setting of ecological surveys, but it is widely applicable to several other fields. We call this method \inlabru after the associated \texttt{R} library that implements it. The \inlabru method involves finding a linearization of the non-linear predictor through a fixed-point iteration using \inla, and then setting this linearization as the predictor in the final \inla run. Information about the installation and usage of the \inlabru \texttt{R} library can be found at \textcite{Inlabru}. Here, we outline the approach of \textcite{BachlLindgren2019} for the linearization and following model approximations of LGMs with non-linear predictors. For a more thorough explanation of the method, and the application to ecological data, we refer to their original paper \parencite{BachlLindgren2019} and to \textcite{Inlabru}.
 
-\newpar Assuming that we have an LGM, with a structure as described in \ref{LGM-model-summarized}, but where the likelihood depends on a non-linear predictor $\tilde{\boldsymbol{\eta}}$:
+\newpar We assume that we have an LGM, with a structure as described in \ref{LGM-model-summarized}, but where the likelihood depends on a non-linear predictor $\tilde{\boldsymbol{\eta}}(\Vector{x})$:
 \begin{equation}
     \textbf{y}\mid\textbf{x},\boldsymbol{\theta} \sim p(\textbf{y}\mid \tilde{\boldsymbol{\eta}}(\Vector{x}), \boldsymbol{\theta}),
     \label{Eq:non-linear-predictor}
 \end{equation}
 where $\Vector{x}$ is the latent field. 
-\inlabru then uses a linearization of $\tilde{\boldsymbol{\eta}}$ to be able to successfully run \inla. The linearization is done using a Taylor approximation around some point $\textbf{x}_0$:
+\inlabru then uses a linearization of $\tilde{\boldsymbol{\eta}}(\Vector{x})$ to be able to successfully run \inla. The linearization is done using a Taylor approximation around some point $\textbf{x}_0$:
 \begin{equation}
-    \bar{\boldsymbol{\eta}}(\Vector{x}) = \boldsymbol{\eta}(\textbf{x}_0) + B(\textbf{x} - \textbf{x}_0),
+    \bar{\boldsymbol{\eta}}(\Vector{x}) = \tilde{\boldsymbol{\eta}(\textbf{x}_0)} + B(\textbf{x} - \textbf{x}_0),
 \end{equation}
-where $B$ is the Jacobian matrix of $\tilde{\boldsymbol{\eta}}$ evaluated at $\textbf{x}_0$. This linearized predictor is then used to run \inla, by substituting $\bar{\Vector{\eta}}(\Vector{x})$ for $\tilde{\Vector{\eta}}(\Vector{x})$ in the likelihood models to obtain an approximation for the likelihood:
+where $B$ is the Jacobian matrix of $\tilde{\boldsymbol{\eta}}(\Vector{x})$ evaluated at $\textbf{x}_0$. This linearized predictor is then used to run \inla, by substituting $\bar{\Vector{\eta}}(\Vector{x})$ for $\tilde{\Vector{\eta}}(\Vector{x})$ in the likelihood models to obtain an approximation for the likelihood:
 \begin{equation}
-    \bar{p}(\Vector{y}\mid \Vector{x}, \Vector{\theta}) = p(\Vector{y}\mid \bar{\Vector{\eta}}, \Vector{\theta}) \approx p(\Vector{y} \mid \tilde{\Vector{\eta}}).
+    \bar{p}(\Vector{y}\mid \Vector{x}, \Vector{\theta}) = p(\Vector{y}\mid \bar{\Vector{\eta}}(\Vector{x}), \Vector{\theta}) \approx p(\Vector{y} \mid \tilde{\Vector{\eta}}(\Vector{x}), \Vector{\theta}) = \tilde{p}(\Vector{y}\mid \Vector{x}, \Vector{\theta}).
 \end{equation}
-By running \inla with this approximated likelihood, approximated posterior distributions are obtained for the latent effects, hyperparameters and the predictor $\tilde{\Vector{\eta}}$.
-\inlabru finds the optimal linearization point $\textbf{x}_0$ through a fixed-point iteration with \inla. For each step $s$ in the iteration, the point $\Vector{x}'$ is found that maximizes the posterior distribution for the latent effects that resulted from the \inla approximation using the linearization from the last step $\textbf{x}_{s-1}$. We denote this posterior approximated distribution as $\bar{p}_{\Vector{x}_{s-1}}(\Vector{x}\mid \Vector{y}, \Vector{\theta})$. The fixed-point scheme to find the optimal linearixation point $\Vector{x}_0$ is given in Algorithm \ref{alg:inlabru-fpi} \parencite{Inlabru}. We note that the full scope of the \inlabru method has not yet been fully investigated \parencite{Inlabru}. Since the method is based on the linearization of a non-linear expression, we might expect it to fail if the non-linearity is too extreme. 
+By running \inla with this approximated likelihood, approximated posterior distributions are obtained for the latent effects, hyperparameters and the predictor $\tilde{\Vector{\eta}}(\Vector{x})$.
+\inlabru finds the optimal linearization point $\textbf{x}_0$ through a fixed-point iteration with \inla. For each step $s$ in the iteration, the point $\Vector{x}'$ is found that maximizes the posterior distribution for the latent effects that resulted from the \inla approximation using the linearization from the last step $\textbf{x}_{s-1}$. We denote this posterior approximated distribution as $\bar{p}_{\Vector{x}_{s-1}}(\Vector{x}\mid \Vector{y}, \Vector{\theta})$. The fixed-point scheme to find the optimal linearization point $\Vector{x}_0$ is given in Algorithm \ref{alg:inlabru-fpi} \parencite{Inlabru}. We note that the full scope of the \inlabru method has not yet been fully investigated \parencite{Inlabru}. Since the method is based on the linearization of a non-linear expression, we might expect it to fail if the non-linearity is too extreme. 
 \begin{algorithm}[h!]
     \caption{Fixed-point scheme for finding optimal linearization point $\Vector{x}_0$}
     \label{alg:inlabru-fpi}
@@ -27,7 +27,7 @@ By running \inla with this approximated likelihood, approximated posterior distr
     \State $s \gets 0$
     \State $\Vector{u}_{s = 0} \gets \text{ initial linearization point }$
     \While{$\text{ not convergence }$}
-        \State $B \gets \text{ Jacobian matrix of } \tilde{\Vector{\eta}} \text{ evaluated at } \Vector{u}_s$
+        \State $B \gets \text{ Jacobian matrix of } \tilde{\Vector{\eta}}(\Vector{x}) \text{ evaluated at } \Vector{u}_s$
         \State $ \bar{\Vector{\eta}}(\Vector{x})_{\Vector{u}_s} \gets \tilde{\Vector{\eta}}(\Vector{u}_s) + B(\Vector{x} - \Vector{u}_s)$
         \State $\text{run INLA with }\bar{\Vector{\eta}}(\Vector{x})_{\Vector{u}_s} \text{ as the linear predictor}$
         \State $\bar{p}_{\Vector{u}_s}(\Vector{\theta}\mid \Vector{y}) \gets \text{ posterior approximate distribution for $\Vector{\theta}$ from INLA run}$
@@ -37,7 +37,7 @@ By running \inla with this approximated likelihood, approximated posterior distr
         \If{$\Vector{u}_s \approx \Vector{u}'$}
             \Comment{Convergence}
             \State $\Vector{x}_0 \gets \Vector{u}'$
-            \State $quit$
+            \State \Return{$\Vector{x}_0$}
         \Else
             \State $\Vector{u}_{s+1} \gets (1 - \lambda)\Vector{u}_s + \lambda \Vector{u}' \text{ such that } \lambda \text{ minimizes } \lVert \tilde{\Vector{\eta}}(\Vector{u}_{s+1}) - \bar{\Vector{\eta}}_{\Vector{u}_s}(\Vector{u}') \rVert$
             \State $s \gets s + 1$

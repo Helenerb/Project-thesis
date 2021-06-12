@@ -11,16 +11,16 @@ When we consider the APC model as a Bayesian model, we treat the age, period and
     z_i = z_{i-1} + \epsilon_i, \quad \epsilon_i \sim \Normal(0,1/\tau_{z1}),
     \label{eq:APCrw1}
 \end{equation}
-for some indices $i = 0,\ldots,I$, where $\tau_{z1}$ is some precision. The second choice is a random walk of order two (RW2), which assumes independent gaussian second order increments, and is given by
+for some indices $i = 1,\ldots,I$, where $\tau_{z1}$ is some precision. The second choice is a random walk of order two (RW2), which assumes independent gaussian second order increments, and is given by
 \begin{equation}
     z_i = 2z_{i-1} - z_{i-2} + \epsilon_i, \quad \epsilon_i \sim \Normal(0, 1/\tau_{z2}),
     \label{eq:APCrw2}
 \end{equation}
-for some indices $i = 9,\ldots,I$ and some precision $\tau_{z2}$. We then consider two versions of the APC model, one where all random effects are given RW1 prior distributions, which we name the APC1-model and one where all random effects are given RW2 priors, which we name the APC2-model. For both models, we assign the random term $\epsilon_{x,t}$ (see Expression \ref{eq:APCmodel}) an independent gaussian prior distribution,
+for some indices $i = 2,\ldots,I$ and some precision $\tau_{z2}$. We then consider two versions of the APC model, one where all random effects are assigned RW1 prior distributions, which we name the APC1-model and one where all random effects are assigned RW2 priors, which we name the APC2-model. For both models, we assign the random term $\epsilon_{x,t}$ (see Expression \ref{eq:APCmodel}) an independent gaussian prior distribution,
 \begin{equation}
     \epsilon_{x,t} \sim \Normal(0,1/\tau_\epsilon),
 \end{equation}
-where $\tau_\epsilon$ is the precision, following e.g. \textcite{Besag1995}. We denote the precisions in the prior distributions for the random effects $\rho_x$, $\phi_t$, $\psi_k$ for the APC1- and APC2-models as $\tau_{\rho 1}, \tau_{\rho 2}, \tau_{\phi 1}, \tau_{\phi 2}, \tau_{\psi 1}, \tau_{\psi 2}$. These precisions, together with the precision $\tau_\epsilon$ for the random term, make up the hyperparameters of the models. We assign these a type of prior called Penalized complexity (PC) priors, which was proposed by \textcite{SimpsonRueRiebler2017} to by well-suited for random walk models \parencite{Rubio2020}. The PC priors penalize deviation from a base model, and by that rewards less complex models. For a precision $\tau$, the PC-prior is defined by the statement \begin{equation}
+where $\tau_\epsilon$ is the precision, following e.g. \textcite{Besag1995}. We denote the precisions in the prior distributions for the random effects $\rho_x$, $\phi_t$, $\psi_k$ for the APC1- and APC2-models as $\tau_{\rho 1}, \tau_{\rho 2}, \tau_{\phi 1}, \tau_{\phi 2}, \tau_{\psi 1}, \tau_{\psi 2}$. These precisions, together with the precision $\tau_\epsilon$ for the random term, make up the hyperparameters of the models. We assign these a type of prior called Penalized complexity (PC) priors, which was proposed by \textcite{SimpsonRueRiebler2017} to be well-suited for random walk models \parencite{Rubio2020}. The PC priors penalize deviation from a base model, and by that reward less complex models. For a precision $\tau$, the PC-prior is defined by the statement \begin{equation}
     \mathbb{P}(\sigma > \sigma_0) = \alpha,
 \end{equation}
 where $\sigma = 1/\sqrt{\tau}$ is the standard deviation, and $\sigma_0$ and $\alpha$ are parameters that we may decide. As described in Section \ref{sec:InlaRestrictions}, we can easily use the \inla method to perform the inference on the APC models. 
@@ -50,12 +50,12 @@ where $\sigma = 1/\sqrt{\tau}$ is the standard deviation, and $\sigma_0$ and $\a
 
 \subsection{Bayesian Inference with the Lee-Carter Models}
 \label{sec:BayesianInferenceLC}
-We consider the Lee-Carter model in a Bayesian setting, meaning that we treat the effects $\alpha_x$, $\beta_x$, $\kappa_t$ and $\gamma_k$ as unknown random effects, with a likelihood model given by Equation \ref{eq:LC-model} or \ref{eq:LCC-model-orig} and with some prior distributions. As discussed in Section \ref{section:Lee-Carter}, a random walk with drift is normally used to model the period effect $\kappa_t$, and so this is the natural choice of the prior distribution for $\kappa_t$:
+We consider the Lee-Carter model in a Bayesian setting, meaning that we treat the effects $\alpha_x$, $\beta_x$, $\kappa_t$ and $\gamma_k$ as unknown random effects, with a likelihood model given by Equation \ref{eq:LC-model} or \ref{eq:LCC-model-orig} and with some prior distributions. As discussed in Section \ref{section:Lee-Carter}, a random walk with drift is normally used to model the period effect $\kappa_t$, and so this is the natural choice for the prior distribution for $\kappa_t$:
 \begin{equation}
     \kappa_t = \kappa_{t-1} + \phi  + \epsilon_t,\quad \epsilon_t \sim \Normal(0,\tau_{\kappa}).
     \label{eq:randomWalkDrift}
 \end{equation}
-Here, $\phi$ is the drift term and $\tau_{\kappa}$ is the precision in the normal distribution of the random term $\epsilon_t$ of the random walk. We assign driftless random walks as a priors to $\alpha_t$ and $\gamma_k$:
+Here, $\phi$ is the drift term and $\tau_{\kappa}$ is the precision in the normal distribution of the random term $\epsilon_t$ of the random walk. We assign driftless random walks as priors to $\alpha_t$ and $\gamma_k$:
 \begin{equation}
     \begin{aligned}
         \alpha_x &= \alpha_{x-1} + \epsilon_{x}, \quad \epsilon_x \sim \Normal(0,1/\tau_{\alpha}) \\
@@ -74,7 +74,7 @@ In the two expressions above, $\tau_\beta$ and $\tau_\epsilon$ are the precision
 As for the APC model, we assign PC priors to the hyperparameters $\tau_\kappa, \tau_\alpha, \tau_\gamma, \tau_\beta, \tau_\epsilon$.
 
 \subsubsection{Reformulation of the Lee-Carter model}
-For computational reasons, we rewrite the original Lee-Carter model slightly. We reformulate $\kappa_t$ as the sum of a linear effect and a drift-less random walk:
+For computational reasons, we rewrite the original Lee-Carter model. We reformulate $\kappa_t$ as the sum of a linear effect and a drift-less random walk:
 \begin{equation}
     \kappa_t = \kappa_t^* + \phi\cdot t, \quad \kappa_t^* = \kappa_{t-1}^* + \epsilon_t, \quad \epsilon_t \sim \Normal(0,\tau_{\kappa}).
 \end{equation}
@@ -82,7 +82,7 @@ We impose a sum-to-zero constraint on $\kappa_t^*$ (instead of on $\kappa_t$, as
 \begin{equation}
     \alpha_x = \bar{\alpha_x} + \alpha_x^*.
 \end{equation}
-Here $\bar{\alpha_x}$ is the average of $\alpha_x$ for all ages $x$, and we include this term in the intercept as well. We then get an additional sum-to-zero constraint on $\alpha_x^*$. Denoting, from this point, $\alpha_x^*$ by $\alpha_x$ and $\kappa_t^*$ by $\kappa_t$, we get the rewritten from of the Lee-Carter and the cohort-extended Lee-Carter model as:
+Here $\bar{\alpha_x}$ is the average of $\alpha_x$ for all ages $x$, and we include this term in the intercept as well. We then get an additional sum-to-zero constraint on $\alpha_x^*$. Denoting, from this point, $\alpha_x^*$ by $\alpha_x$ and $\kappa_t^*$ by $\kappa_t$, we get the rewritten form of the Lee-Carter and the cohort-extended Lee-Carter model as:
 \begin{equation}
     \eta_{x,t} = \mu + \alpha_x + \beta_x(\phi \cdot t + \kappa_t) + \epsilon_{x,t}
     \label{eq:LC-rewritten}
@@ -97,7 +97,7 @@ where $\mu$ is the intercept. The constraints imposed on the effects are now
     \sum_x \alpha_x = 0, \quad \sum_x \beta_x = 1, \quad \sum_t \kappa_t = 0,\quad \sum_k \gamma_k = 0. 
     \label{eq:LCconstraintsFinal}
 \end{equation}
-From this point, we refer to this version of the Lee-Carter model as the LC-model, this version of the cohort-extended Lee-Carter model as the LCC-model. With this reformulation, the effects have the following interpretation:
+From this point, we refer to this version of the Lee-Carter model as the LC-model and this version of the cohort-extended Lee-Carter model as the LCC-model. With this reformulation, the effects have the following interpretation:
 \begin{itemize}
     \item The intercept $\mu$ can be interpreted as an overall mortality rate
     \item The age effect $\alpha_x$ can be interpreted as the age-specific deviation from the overall mortality rate
@@ -124,6 +124,6 @@ when $x\in \{1,\ldots,X\}$, $t\in\{1,\ldots,T\}$ and $N=X\times T$. Furthermore,
         \Vector{x}\mid \Vector{\theta} \sim \Normal(\Vector{0}, \Matrix{Q}^{-1}(\Vector{\theta})),
         \label{eq:XNormalDist}
 \end{equation}
-where $\Matrix{Q}^{-1}(\Vector{\theta})$ is the precision matrix. We have already assigned gaussian priors for $\beta_x$ and $\epsilon_{x,t}$ (and then implicitly for $\eta_{x,t}$) and since the increments in the random walk priors for $\alpha_x$, $\kappa_t$ and $\gamma_k$ are assumed gaussian, the assumption hold for these effects as well. 
+where $\Matrix{Q}^{-1}(\Vector{\theta})$ is the precision matrix. We have already assigned gaussian priors for $\beta_x$ and $\epsilon_{x,t}$ (and then implicitly for $\eta_{x,t}$) and since the increments in the random walk priors for $\alpha_x$, $\kappa_t$ and $\gamma_k$ are assumed gaussian, the assumption holds for these effects as well. 
 \newline
-We see that the first criterion is fulfilled, the Lee-Carter models can be written as an LGMs. We also see from Expressions \ref{eq:LC-model} and \ref{eq:LCC-model-orig} that each $y_i$ only depends on the latent random field $\Vector{x}$ through $\eta_i$, so that the second criterion is also fulfilled. This means that the non-linearity of the predictior $\eta_{x,t}$, as discussed in Section \ref{sec:InlaRestrictions} is the only part of the Lee-Carter models that is not compatible with the \inla method. The methodology of the \inlabru framework (see Section \ref{sec:inlabru}) proposes a solution to this, by linearizing non-linear predictors in order to successfully run \inla. In the following sections, we apply the \inlabru method to the rewritten Lee-Carter models and assess the results of the inference. 
+We see that the first criterion is fulfilled, the Lee-Carter models can be written as LGMs. We also see from Expressions \ref{eq:LC-model} and \ref{eq:LCC-model-orig} that each $y_i$ only depends on the latent random field $\Vector{x}$ through $\eta_i$, so that the second criterion is also fulfilled. This means that the non-linearity of the predictior $\eta_{x,t}$, as discussed in Section \ref{sec:InlaRestrictions} is the only part of the Lee-Carter models that is not compatible with the \inla method. The methodology of the \inlabru framework (see Section \ref{sec:inlabru}) proposes a solution to this, by linearizing non-linear predictors in order to successfully run \inla. In the following sections, we apply the \inlabru method to the rewritten Lee-Carter models and assess the results of the inference. 
