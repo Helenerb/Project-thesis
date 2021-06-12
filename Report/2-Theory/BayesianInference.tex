@@ -1,10 +1,10 @@
 \newpage
-\section{Bayesian Inference on Models for Forecasting Population Development}
+\section{Bayesian Inference on Models for Forecasts of Population Development}
 \label{sec:BayesianInference}
 We consider both the Lee-Carter models and the APC model in a Bayesian setting, and investigate how we can use the \inla method to find posterior distributions for age-, period- and cohort-specific mortality rates. 
 
 
-\subsection{Bayesian Inference on the APC Model}
+\subsection{Bayesian Inference with the APC Model}
 \label{sec:BayesianInferenceAPC}
 When we consider the APC model as a Bayesian model, we treat the age, period and cohort effects as unknown, with a likelihood model given by Expressions \ref{eq:APClikelihood} and \ref{eq:APCmodel}. Our goal is to find a posterior distribution of these effects, given some observed mortality rates $Y_{x,t}$, and thus we need to assign prior distributions to the random effects. Inspired by \parencite{RieblerThesis2010}, we consider two different choices of prior distributions for the random effects $\rho_x, \phi_t$ and $\psi_k$. The first is a random walk of order one (RW1), given by
 \begin{equation}

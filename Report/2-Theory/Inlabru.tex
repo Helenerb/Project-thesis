@@ -1,7 +1,6 @@
 \newpage
-\section{Linearization of the predictor in the Lee-Carter model}
+\section{Linearization of Non-Linear Predictors within the \inla Framework}
 \label{sec:inlabru}
-
 
 Recently, a new methodology was proposed that enables the usage of the \inla methodology on LGMs that include some non-linear terms in the predictor $\eta_{x,t}$. The method was first proposed by \textcite{BachlLindgren2019} in the setting of ecological surveys, but it is widely applicable to several other fields. We call this method \inlabru after the associated \texttt{R} library that implements it. The \inlabru method involves finding a linearization of the non-linear predictor through a fixed-point iteration using \inla, and then setting this linearization as the predictor in the final \inla run. Information about the installation and usage of the \inlabru \texttt{R} library can be found at \textcite{Inlabru}. Here, we outline the approach of \textcite{BachlLindgren2019} for the linearization and following model approximations of LGMs with non-linear predictors. For a more thorough explanation of the method, and the application to ecological data, we refer to their original paper \parencite{BachlLindgren2019} and \textcite{Inlabru}.
 
