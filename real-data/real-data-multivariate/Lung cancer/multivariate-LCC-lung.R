@@ -263,7 +263,7 @@ comp.ABKG = ~ -1 +
 form.ABKG = cases ~ -1 + mu + alpha + beta*phi + beta*kappa + gamma + epsilon
 likelihood.ABKG = like(formula = form.ABKG, family = "poisson", data = lung.cancer.until2007, E = lung.cancer.until2007$population)
 
-#   NOTE: This does not converge!!! reformulate? 
+#   NOTE: This does not converge!!! 
 res.ABKG = bru(components = comp.ABKG,
                likelihood.ABKG,
                options = list(verbose = F,
@@ -385,7 +385,7 @@ likelihood.ABkG.0 = like(formula = form.ABkG.0, family = "poisson", data = lung.
 form.ABkG.1 = cases ~ -1 + mu + alpha + beta*phi1 + beta*kappa1 + gamma + epsilon
 likelihood.ABkG.1 = like(formula = form.ABkG.1, family = "poisson", data = lung.cancer.until2007.1, E = lung.cancer.until2007.1$population)
 
-# note: inlabru does not crash, but very far from convergence...
+# note: does not converge
 res.ABkG = bru(components = comp.ABkG,
                likelihood.ABkG.0,
                likelihood.ABkG.1,
@@ -394,7 +394,7 @@ res.ABkG = bru(components = comp.ABkG,
                               num.threads = "1:1",
                               control.compute = c.c,
                               control.predictor = list(link = 1),
-                              bru_max_iter = 100
+                              bru_max_iter = 50
                )) 
 
 # combine predictions and observations into one dataframe. 
@@ -408,7 +408,7 @@ data.pred.ABkG <- res.ABkG$summary.fitted.values %>%
 cat("CPO, LCC model: "); -1*mean(log(res.lc.n$cpo$cpo[!is.na(res.lc.n$cpo$cpo)]))
 
 
-#   ----   TODO: Compare all methods   ----
+#   ---- Compare all methods   ----
 
 data.pred <- rbind(data.pred.abkg, data.pred.abKg, data.pred.abkG, data.pred.ABkg, data.pred.ABKg, data.pred.ABkG, data.pred.abKG, data.pred.ABKG) %>%
   mutate("method" = rep(c("No common", "Common period", "Common cohort", "Common age", "Common age & period", "Common age & cohort","Common period & cohort", "All common"), each = 648))
