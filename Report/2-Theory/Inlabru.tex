@@ -10,9 +10,9 @@ Recently, a new methodology was proposed that enables the usage of the \inla met
     \label{Eq:non-linear-predictor}
 \end{equation}
 where $\Vector{x}$ is the latent field. 
-\inlabru then uses a linearization of $\tilde{\boldsymbol{\eta}}(\Vector{x})$ to be able to successfully run \inla. The linearization is done using a Taylor approximation around some point $\textbf{x}_0$:
+\inlabru then uses a linearization of $\tilde{\boldsymbol{\eta}}(\Vector{x})$ to be able to successfully run \inla. The linearization is found using a Taylor approximation around some point $\textbf{x}_0$:
 \begin{equation}
-    \bar{\boldsymbol{\eta}}(\Vector{x}) = \tilde{\boldsymbol{\eta}(\textbf{x}_0)} + B(\textbf{x} - \textbf{x}_0),
+    \bar{\boldsymbol{\eta}}(\Vector{x}) = \tilde{\boldsymbol{\eta}}(\textbf{x}_0) + B(\textbf{x} - \textbf{x}_0),
 \end{equation}
 where $B$ is the Jacobian matrix of $\tilde{\boldsymbol{\eta}}(\Vector{x})$ evaluated at $\textbf{x}_0$. This linearized predictor is then used to run \inla, by substituting $\bar{\Vector{\eta}}(\Vector{x})$ for $\tilde{\Vector{\eta}}(\Vector{x})$ in the likelihood models to obtain an approximation for the likelihood:
 \begin{equation}

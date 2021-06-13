@@ -2,7 +2,7 @@
 \label{sec:mv-lung}
 We apply the LCC- and APC2-models that are described in Section \ref{sec:pred-mv} to the lung cancer data. The score statistics for the prediction results are displayed in Tables \ref{tbl:mv-LCC-lung} and \ref{tbl:mv-APC-lung}. We observe from the score statistics in Table \ref{tbl:mv-LCC-lung} that the LCC-models with the lowest MDSS are the models with no common effects ("No common") and with a shared period effect ("Common period"). Out of these, the "Common period"-model has a slightly lower MDSS. We observe the same trend for the different APC-models, from Table \ref{tbl:mv-APC-lung} we see that the apc- and aPc-models have the lowest MDSS. We also note that there seems to be a general trend that models with fewer shared effects out-perform models with more shared effects. We interpret this as an indication that the male and female lung cancer mortality rates have a low degree of correlation, which is a result that is in alignment with the clear difference between male and female mortality rates. 
 
-\newpar We note that for some of the LCC-models with many common effects, \inlabru need more than 50 iterations to find a linearization. These models are the LCC-model with all effects common ("All common"), the model with common period and cohort effects ("Common period, cohort") and the model with common age and cohort effects ("Common age, cohort"). For these models, we then present the prediction results obtained after 50 iterations of the linearization, which are not necessarily the optimal predictions. Comparing these results to the converged results from the other models does then not give a completely correct picture of the difference in predictive performance. However, from Table \ref{tbl:mv-APC-lung} we observe that the corresponding APC2-models (the APC, ApC and aPC models) display a clearly higher MDSS than the APC models with fewer shared effects. Thus, we do not suspect that either of the "All common"-, "Common period, cohort"- or "Common age, cohort" LCC-models would have outperformed the LCC-models with fewer common effects.
+\newpar We note that for some of the LCC-models with many common effects, \inlabru need more than 50 iterations to find a linearization. These models are the LCC-model with all effects common ("All common"), the model with common period and cohort effects ("Common period, cohort") and the model with common age and cohort effects ("Common age, cohort"). For these models, we then present the prediction results obtained after 50 iterations of the linearization, which are not necessarily the optimal predictions. Comparing these results to the converged results from the other models does then not give a completely correct picture of the difference in predictive performance. However, from Table \ref{tbl:mv-APC-lung} we observe that the corresponding APC2-models (the APC, ApC and aPC models) display a clearly higher MDSS than the APC models with fewer shared effects. Thus, we do not suspect that either of the "All common"-, "Common period, cohort"- or "Common age, cohort" LCC-models could have outperformed the LCC-models with fewer common effects.
 
 \begin{table}
     \begin{center}
@@ -18,7 +18,7 @@ We apply the LCC- and APC2-models that are described in Section \ref{sec:pred-mv
         Common period       & 2.198e-8 & \textbf{-19.38}   & 0.9444 \\
         No common           & 2.184e-8 & \textbf{-19.28}   & 0.9074 \\
     \end{tabular}
-    \caption{Score statistics for the different multivariate LCC models, for the lung cancer data set. The lowest mean DSS values are marked in bold font. }\label{tbl:mv-LCC-lung}
+    \caption{Score statistics for the different multivariate LCC-models, for the lung cancer data set. The lowest mean DSS values are marked in bold font. }\label{tbl:mv-LCC-lung}
     \end{center}
 \end{table}
 
@@ -33,10 +33,10 @@ We apply the LCC- and APC2-models that are described in Section \ref{sec:pred-mv
         aPC    & 7.472e-8 & -17.70   & 0.8889 \\
         Apc    & 6.709e-9 & -19.21   & 0.8981 \\
         ApC    & 1.672e-7 & -15.81   & 0.9954 \\
-        APc    & 2.884e-8 & -18.71   & 0.875  \\
+        APc    & 2.884e-8 & -18.71   & 0.8750  \\
         APC    & 9.055e-8 & -16.19   & 0.9676 \\
     \end{tabular}
-    \caption{Score statistics for the different multivariate APC models, for the lung cancer data set. The lowest mean DSS values are marked in bold font. }\label{tbl:mv-APC-lung}
+    \caption{Score statistics for the different multivariate APC2-models, for the lung cancer data set. The lowest mean DSS values are marked in bold font. }\label{tbl:mv-APC-lung}
     \end{center}
 \end{table}
 
@@ -68,12 +68,16 @@ For the two LCC-models, we observe very little difference between the two predic
     \centering
     \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-age-lung.png}
+        \caption{The prediction results plotted for each of the years that were predicted, with the age groups along the horizontal axis.}
+        \label{fig:mv-APC-LCC-lung-top}
     \end{subfigure}
     
     \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-multivariate/Figures/multivariate-comparison-by-period-lung.png}
+        \caption{The prediction results plotted for each age group that are 30 years and older, with the calendar years along the horizontal axis. The red line marks the beginning of the predicted periods.}
+        \label{fig:mv-APC-LCC-lung-bottom}
     \end{subfigure}
-    \caption{The mean values and the 95\% confidence bounds of the predicted expected lung cancer mortality rates produced by inference with the aPc-model and the "Common period"-model on data of German lung cancer (circles), together with the corresponding observed male mortality rates $Y_{x,y}^{\text{lung, male}}$ (triangles) and female mortality rates $Y_{x,y}^{\text{lung, female}}$ (crosses). The layout of the plots is similar to that of Figure \ref{fig:uv-LCC-lung}}
+    \caption{The mean values and the 95\% confidence bounds of the predicted expected lung cancer mortality rates produced by inference with the aPc-model and the "Common period"-model on data of German lung cancer (circles), together with the corresponding observed male mortality rates $Y_{x,y}^{\text{lung, male}}$ (triangles) and female mortality rates $Y_{x,y}^{\text{lung, female}}$ (crosses).}
     \label{fig:mv-APC-LCC-lung}
 \end{figure}
 

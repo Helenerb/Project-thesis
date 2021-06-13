@@ -11,7 +11,7 @@ When we consider the APC model as a Bayesian model, we treat the age, period and
     z_i = z_{i-1} + \epsilon_i, \quad \epsilon_i \sim \Normal(0,1/\tau_{z1}),
     \label{eq:APCrw1}
 \end{equation}
-for some indices $i = 1,\ldots,I$, where $\tau_{z1}$ is some precision. The second choice is a random walk of order two (RW2), which assumes independent gaussian second order increments, and is given by
+for some indices $i = 1,\ldots,I$, where $\Normal(\mu, \sigma)$ denotes a normal distribution with mean $\mu$ and variance $\sigma$ and $\tau_{z1}$ is some precision (inverse of variance). The second choice is a random walk of order two (RW2), which assumes independent gaussian second order increments, and is given by
 \begin{equation}
     z_i = 2z_{i-1} - z_{i-2} + \epsilon_i, \quad \epsilon_i \sim \Normal(0, 1/\tau_{z2}),
     \label{eq:APCrw2}
