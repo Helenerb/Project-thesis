@@ -102,7 +102,7 @@ for all precisions $\tau$ in our model, and we make this choice of hyperpriors f
 
 % From Figure \ref{fig:firstRun-top} it is clear that \inlabru is able to identify all random effects significantly, as well as displaying a good estimation for the predictor $\eta_{x,t}$ (A straight line with a slope of one in the plot of estimated and true values of $\eta_{x,t}$ correspond to equal values). Looking at the results from testing \inlabru with other models for the random effects, we observe that \inlabru is able to produce a good result for the predictor $\eta_{x,t}$ in all cases and good results for the random effects in most cases. In Section \ref{sec:IdentifiabilityKappa} we discuss why the combination of random effects that yield bad results from \inlabru are not considered realistic, and then not a hinder for using \inlabru to fit LC-models. These results provide the basis for for our paper, as it shows that \inlabru makes it possible to bypass the obstacle that \inla alone is not able to handle Lee-Carter type handle models with non-linear predictors.
 
-\subsection{Choice of Implementation of $\beta_x$}
+\subsection{Implementation of $\beta_x$}
 In the implementation of the LC-model (\ref{eq:LC-rewritten}) in \texttt{R}, the multiplicative term of the predictor $\etax$ is entered as
 \begin{equation}
     \beta_x\cdot\phi \cdot t + \beta_x\kappa_t,

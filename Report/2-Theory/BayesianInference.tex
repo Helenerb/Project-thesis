@@ -73,7 +73,7 @@ Since $\epsilon_{x,t}$ is included to model randomness in the output, it is natu
 In the two expressions above, $\tau_\beta$ and $\tau_\epsilon$ are the precisions in the respective normal distributions.  
 As for the APC model, we assign PC priors to the hyperparameters $\tau_\kappa, \tau_\alpha, \tau_\gamma, \tau_\beta, \tau_\epsilon$.
 
-\subsubsection{Reformulation of the Lee-Carter model}
+\subsubsection{Reformulation of the Lee-Carter Model}
 For computational reasons, we rewrite the original Lee-Carter model. We reformulate $\kappa_t$ as the sum of a linear effect and a drift-less random walk:
 \begin{equation}
     \kappa_t = \kappa_t^* + \phi\cdot t, \quad \kappa_t^* = \kappa_{t-1}^* + \epsilon_t, \quad \epsilon_t \sim \Normal(0,\tau_{\kappa}).
@@ -105,7 +105,7 @@ From this point, we refer to this version of the Lee-Carter model as the LC-mode
     \item The age effect $\beta_x$ can be interpreted as the age-specific sensitivity to the period-related change in mortality. 
     \item the cohort effect $\gamma_k$ can be interpreted as the cohort-specific change in the mortality rate, relative to the overall mortality level. 
 \end{itemize}
-\subsubsection{Using the \inla Framework for Inference with Lee-Carter models}
+\subsubsection{Using the \inla Framework for Inference with Lee-Carter Models}
 \newpar We now investigate how to apply the \inla method for Bayesian inference to the Lee-Carter models. We begin by showing that the Lee-Carter models can be written as LGMs. We write the model in Equation \ref{eq:LC-model} as 
 \begin{equation}
     \textbf{y}\mid \textbf{x}, \boldsymbol{\theta} \sim \prod_{x,t}\Poisson(E_{x,t}e^{\eta_{x,t}}\mid \boldsymbol{\theta})

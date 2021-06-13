@@ -1,5 +1,5 @@
 \newpage
-\section{Application of LC and APC models to German Cancer Data}
+\section{Application of Lee-Carter and APC Models to German Cancer Data}
 \label{sec:real-data}
 In the second part of our investigation, we apply the Lee-Carter methods to real data and use \inlabru to make inference. We compare the results to the application of APC models on the same data sets. Since the random effects in the APC model are not uniquely identifible, we compare the two models by their predictive abilities. Throughout the following part of our research we use uninformative prior distributions for the hyperparameters, and set the parameters in the PC priors to
 \begin{equation*}
@@ -24,11 +24,11 @@ where $Y_{x,t}$ is the observed mortality rate, $\mathbb{1}(\cdot)$ is the indic
 
 \subsection{German Cancer Data}
 \label{sec:GermanCancerData}
-We use data of mortality for lung and stomach cancer in Germany for the years 1999-2016, obtained from \textcite{cancerData}. In these data sets, the observed mortality for the two cancer types is given by the number of cases for men and women, for each year, for five-year age intervals. The exception is for the ages above 85 year, which are collected in a single group. We denote the observed cases of deaths for one cancer type, for one sex, at age group $x$ and cohort $k$ during period $t$ by $C_{x,t,k}^{\text{type, sex}}$. For the univariate part of our analysis, we add the male and female cases to obtain the total mortality $C_{x,t,k}^{\text{type}}$. We find data for the total German population for the corresponding years and ages at \textcite{germanPopulation}. This dataset contains observations for age groups of one year, and we aggregate it to the same five-year age groups as for the cancer data. We denote the observed german population for a given sex, for a given age group $x$ and cohort $k$ during period $t$ by $P_{x,t,k}^{\text{sex}}$. We then find the corresponding mortality rates by
+We use data of mortality for lung and stomach cancer in Germany for the years 1999-2016, obtained from \textcite{cancerData}. In these data sets, the observed mortality for the two cancer types is given by the number of cases for men and women, for each year, for five-year age intervals. The exception is for the ages above 85 year, which are collected in a single group. We denote the observed cases of deaths for one cancer type, for one sex, at age group $x$ and cohort $k$ during period $t$ by $C_{x,t}^{\text{type, sex}}$. We note that the cohort $k$ is implicitly given by the age group $x$ and the period $t$. For the univariate part of our analysis, we add the male and female cases to obtain the total mortality $C_{x,t}^{\text{type}}$. We find data for the total German population for the corresponding years and ages at \textcite{germanPopulation}. This dataset contains observations for age groups of one year, and we aggregate them to the same five-year age groups as for the cancer data. We denote the observed german population for a given sex, for a given age group $x$ and cohort $k$ during period $t$ by $P_{x,t}^{\text{sex}}$. We then find the corresponding mortality rates by
 \begin{equation}
-    Y_{x,t,k}^{\text{type, sex}} = \frac{C_{x,t,k}^{\text{type, sex}}}{P_{x,t,k}^{\text{sex}}},
+    Y_{x,t}^{\text{type, sex}} = \frac{C_{x,t}^{\text{type, sex}}}{P_{x,t}^{\text{sex}}},
 \end{equation}
-or $Y_{x,t,k}^{\text{type}} = C_{x,t,k}^{\text{type}}/P_{x,t,k}$ in the univariate case.
+or $Y_{x,t}^{\text{type}} = C_{x,t}^{\text{type}}/P_{x,t}$ in the univariate case.
 
 \newpar When formatting the data sets, it is easier to begin the indexing of age groups, period and cohorts at 0 rather than 1, so we update the indexing scheme accordingly:
 \begin{itemize}
@@ -37,7 +37,7 @@ or $Y_{x,t,k}^{\text{type}} = C_{x,t,k}^{\text{type}}/P_{x,t,k}$ in the univaria
     \item The cohort indices are now given by $k = 5(X - x) + t$, $K = 5X + T$.
 \end{itemize}
 
-\newpar A summary of the data sets is presented in Figures \ref{fig:data-total} and \ref{fig:data-rate}. Figure \ref{fig:data-total} gives a representation of the distribution of the population and the distribution of mortality cases over different age groups and years. From Figure \ref{fig:data-total-top}, we see that there are most observed cancer deaths at around age group 70-75 ($x = 14$), for both male and females. From Figure \ref{fig:data-total-bottom} we observe that the observed lung and stomach cancer cases seem to increase with time for women, but stay rather stable for men. Note that there is a clear drop in the German population in year 2011. This is because Germany held a population census in 2011, which showed that the estimated population numbers from the previous years were off by 1.5 million people \parencite{germanCensus}.
+\newpar A summary of the data sets is presented in Figures \ref{fig:data-total} and \ref{fig:data-rate}. Figure \ref{fig:data-total} gives a representation of the distribution of the population and the distribution of mortality cases over different age groups and years. From Figure \ref{fig:data-total-top}, we see that there are most observed cancer deaths at around age group 70-75 ($x = 14$), for both male and females. From Figure \ref{fig:data-total-bottom} we observe that the observed lung and stomach cancer cases seem to increase with time for women, but stay rather stable for men. We note that there is a clear drop in the German population in year 2011. This is because Germany held a population census in 2011, which showed that the estimated population numbers from the previous years were off by 1.5 million people \parencite{germanCensus}.
 
 \begin{figure}
     \centering
@@ -50,6 +50,7 @@ or $Y_{x,t,k}^{\text{type}} = C_{x,t,k}^{\text{type}}/P_{x,t,k}$ in the univaria
     \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/data-year-total.png}
         \caption{The total number of people (left) and stomach and lung cancer deaths (middle and right) are summed over all age groups, and displayed by the calendar years. }
+        \label{fig:data-total-bottom}
     \end{subfigure}
     \caption{The total number of people in the German population and the total observed cases for lung and stomach cancer deaths.}
     \label{fig:data-total}
@@ -79,7 +80,7 @@ or $Y_{x,t,k}^{\text{type}} = C_{x,t,k}^{\text{type}}/P_{x,t,k}$ in the univaria
 We begin by fitting the Lee-Carter models to the whole population for all available periods to investigate how estimation with \inlabru behaves when applied to real-life data. We use the same inference procedure as described in Section \ref{sec:implementationInlabru} and the script used to produce the results can be found at 
 \path{real-data/real-data-univariate/uv-fit-full-data.R}.
 
-\newpar The resulting estimated effects, as well as the estimated mortality rates and the estimated value of the precision $\tau_\kappa$, from fitting the LC-model to the lung cancer data are displayed in Figure \ref{fig:uv-full-data-LC-l}. Firstly, we observe, from the "Mortality rate" plot, that the estimated mortality rates fit well with the observed mortality rates. The value of the intercept is $\approx -9$, corresponding to an overall mortality level at $e^{-9} \sim 10^{-4}$. The age effect $\alpha_x$, has a clear increasing trend. This is expected since we have seen, from e.g. Figure \ref{fig:data-rate}, that the lung cancer mortality rates increases with age. The estimated value of $\phi$ is negative, indicating an overall decreasing time trend. As discussed in \ref{sec:GermanCancerData}, this is in line with the observed male mortality rates, but not necessarily the female mortality rates. Furthermore, we observe that the estimated $\beta_x$ has quite wide confidence bounds for younger ages, but with a clear decreasing trend for older ages. We note that the confidence bounds of $\kappa_t$ are quite wide and centered mostly around zero. This could be an indication that the effect of $\kappa_t$, which we interpret as the variation in the period effect, is not significant. Finally, we note that the estimated precision of the period effect, $\tau_\kappa$, has a mean value around 25. We display the estimation of $\tau_\kappa$ together with the random effects because the estimated value of $\tau_\kappa$ is a measure of the estimated variablity of the period effect $\kappa_t$. A higher precision $\tau_\kappa$ indicates less variability in $\kappa_t$, and by that a more linear period effect $\phi\cdot t + \kappa_t$, while a lower precision indicate the opposite. The precision of the period effect will again have an impact on the precision of future predictions, when extending the estimation beyond the period $t = T$ ($t > 2016$ in our case). 
+\newpar The resulting estimated effects, as well as the estimated mortality rates and the estimated value of the precision $\tau_\kappa$, from fitting the LC-model to the lung cancer data are displayed in Figure \ref{fig:uv-full-data-LC-l}. Firstly, we observe, from the "Mortality rate" plot, that the estimated mortality rates fit well with the observed mortality rates. The value of the intercept is $\approx -9$, corresponding to an overall mortality level at $e^{-9} \sim 10^{-4}$. The age effect $\alpha_x$, has a clear increasing trend. This is expected since we have seen, from e.g. Figure \ref{fig:data-rate}, that the lung cancer mortality rates increases with age. The estimated value of $\phi$ is negative, indicating an overall decreasing time trend. As discussed in \ref{sec:GermanCancerData}, this is in line with the observed male mortality rates, but not necessarily the female mortality rates. Furthermore, we observe that the estimated $\beta_x$ has quite wide confidence bounds for younger ages, but with a clear decreasing trend for older ages. We note that the confidence bounds of $\kappa_t$ are quite wide and centered mostly around zero. This could be an indication that the effect of $\kappa_t$, which we interpret as the variation in the period effect, is not significant. Finally, we note that the estimated precision of the period effect, $\tau_\kappa$, has a mean value around 25. The estimated value of $\tau_\kappa$ is a measure of the estimated variablity of the period effect $\kappa_t$. A higher precision $\tau_\kappa$ indicates less variability in $\kappa_t$, and by that a more linear period effect $\phi\cdot t + \kappa_t$. The value of $\tau_\kappa$ has an impact on the value of the precision of future predictions, when extending the estimation beyond the period $t = T$ ($t > 2016$ in our case). A higher precision in the period effect will give a higher precision in the predicted future mortality. 
 
 \begin{figure}
     \centering
@@ -121,9 +122,9 @@ We now compare prediction results for the univariate LC- and LCC-models (see Equ
 \begin{equation}
     \eta_{x,t} = \mu + \alpha_x + \beta_x\cdot \phi \cdot t + \gamma_k + \epsilon_{x,t}.
 \end{equation}
-We refer to this model as the LCC-linear model, since it only has a linear period term $\phi \cdot t$. By including this model, we can investigate if a reduced version of the model performs better. To assess the prediction quality of the different models, we divide the data sets of cancer mortality observations in half, and use the first half (years 1999-2007) to predict the mortality rates in the second half (2008-2016), given the at-risk populations from the German population data. The code used to produce these results can be found in the \texttt{GitHub} repostitory, under \path{real-data/real-data-univariate/predict-long-term.R}. 
+We refer to this model as the LCC-linear model, since it only has a linear period term $\phi \cdot t$. By including this model, we can investigate if a reduced version of the model performs better. To assess the prediction quality of the different models, we divide the data sets of cancer mortality observations in half, and use the first half (years 1999-2007) to predict the mortality rates in the second half (2008-2016), given the at-risk populations from the German population data. The code used to produce these results can be found in the \texttt{GitHub} repository, under \path{real-data/real-data-univariate/predict-long-term.R}. 
 
-\begin{figure}[h!]
+\begin{figure}
     \centering
     \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-LCC-by-age-lung.png}
@@ -141,7 +142,7 @@ We refer to this model as the LCC-linear model, since it only has a linear perio
     \label{fig:uv-LCC-lung}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}
     \centering
     \begin{subfigure}[b]{.75\linewidth}
         \includegraphics[width=\linewidth]{real-data/real-data-univariate/Figures/univariate-APC-by-age-lung.png}
@@ -158,7 +159,7 @@ We refer to this model as the LCC-linear model, since it only has a linear perio
     \label{fig:uv-APC-lung}
 \end{figure}
 
-\begin{table}[h!]
+\begin{table}
     \begin{center}
         \begin{tabular}{l |c c c }
             Model & MSE &   MDSS & Contained 95\%-interval\\
@@ -253,7 +254,7 @@ We refer to this model as the LCC-linear model, since it only has a linear perio
     \label{fig:uv-comparison-stomach}
 \end{figure}
 
-\subsubsection{Comparison of Prediction Results for Lee-Carter and APC models in the Univariate Case}
+\subsubsection{Comparison of Prediction Results for Lee-Carter and APC Models in the Univariate Case}
 \newpar Figures \ref{fig:uv-comparison-lung} and \ref{fig:uv-comparison-stomach} display a comparison of the results from the Lee-Carter and the APC models with the lowest MDSS, the LCC- and the APC2-models, for lung and stomach cancer. For both cancer types, the APC2-model has a lower MDSS than the LCC-model does (see Tables \ref{tbl:uv-lung-5} and \ref{tbl:uv-stomach-5}), and we see from the plotted results that the APC2-model seems to be slightly more accurate than the LCC-model. We do, however note that the prediction intervals are narrower for the LCC-model predictions for both cancer types.
 
 \newpage
@@ -324,7 +325,7 @@ where $\text{sex} \in \{0 = male, 1 = female\}$. Following \textcite{rieblerHeld
 \import{}{Report/4-Real-data/mv-stomach.tex}
 
 \newpage
-\subsection{Sensitivity analysis of hyperpriors}
+\subsection{Sensitivity Analysis of Hyperpriors}
 Throughout our analysis, we have used the same informative priors for all hyperparameters, for both the Lee-Carter models and the APC-models, without considering the effect this choice has on the prediction results. To investigate how predictions with different hyperpriors could change our results, we run the analysis using the aPc-model with three different prior distributions, namely PC-priors with the parameters
 \begin{equation}
     \begin{aligned}
@@ -377,5 +378,6 @@ The score statistics for the different runs are presented in Tables \ref{tbl:mv-
 \section{Closing Remarks}
 \label{sec:closingRemarks}
 We have shown that Bayesian inference using the \INLA methodology through the \inlabru method is feasible for a Poisson extension of the Lee-Carter model as well as for a Possion extension of the Lee-Carter model with a cohort effect. Until the introduction of the \inlabru method by \textcite{BachlLindgren2019}, this had not been possible. We first showed this for the general case, using synthetic data. In this phase of the study, described in Section \ref{sec:SyntheticData}, we showed that the \inlabru method, with some exceptions, enabled correct estimation of both the simulated predictor and the simulated random effects in the extended Lee-Carter models. We also displayed the ability of \inlabru to make Bayesian inference in the specific case of German lung and stomach cancer mortality rates. In this phase of the research, described in Section \ref{sec:real-data}, we showed that we could use the \inlabru method to correctly estimate lung and stomach cancer mortality rates with the extended Lee-Carter methods. We obtained and assessed predictions of cancer mortality for both models, and observed that the prediction quality of the cohort-extended Lee-Carter model was better for both cancer types. Finally, we fit multivariate versions of the cohort-extended Lee-Carter model to obtain predictions of male and female cancer mortality, and we compared the prediction quality of the different models. Throughout the part of the research involving real cancer data, we compared the prediction results of the Lee-Carter models to prediction results of different versions of the Age-Period-Cohort (APC) model. We showed that the predictive qualities of the cohort-extended Lee-Carter models and the APC models were quite similar for the cases of German lung and stomach cancer mortality, but that the APC-models overall received slightly better prediction scores and that the Lee-Carter models seemed to display narrower prediction intervals.     
+
 \newpar Our research may be extended in several ways. In Sections \ref{sec:LC-full-data} and \ref{sec:pred-mv}, we described how the estimated cohort effects for the Lee-Carter models displayed periodical tendencies similar to those observed for cohort-related identifiability issues in APC-models (described by e.g. \textcite{RieblerThesis2010}). We did not investigate this and its potential effects on the predictive results, and further research on this periodicity in the cohort effects of cohort-extended Lee-Carter models could be interesting further work. Another result that we have left unexplored in this work is the inability of \inlabru to converge for some versions of the Lee-Carter models. A further investigation of what characterizes these models and the data for which they do not converge could be another interesting next step. 
 
